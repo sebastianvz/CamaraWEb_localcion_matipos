@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Verificador.Vista.Models.LocalidadViewModel>
+@foreach (var item in Model)
+{
+    if (item == null)
+    {
+        continue;
+    }
+
+    <dv class="col-xs-12 col-sm-12 col-md-12">
+        <div class="alert alert-info alert-dismissable fade in" style="padding:10px 10px 10px 16px" role="alert">
+            <a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="RemoveLocalidad({id: @(item.Id), venue_id: @(item.Venue_id)})"><span class="glyphicon glyphicon-remove" style="font-size: x-large" aria-hidden="true"></span></a>
+            <a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="EditarLocalidad('@(item.Id)')"><span class="glyphicon glyphicon-pencil" style="font-size: x-large" aria-hidden="true"></span></a>
+            <div class="row">
+                <div class="col-xs-1 col-sm-1 col-md-1">
+                    @switch (item.TipoLocalidad_id)
+                    {
+                        case 1:<span class="glyphicon glyphicon-stop" style="font-size: -webkit-xxx-large;" aria-hidden="true"></span>
+                            break;
+                        case 2:<span class="glyphicon glyphicon-align-justify" style="font-size: -webkit-xxx-large;" aria-hidden="true"></span>
+                            break;
+                        case 3:<span class="glyphicon glyphicon-bed" style="font-size: -webkit-xxx-large;" aria-hidden="true"></span>
+                            break;
+                        case 4:<span class="glyphicon glyphicon-glass" style="font-size: -webkit-xxx-large;" aria-hidden="true"></span>
+                            break;
+                    }
+                </div>
+                <div class="col-xs-9 col-sm-9 col-md-9">
+                    <h4 class="alert-heading">@Html.DisplayFor(modelItem => item.Label) <small>@Html.DisplayFor(modelItem => item.TipoLocalidad.Nombre)</small></h4>
+                    @switch (item.TipoLocalidad_id)
+                    {
+                        case 1:
+                            {
+                                <table class="table">
+                                    <tr>
+                                        <td><b>Capacidad: </b>@Html.DisplayFor(modelItem => item.Aforo)</td>
+                                        <td><b>Valor del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.Valor)</td>
+                                        <td><b>Descripción del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.descripcion)</td>
+                                    </tr>
+                                </table>
+                            }
+                            break;
+                        case 2:
+                            {
+                                <table class="table">
+                                    <tr>
+                                        <td><b>Cantidad de Filas: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.cFilas)</td>
+                                        <td><b>Cantidad de Columnas: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.cSillas)</td>
+                                        <td><b>Orientación: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.Orientacion)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>Tipo de Numeración: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.TipoNumeracionSilla.Descripcion)</td>
+                                        <td><b>Valor del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.Valor)</td>
+                                        <td><b>Descripción del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.descripcion)</td>
+                                    </tr>
+                                </table>
+                            }
+                            break;
+                        case 3:
+                            {
+                                <table class="table">
+                                    <tr>
+                                        <td><b>Cantidad de Mesas: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.cFilas)</td>
+                                        <td><b>Cantidad de Sillas por Mesa: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.cSillas)</td>
+                                        <td><b>Tipo de Numeración: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.TipoNumeracion.Descripcion)</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            <table style="width:100%">
+                                                <tr>
+                                                    <td><b>Valor del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.Valor)</td>
+                                                    <td><b>Descripción del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.descripcion)</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            }
+                            break;
+                        case 4:
+                            {
+                                <table class="table">
+                                    <tr>
+                                        <td><b>Tipo de Palco: </b>@Html.DisplayFor(modelItem => item.TipoSubLocalidad.Nombre)</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            <table style="width:100%">
+                                                <tr>
+                                                    <td><b>Cantidad de Filas: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.cFilas)</td>
+                                                    <td><b>Cantidad de Sillas: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.cSillas)</td>
+                                                    <td><b>Orientación: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.Orientacion)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Tipo de Numeración: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().MesasFilas.TipoNumeracion.Descripcion)</td>
+                                                    <td><b>Valor del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.Valor)</td>
+                                                    <td><b>Descripción del Consumo: </b>@Html.DisplayFor(modelItem => item.LocalidadMesasFilasSillas.First().Consumo.descripcion)</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            }
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </dv>
+}

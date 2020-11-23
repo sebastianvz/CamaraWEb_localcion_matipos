@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "Usuarios";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    .k-edit-form-container {
+        width: inherit !important;
+    }
+</style>
+
+<script src="~/Scripts/pages/Seguridad/UsuariosMatipos.js"></script>
+
+@(Html.Kendo().Window()
+    .Name("windowRoles")
+    .Width(600)
+    .Title("Roles del Usuario")
+    .Scrollable(true)
+    .Visible(false)
+    .Content(
+
+        Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.PermisoViewModel>()
+                        .Name("gridRoles")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Seleccionado).ClientTemplate("<input name='chkSel' value='#= Id #' type='checkbox' #= Seleccionado ? checked='checked' : '' #  ></input>").Width(80).HtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(c => c.Nombre).Width(190);
+                        })
+                        .HtmlAttributes(new { /*style = "height: 300px;"*/ })
+                        .Editable(editable =>
+                                {
+                                    editable.Mode(GridEditMode.PopUp);
+                                }
+                            )
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize((new Verificador.Vista.Models.Servicios.ServicioRol().Read()).Count())
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+
+                            })
+                            .Read(read => read.Action("RolesUsuario_Read", "Seguridad").Data("addUsuarioParameter"))
+                         ).ToHtmlString() +
+                         "<br/><div style='text-align:right'>" +
+                         Html.Kendo().Button().
+                            Name("btnGuardarRoles").Content("Guardar").Events(events => events.Click("GuardarRoles")) +
+                         "</div>"
+
+
+    )
+
+)
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.UsuarioViewModel>()
+                        .Name("gridUsuarios")
+                        .Columns(columns =>
+                        {
+                            columns.Command(command =>
+                            {
+                                command.Edit();
+                                command.Destroy();
+                                command.Custom("verRoles").Text("Ver Roles").Click("showRoles");
+                            }).Width(320);
+                            columns.Bound(c => c.Usuario);
+                            columns.Bound(c => c.Email);
+                            //columns.Bound(c => c.FechaCreacion).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);
+                        })
+                        .ToolBar(toolbar =>
+                        {
+                            toolbar.Create();
+                        })
+                        .Editable(editable =>
+                            {
+                                editable.Mode(GridEditMode.PopUp).TemplateName("EditorUsuario").Window(c => c.Width(900).Height(500));
+                            })
+                        .Events(events => events.Edit("showDetalle"))
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .HtmlAttributes(new { style = "height: 800px;" })
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("Usuarios_Read", "Seguridad"))
+                            .Create(update => update.Action("Usuarios_Create", "Seguridad"))
+                            .Update(update => update.Action("Usuarios_Update", "Seguridad"))
+                            .Destroy(update => update.Action("Usuarios_Destroy", "Seguridad"))
+                         )
+
+)                    

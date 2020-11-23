@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="sqlMovimientos.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select * from te_tiquetes c
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja
+)
+
+
+select c.Caja,
+MovInicial = (select top 1 Numerofactura from items order by Id asc) ,
+MovFinal =  (select top 1 Numerofactura from items order by Id desc),
+count(*) Transacciones,
+Sum(c.Valorpagado) Venta
+from items c
+group by c.Caja </value>
+  </data>
+  <data name="sqlDevoluciones.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select * from te_tiquetes c
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 1 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja
+)
+
+
+select c.Caja,
+count(*) Transacciones,
+Sum(c.Valorpagado) Venta
+from items c
+group by c.Caja </value>
+  </data>
+  <data name="sqlDescuentos.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select case 
+	when d.Tipodescuento ='C' then 'Desc. Cumpl'
+	when d.Tipodescuento ='V' then 'Desc. VIP'
+	when d.Tipodescuento ='D' then 'Desc. Nombr'
+	when d.Tipodescuento ='P' then 'Desc. Promo'
+	when d.Tipodescuento ='S' then 'Desc. Promoción'
+	else ' ' end  nombre,
+	d.Valor	
+   from Te_descuentos_tiquete d inner join te_tiquetes c on d.idtiquete = c.id        
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja
+)
+
+
+select c.nombre,
+count(*) Transacciones,
+Sum(c.Valor) Venta
+from items c
+group by c.nombre</value>
+  </data>
+  <data name="sqlImpuestos.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select i.nombre tipo,
+	d.Valorcobrado,
+	d.Preciobase
+   from Te_impuestos_tiquete d inner join te_tiquetes c on d.idtiquete = c.id        
+    inner join te_impuestos i on d.IdImpuesto = i.id
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja
+)
+
+select c.tipo,
+count(*) Transacciones,
+Sum(c.Valorcobrado) Impuesto,
+Sum(c.PrecioBase) BaseImp,
+Sum(c.ValorCobrado + c.PrecioBase) Compra
+from items c
+group by c.tipo</value>
+  </data>
+  <data name="sqlMediosPago.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select i.nombre,
+	d.valorpagado
+	
+   from te_mediospagotiquete d inner join te_tiquetes c on d.idtiquete = c.id        
+    inner join te_mediospago i on d.Idmedio = i.id
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja
+)
+
+select c.nombre,
+count(*) Transacciones,
+Sum(c.Valorpagado) Venta
+from items c
+group by c.nombre</value>
+  </data>
+  <data name="sqlBonos.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select 
+     i.id Consecutivo,
+     i.codigo,
+	 c.fecha FechaConsumo,
+	 c.numerofactura Factura,
+	 i.valor
+   from Te_boletas_tiquete d inner join te_tiquetes c on d.idtiquete = c.id        
+    inner join te_bonos i on d.idbono = i.id
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja  
+	and d.idbono is not null
+)
+
+select 
+	Consecutivo,
+     codigo,
+	 FechaConsumo,
+	 Factura,
+	 valor
+from items c
+order by Consecutivo</value>
+  </data>
+  <data name="sqlCortesia.SelectCommand" xml:space="preserve">
+    <value>;WITH items AS
+(
+   select 
+	c.Numerofactura,
+    c.Fecha    
+   from Te_boletas_tiquete d inner join te_tiquetes c on d.idtiquete = c.id            
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja and 
+	c.escortesia = 1 
+	and d.idtipoprecio is not null
+)
+
+select 
+	c.numerofactura,
+	c.fecha,
+	count(*) cantidad
+from items c
+group by c.numerofactura,c.fecha</value>
+  </data>
+  <metadata name="sqlCierre.ParameterValues" xml:space="preserve">
+    <value>{"@fi":"2015-08-07 00:00:00","@ff":"2015-08-08 00:00:00","@iduaurio":"1","@caja":"1"}</value>
+  </metadata>
+  <data name="sqlCierre.SelectCommand" xml:space="preserve">
+    <value>;WITH iniciodia AS
+(
+   select 
+	Valoriniciodia,
+    Valorterminadia   
+   from Te_inicio_dia_usuario c
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Idusuario = @iduaurio 
+	and c.Caja = @caja 
+)
+
+select x.apertura,x.cierre,
+case when x.efectivo is null then 0 else x.efectivo end efectivo,
+case when x.bonos is null then 0 else x.bonos end bonos
+from
+(
+select 
+case when c.Valoriniciodia is null then 0 else c.Valoriniciodia end apertura,
+case when c.Valorterminadia is null then 0 else c.Valorterminadia end cierre,
+(
+select 	sum(d.valorpagado) 
+   from te_mediospagotiquete d inner join te_tiquetes c on d.idtiquete = c.id        
+    inner join te_mediospago i on d.Idmedio = i.id
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja and 
+	i.id = 1  
+)   efectivo,
+(
+select 
+     sum(i.valor)
+   from Te_boletas_tiquete d inner join te_tiquetes c on d.idtiquete = c.id        
+    inner join te_bonos i on d.idbono = i.id
+	where c.Fecha &gt;= @fi and c.Fecha &lt;= @ff 
+	and c.Cancelada = 0 and c.Idusuario = @iduaurio 
+	and c.Caja = @caja  and 
+	d.idbono is not null
+) bonos
+from iniciodia c 
+) x</value>
+  </data>
+</root>

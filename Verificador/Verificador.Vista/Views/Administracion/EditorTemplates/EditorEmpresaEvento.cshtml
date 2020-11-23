@@ -1,0 +1,101 @@
+﻿@model Verificador.Vista.Models.ViewModels.EmpresaEventosViewModel
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">General</h4>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.TipoPersona_id))
+                    @(Html.Kendo().DropDownListFor(m => m.TipoPersona_id)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoPersona.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .HtmlAttributes(new { style = "width:100%", placeholder = "Seleccione" }))
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.TipoDocumento_id))
+                    @(Html.Kendo().DropDownListFor(m => m.TipoDocumento_id)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoDocumento.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .Events(e => e.Change("ChangeEmpresa"))
+                                .HtmlAttributes(new { style = "width:100%", placeholder = "Seleccione" }))
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.Identificacion))
+                    @(Html.Kendo().TextBoxFor(m => m.Identificacion).HtmlAttributes(new
+                                                                    {
+                                                                        @onchange = "AgregarDigito()",
+                                                                        style = "width:100%"
+                                                                    }))
+                </div>
+            </div>
+            <div class="col-md-3" id="divDigito">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.Digito))
+                    @(Html.Kendo().TextBoxFor(m => m.Digito)
+                                   .Enable(false)
+                                   .HtmlAttributes(new
+                                   {
+                                       style = "width:100%"
+                                   }))
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.NombreRazonSocial))
+                    @(Html.Kendo().TextBoxFor(m => m.NombreRazonSocial).HtmlAttributes(new
+                                                                    {
+                                                                        style = "width:100%"
+                                                                    }))
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.Email))
+                    @(Html.Kendo().TextBoxFor(m => m.Email).HtmlAttributes(new
+                                                                    {
+                                                                        style = "width:100%",
+                                                                        type = "email"
+                                                                    }))
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.Celular))
+                    @(Html.Kendo().TextBoxFor(m => m.Celular).HtmlAttributes(new
+                                                                    {
+                                                                        style = "width:100%",
+                                                                        type = "phone"
+                                                                    }))
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    @(Html.LabelFor(m => m.Telefono))
+                    @(Html.Kendo().TextBoxFor(m => m.Telefono).HtmlAttributes(new
+                                                                    {
+                                                                        style = "width:100%",
+                                                                        type = "phone",
+                                                                    }))
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+

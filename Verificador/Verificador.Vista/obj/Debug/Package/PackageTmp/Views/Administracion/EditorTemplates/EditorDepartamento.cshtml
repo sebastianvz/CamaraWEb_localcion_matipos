@@ -1,0 +1,22 @@
+﻿@model Verificador.Vista.Models.ViewModels.DepartamentoViewModel
+
+<div class="editor-label">    
+    @(Html.LabelFor(m=> m.IdPais))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().ComboBoxFor(m => m.IdPais).BindTo((new Verificador.Vista.Models.Servicios.ServicioPais().Read())).DataTextField("Nombre").DataValueField("Id").HtmlAttributes(new { data_value_primitive = "true" }) )
+</div>
+<div class="editor-label">
+    @(Html.LabelFor(m => m.Codigo))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().TextBoxFor(m => m.Codigo)
+    )
+</div>
+<div class="editor-label">    
+    @(Html.LabelFor(m=> m.NombreDepartamento))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().TextBoxFor(m => m.NombreDepartamento)
+    )
+</div>

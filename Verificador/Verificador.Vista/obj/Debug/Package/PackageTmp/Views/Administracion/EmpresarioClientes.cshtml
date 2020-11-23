@@ -1,0 +1,60 @@
+﻿@{
+    ViewBag.Title = "Empresarios";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    .k-edit-form-container {
+        width: inherit !important;
+    }
+</style>
+<script src="~/Scripts/pages/Administracion/Empresarios.js"></script>
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.EmpresarioViewModel>()
+                        .Name("gridEmpresarios")
+                        .Columns(columns =>
+                        {
+
+                            columns.Bound(c => c.NombreTipoDocumento).Width(70);
+                            columns.Bound(c => c.IdentificacionShowGrid).Width(70);
+                            columns.Bound(c => c.NombreCompleto).Width(100);
+                            columns.Command(command =>
+                            {
+                                command.Edit();
+                                command.Destroy();
+                            }).Width(100);
+                        })
+                        .ToolBar(toolbar =>
+                        {
+                            toolbar.Create();
+                        })
+                        .Editable(editable =>
+                        {
+                            editable.Mode(GridEditMode.PopUp).TemplateName("EditorEmpresarioCliente").Window(c => c.Width(900).Height(500));
+                        }
+                            )
+                        .Events(events => events.Edit("showDetalleEmpresario"))
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .HtmlAttributes(new { style = "height: 800px;" })
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                                .Events(events => events.Error("error_handler").RequestEnd("RefreshGirdEmpresarios"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.EmpresarioId);
+                                model.Field(p => p.EmpresarioId).Editable(false);
+                            })
+                                   .Read(read => read.Action("Empresarios_Read", "Administracion"))
+                                   .Create(update => update.Action("Empresarios_Create", "Administracion"))
+                                   .Update(update => update.Action("Empresarios_Update", "Administracion"))
+                                   .Destroy(update => update.Action("Empresarios_Destroy", "Administracion"))
+                         )
+
+)
+

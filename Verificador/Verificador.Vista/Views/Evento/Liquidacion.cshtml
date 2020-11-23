@@ -1,0 +1,49 @@
+﻿@model Verificador.Vista.Models.EventoViewModel
+<div class="panel panel-primary" id="direccion-map">
+    <div class="panel-heading">4) Agregar Etapas</div>
+    <div class="panel-body">
+        @using (Html.BeginForm("Final", "Evento", FormMethod.Post, new { id = "formLiquidacion" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(e => e.Id)
+
+            <fieldset class="Etapa">
+
+                <div class="row">
+                    <hr />
+                    <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                        <button type="submit" class="btn btn-primary btn-lg" id="Previus">
+                            <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                        </button>
+                    </dv>
+                    <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                        <button type="submit" class="btn btn-primary btn-lg" id="Next">
+                            Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                        </button>
+                    </dv>
+                </div>
+
+
+
+            </fieldset>
+        }
+    </div>
+</div>
+<script>
+
+    $('#Next').click(function (ev) {
+        ev.preventDefault();
+        $("#Id").val(Evento_id);
+        $('#formFunciones').submit();
+    });
+
+    $('#Previus').click(function (ev) {
+        ev.preventDefault();
+        var url = '@Url.Action("Liquidacion", "Evento", new { id = Model.Id, estado = Verificador.Vista.Models.EstadoEvento.etapas })';
+        $('#formLiquidacion').attr('action', url);
+        $('#formLiquidacion').submit();
+    });
+
+    Progress(84);
+</script>

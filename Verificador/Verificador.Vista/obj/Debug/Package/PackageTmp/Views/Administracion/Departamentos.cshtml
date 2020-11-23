@@ -1,0 +1,86 @@
+﻿@{
+    ViewBag.Title = "Departamentos";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script>
+    
+    function showDetalle(e) {
+        var divEdit = $("div[class='k-edit-form-container']");
+
+        var grid = $("#grid").data("kendoGrid");
+        gridActual = grid;
+
+
+        e.container.data("kendoWindow").bind("close", function () {
+            gridActual.dataSource.read();
+        })
+
+        /*var labels = $("div[class='editor-label']");
+        var fields = $("div[class='editor-field']");
+
+        labels[0].style.display = "none";
+        fields[0].style.display = "none";*/
+
+        /*labels[labels.length - 1].style.display = "none";
+        fields[fields.length - 1].style.display = "none";*/    
+    }
+</script>
+
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.DepartamentoViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.NombrePais);
+                            columns.Bound(c => c.Label);
+                            columns.Bound(c => c.FechaCreacion).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);
+                            
+                            columns.Command(command => { 
+                                command.Edit(); 
+                                command.Destroy();                                
+                            }).Width(220);                                                        
+                            
+                        })
+                            .HtmlAttributes(new { style = "height: 500px;" })
+                        .ToolBar(toolbar => {
+                            toolbar.Create();
+                            toolbar.Excel();
+                            toolbar.Pdf();                                                        
+                        })
+                        .Pdf(pdf => pdf
+                            .FileName("Departamentos.pdf")
+                        )
+                        .Excel(excel => excel
+                            .FileName("Departamentos.xlsx")
+                        )
+                        .Editable(editable =>
+                            {
+                                editable.Mode(GridEditMode.PopUp).TemplateName("EditorDepartamento");
+                            }
+                            )
+                        .Events(events => events.Edit("showDetalle"))
+                        .Scrollable()
+                        .Filterable()
+                        .Groupable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("Departamentos_Read", "Administracion"))
+                            .Create(update => update.Action("Departamentos_Create", "Administracion"))
+                            .Update(update => update.Action("Departamentos_Update", "Administracion"))
+                            .Destroy(update => update.Action("Departamentos_Destroy", "Administracion"))
+                         )
+                                                  
+                    )
+

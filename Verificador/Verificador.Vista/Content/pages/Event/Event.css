@@ -1,0 +1,13 @@
+﻿body {
+}
+
+.tab-pane {
+    background-color: white;
+    padding: 10px;
+}
+
+.progress {
+    background: white;
+    padding: 2px;
+    margin-bottom: 0px;
+}

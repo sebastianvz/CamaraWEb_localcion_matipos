@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "Permisos";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script>
+    function showDetalle(e) {
+        var divEdit = $("div[class='k-edit-form-container']");
+
+        var labels = $("div[class='editor-label']");
+        var fields = $("div[class='editor-field']");
+
+        labels[0].style.display = "none";
+        fields[0].style.display = "none";
+
+        /*labels[labels.length - 1].style.display = "none";
+        fields[fields.length - 1].style.display = "none";*/
+    }
+</script>
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.PermisoViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Nombre);
+                            columns.Bound(c => c.FechaCreacion).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);                                                     
+                            
+                        })
+                        .HtmlAttributes(new { style = "height: 500px;" })
+                        .Editable(editable =>
+                                {
+                                    editable.Mode(GridEditMode.PopUp);                                    
+                                }
+                            )
+                        .Events(events => events.Edit("showDetalle"))
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("Permisos_Read", "Seguridad"))
+                            .Create(update => update.Action("Permisos_Create", "Seguridad"))
+                            .Update(update => update.Action("Permisos_Update", "Seguridad"))
+                            .Destroy(update => update.Action("Permisos_Destroy", "Seguridad"))
+                         )
+                                                  
+                    )
+

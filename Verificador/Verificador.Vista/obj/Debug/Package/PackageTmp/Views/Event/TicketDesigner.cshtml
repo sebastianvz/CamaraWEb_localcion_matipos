@@ -1,0 +1,490 @@
+﻿@model Verificador.Vista.Models.ViewModels.TicketViewModel
+@*http://fabricjs.com/fabric-intro-part-2#text*@
+@*http://jsfiddle.net/revpz6qw/*@
+<script src="~/Scripts/pages/Evento/fabric.js"></script>
+<script src="~/Scripts/pages/Evento/EventStorage.js"></script>
+<script src="~/Scripts/pages/Evento/TicketDesigner.js"></script>
+<script src="~/Scripts/angular.min.js"></script>
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutCanvas.cshtml";
+}
+<style>
+    canvas {
+        border: 1px solid #e0d1d1;
+        /*background-color: #f7f7f7;*/
+    }
+
+    .header {
+        float: left;
+        background: #EDEDED;
+        border-bottom: 1px solid #D9DEE4;
+        width: 100%;
+        position: relative;
+        padding: 3px 0px 4px 0px;
+    }
+
+    input[type=color] {
+    }
+</style>
+<div class="header" id="creator-header">
+    <div class="col-md-6">
+        <h4 class="event-title"></h4>
+    </div>
+    <div class="col-md-6 text-right">
+        <button type="button" class="btn btn-default Back" id="volver">
+            <span class="glyphicon glyphicon-arrow-left"></span> Volver
+        </button>
+        <button type="button" class="btn btn-primary Save">
+            <span class="glyphicon glyphicon-floppy-disk"></span> Crear Tiquete
+        </button>
+    </div>
+</div>
+<div class="col-md-11 col-xs-11 col-sm-11 col-lg-11">
+    <div id="bd-wrapper" ng-controller="CanvasControls">
+        <link href='http://fonts.googleapis.com/css?family=Plaster' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Engagement' rel='stylesheet' type='text/css'>
+        <div class="row">
+            <div class="col-md-4">
+                <div id="commands" ng-click="maybeLoadShape($event)">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#object" data-toggle="tab">Texto</a></li>
+                        <li><a href="#canvastab" data-toggle="tab">Imagenes</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="object">
+                            <div class="object-controls" object-buttons-enabled="getSelected()">
+                                <div class="row">
+                                    <h2></h2>
+                                    <button class="btn btn-success hide" id="rasterize-json" ng-click="rasterizeJSON()">
+                                        JSON
+                                    </button>
+                                    <div class="col-xs-6 col-sm-4 col-md-4 col-md-offset-2">
+                                        <button class="btn" ng-click="addIText()">Agregar Texto</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label for="color">Color de Relleno</label>
+                                            <input type="color" bind-value-to="fill" class="btn-object-action form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label for="color">Color del Borde</label>
+                                            <input type="color" bind-value-to="stroke" class="btn-object-action  form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label for="color">Color del Fondo</label>
+                                            <input type="color" value="" id="text-bg-color" size="10" class="btn-object-action  form-control" bind-value-to=" bgcolor">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="opacity">Opacidad:</label>
+                                            <input value="100" type="range" bind-value-to="opacity" class="btn-object-action  form-control"><br />
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="opacity">Tamñao del borde:</label>
+                                            <input value="1" min="0" max="30" type="range" bind-value-to="strokeWidth" class="btn-object-action form-control"><br />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div id="text-wrapper" ng-show="getText()">
+                                        <div id="text-controls">
+                                            <button type="button" class="btn btn-object-action"
+                                                    ng-click="toggleBold()"
+                                                    ng-class="{'btn-inverse': isBold()}">
+                                                Bold
+                                            </button>
+                                            <button type="button" class="btn btn-object-action" id="text-cmd-italic"
+                                                    ng-click="toggleItalic()"
+                                                    ng-class="{'btn-inverse': isItalic()}">
+                                                Italic
+                                            </button>
+                                            <button type="button" class="btn btn-object-action" id="text-cmd-underline"
+                                                    ng-click="toggleUnderline()"
+                                                    ng-class="{'btn-inverse': isUnderline()}">
+                                                Underline
+                                            </button>
+                                            <button type="button" class="btn btn-object-action" id="text-cmd-linethrough"
+                                                    ng-click="toggleLinethrough()"
+                                                    ng-class="{'btn-inverse': isLinethrough()}">
+                                                Linethrough
+                                            </button>
+                                            <button type="button" class="btn btn-object-action" id="text-cmd-overline"
+                                                    ng-click="toggleOverline()"
+                                                    ng-class="{'btn-inverse': isOverline()}">
+                                                Overline
+                                            </button>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label for="opacity" class="form-control-label">Texto:</label>
+                                                    <textarea bind-value-to="text" rows="3" class="form-control"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+                                                    <label for="font-family" class="form-control-label">Estilo de Fuente:</label>
+                                                    <select id="font-family" class="btn-object-action form-control" bind-value-to="fontFamily">
+                                                        <option value="arial">Arial</option>
+                                                        <option value="helvetica" selected>Helvetica</option>
+                                                        <option value="myriad pro">Myriad Pro</option>
+                                                        <option value="delicious">Delicious</option>
+                                                        <option value="verdana">Verdana</option>
+                                                        <option value="georgia">Georgia</option>
+                                                        <option value="courier">Courier</option>
+                                                        <option value="comic sans ms">Comic Sans MS</option>
+                                                        <option value="impact">Impact</option>
+                                                        <option value="monaco">Monaco</option>
+                                                        <option value="optima">Optima</option>
+                                                        <option value="hoefler text">Hoefler Text</option>
+                                                        <option value="plaster">Plaster</option>
+                                                        <option value="engagement">Engagement</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+                                                    <label for="text-align" class="form-control-label">Alineación del Texto:</label>
+                                                    <select id="text-align" class="btn-object-action form-control" bind-value-to="textAlign">
+                                                        <option>Izquierda</option>
+                                                        <option>Centro</option>
+                                                        <option>Derecha</option>
+                                                        <option>Justificado</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-6 col-sm-3 col-md-3">
+                                                <div class=" form-group">
+                                                    <label for="text-lines-bg-color" class="form-control-label">Relleno del Texto:</label>
+                                                    <input type="color" value="" id="text-lines-bg-color" size="10" class="btn-object-action form-control"
+                                                           bind-value-to="textBgColor">
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-3 col-md-3">
+                                                <div class=" form-group">
+                                                    <label for="text-font-size" class="form-control-label">Tamañao de Fuente:</label>
+                                                    <input type="range" value="" min="1" max="120" step="1" id="text-font-size" class="btn-object-action form-control"
+                                                           bind-value-to="fontSize">
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-3 col-md-3">
+                                                <div class=" form-group">
+                                                    <label for="text-line-height" class="form-control-label">Interlineado:</label>
+                                                    <input type="range" value="" min="0" max="10" step="0.1" id="text-line-height" class="btn-object-action form-control"
+                                                           bind-value-to="lineHeight">
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-3 col-md-3">
+                                                <div class=" form-group">
+                                                    <label for="text-char-spacing" class="form-control-label">Separación Letras:</label>
+                                                    <input type="range" value="" min="-200" max="800" step="10" id="text-char-spacing" class="btn-object-action form-control" bind-value-to="charSpacing">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <button id="send-to-back" class="btn btn-object-action"
+                                            ng-click="sendToBack()">
+                                        Enviar Detras
+                                    </button>
+                                    <button id="bring-to-front" class="btn btn-object-action"
+                                            ng-click="bringToFront()">
+                                        Traer al Frente
+                                    </button>
+                                    <button id="gradientify" class="btn btn-object-action" ng-click="gradientify()">
+                                        Apicar Degradado
+                                    </button>
+                                    <button id="shadowify" class="btn btn-object-action" ng-click="shadowify()">
+                                        Aplicar Sombra
+                                    </button>
+                                    <button class="btn btn-success hide" id="rasterize-json" ng-click="rasterizeJSON()">
+                                        JSON
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="canvastab">
+                            <div id="global-controls">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.Label("Subir Imagenes", new { @class = "form-control-label" })
+                                            @(Html.Kendo().Upload()
+                                            .Name("files")
+                                            .Multiple(false)
+                                            .Async(a => a
+                                            .Save("SaveCanvas", "Event")
+                                            .Remove("RemoveCanvas", "Event")
+                                            .AutoUpload(true)
+                                            )
+                                            )
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6" style="text-align:right">
+                                        <input type="button" class="btn btn-default" ng-click="addImage()" value="Agregar imagen" />
+                                    </div>
+                                </div>
+                                <button class="btn btn-object-action hide" id="remove-selected"
+                                        ng-click="removeSelected()"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div style="position:relative;width:804px;float:left;" id="canvas-wrapper">
+                    <canvas id="canvas" width="800" height="680"></canvas>
+                </div>
+            </div>
+        </div>
+        <script src="../Scripts/pages/Evento/font_definitions.js"></script>
+        <script>
+            const venue = EventStorage.getProp('Venue');
+            const ubicacion = venue.Direccion;
+            var kitchensink = {},
+                 Ticket = {
+                     Numero: '@Model.textoNumero',
+                     Precio: '@Model.textoPrecio',
+                     Barcode: '@Model.Barcode',
+                     NumericBarcode: '@Model.NumericBarcode',
+                     Responsable: RemoverAcentos('@Model.Responsable'),
+                     Ubicacion: ubicacion,
+                     ticketType: '@Model.ticketType',
+                     NombreEveno: EventStorage.getProp('Nombre'),
+                     fechaEvento: RemoverAcentos('@Model.fechaEvento'),
+                     EdadMinima: 'Edad Minima' + EventStorage.getProp('EdadMinima'),
+                     HoraApertura: '@Model.HoraApertura',
+                     Localidad: '',
+                     BackgorundImgae: "@(Model.BackgorundImgae)"
+                     @*NumericBarcodeText: "@(Model.NumericBarcodeText)"*@
+                 },
+                consoleJSONValue,
+                consoleSVGValue,
+                baseUrl = '@Url.Content("~/")';
+
+            //consoleSVGValue = "@(Model.ContentSVG)"
+            consoleSVGValue = TicketStorage.get();
+            var canvas = new fabric.Canvas('canvas');
+        </script>
+        <script src="../Scripts/pages/Evento/utils.js"></script>
+        <script src="../Scripts/pages/Evento/app_config.js"></script>
+        <script src="../Scripts/pages/Evento/controller.js"></script>
+        <script>
+
+            (function () {
+                function renderVieportBorders() {
+                    var ctx = canvas.getContext();
+
+                    ctx.save();
+
+                    ctx.fillStyle = 'rgba(51, 51, 51, 0.22)';
+
+                    //Pequeña => width: 0.235899
+                    //Pequeña => Higth: 0.882
+
+                    ctx.fillRect(
+                      canvas.viewportTransform[4],
+                      canvas.viewportTransform[5],
+                      (canvas.getWidth() * canvas.getZoom()) * 0.298,
+                      (canvas.getHeight() * canvas.getZoom()) * 0.9894);
+
+                    ctx.setLineDash([5, 5]);
+
+                    ctx.strokeRect(
+                      canvas.viewportTransform[4],
+                      canvas.viewportTransform[5],
+                      (canvas.getWidth() * canvas.getZoom()) * 0.298,
+                      (canvas.getHeight() * canvas.getZoom()) * 0.9894);
+
+                    ctx.restore();
+                }
+
+                canvas.on('mouse:wheel', function (opt) {
+                    var e = opt.e;
+                    if (!e.ctrlKey) {
+                        return;
+                    }
+                    var newZoom = canvas.getZoom() + e.deltaY / 300;
+                    if (parseFloat(newZoom.toFixed(2)) > 0.00 && parseFloat(newZoom.toFixed(2)) <= 2.00) {
+                        canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, newZoom);
+                        renderVieportBorders();
+                    }
+                    e.preventDefault();
+                    return false;
+                });
+
+                var viewportLeft = 0,
+                    viewportTop = 0,
+                    mouseLeft,
+                    mouseTop,
+                    _drawSelection = canvas._drawSelection,
+                    isDown = false;
+
+                canvas.on('mouse:down', function (options) {
+                    if (options.e.altKey) {
+                        isDown = true;
+
+                        viewportLeft = canvas.viewportTransform[4];
+                        viewportTop = canvas.viewportTransform[5];
+
+                        mouseLeft = options.e.x;
+                        mouseTop = options.e.y;
+                        _drawSelection = canvas._drawSelection;
+                        canvas._drawSelection = function () { };
+                        renderVieportBorders();
+                    }
+                });
+
+                canvas.on('mouse:move', function (options) {
+                    if (options.e.altKey && isDown) {
+                        var currentMouseLeft = options.e.x;
+                        var currentMouseTop = options.e.y;
+
+                        var deltaLeft = currentMouseLeft - mouseLeft,
+                            deltaTop = currentMouseTop - mouseTop;
+
+                        canvas.viewportTransform[4] = viewportLeft + deltaLeft;
+                        canvas.viewportTransform[5] = viewportTop + deltaTop;
+
+                        canvas.renderAll();
+                        renderVieportBorders();
+                    }
+                });
+
+                canvas.on('mouse:up', function () {
+                    canvas._drawSelection = _drawSelection;
+                    isDown = false;
+                });
+            })();
+
+
+
+
+            ////TODO: Poner a subir imagenes al canvas, terminar la segunda voleta por default, on key remover cosas, integrar al evnto, guardar en base de datos
+            //Controlar Aforo en las etpas (Comparar contra la localidad)
+            //Controlar KeyEnter en todos steps
+            //Cuando creo una etapa no me trae el nombre de la localidad en el grid de las etapas
+            //OK___No me trae la edad minima en la creacion de los tickets
+            //OK___Hacer Guardado para el form de los tikets
+            //OK___Abrir modal para la creacion del ticket
+            //post guardado del ticket convertir canvas a Json
+            //OK___Hacer un Loading
+            //OK___organizar error de carga de la vista parcial del diseñador
+            //Revizar proceso de conversion a JSON
+            function SaveCanvasToJson() {
+                //angular.element(document.getElementById('rasterize-json')).scope().rasterizeJSON();
+                //SaveTicket();
+
+                var originWidth = canvas.getWidth();
+
+                function zoom(width) {
+                    var scale = width / canvas.getWidth();
+                    height = scale * canvas.getHeight();
+
+                    canvas.setDimensions({
+                        "width": width,
+                        "height": height
+                    });
+
+                    canvas.calcOffset();
+                    var objects = canvas.getObjects();
+                    for (var i in objects) {
+                        var scaleX = objects[i].scaleX;
+                        var scaleY = objects[i].scaleY;
+                        var left = objects[i].left;
+                        var top = objects[i].top;
+
+                        objects[i].scaleX = scaleX * scale;
+                        objects[i].scaleY = scaleY * scale;
+                        objects[i].left = left * scale;
+                        objects[i].top = top * scale;
+
+                        objects[i].setCoords();
+                    }
+                    canvas.renderAll();
+                }
+
+                //zoom(originWidth * 4);
+
+                // here you got width = 2000 image
+                //var canvasdata = canvas.toDataURL({
+                //    format: 'jpeg',
+                //    quality: 1
+                //});
+
+                //SaveTicketSVG();
+
+                //let imagen = canvas.toDataURL('png')
+                //console.log(imagen);
+                //window.open(imagen)
+
+
+                zoom(originWidth);
+            }
+
+            function polyFillPerfNow() {
+                window.performance = window.performance ? window.performance : {};
+                window.performance.now = window.performance.now || window.performance.webkitNow || window.performance.msNow ||
+                     window.performance.mozNow || Date.now;
+            };
+        </script>
+    </div>
+</div>
+<script>
+    (function () {
+        var mainScriptEl = document.getElementById('main');
+        if (!mainScriptEl) return;
+        var preEl = document.createElement('pre');
+        var codeEl = document.createElement('code');
+        codeEl.innerHTML = mainScriptEl.innerHTML;
+        codeEl.className = 'language-javascript';
+        preEl.appendChild(codeEl);
+        document.getElementById('bd-wrapper').appendChild(preEl);
+    })();
+</script>
+<script>
+    var lastDownTarget;
+    (function () {
+        fabric.util.addListener(fabric.window, 'load', function () {
+            var canvas = this.__canvas || this.canvas,
+                canvases = this.__canvases || this.canvases;
+
+            canvas && canvas.calcOffset && canvas.calcOffset();
+
+            if (canvases && canvases.length) {
+                for (var i = 0, len = canvases.length; i < len; i++) {
+                    canvases[i].calcOffset();
+                }
+            }
+            document.addEventListener('mousedown', function (event) {
+                if (event.target.nodeName) {
+                    lastDownTarget = event.target.nodeName;
+                }
+            }, false);
+            document.addEventListener('keydown', function (event) {
+                if (lastDownTarget == "CANVAS") {
+                    event = event || window.event;
+                    if (event.code == 'Delete') {
+                        angular.element(document.getElementById('remove-selected')).scope().removeSelected();
+                    }
+                }
+            }, false);
+        });
+    })();
+</script>

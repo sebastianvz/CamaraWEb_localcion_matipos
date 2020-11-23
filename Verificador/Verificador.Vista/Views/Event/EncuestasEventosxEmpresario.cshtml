@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = "Encuestas eventos";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.EventoViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Nombre);
+                            columns.Bound(c => c.AforoTotal);
+                            columns.Bound(c => c.Venue.Direccion).Title("Dirección");
+                            columns.Bound(c => c.FechaInicial).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);
+                            columns.Bound(c => c.FechaFinal).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);
+                            columns.Command(command =>
+                            {
+                                command.Custom("Editar").Text("Agregar Encuesta").Click("Editar");
+                            }).Width(220);
+                        })
+                        .HtmlAttributes(new { style = "height: 40em;" })
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            //.Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("EncuestasEventos_Read", "Event"))
+                         )
+
+)
+
+<div class="modal fade" id="windowsEncuesta" role="dialog">
+    <div class="modal-dialog" style="width:600px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <h4 class="modal-title">Agregar preguntas</h4>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" class="close" data-dismiss="modal" onclick="CloseModal()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" id="contenedor">
+                <form id="Encuentas">
+                    <div class="row">
+                        <button id="btnPregunta" class="btn btn-success" type="button" data-toggle="modal" onclick="AddPreguntas()">
+                            + Pregunta
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="float:right">
+                            <button id="btnGuardar" class="btn btn-primary" type="button" data-toggle="modal" onclick="Guardar()">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="float:left">
+                            <button id="btnSalir" class="btn btn-primary" type="button" data-toggle="modal" onclick="CloseModal()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/pages/Event/Encuestas.js"></script>

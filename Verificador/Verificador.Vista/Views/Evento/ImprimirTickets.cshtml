@@ -1,0 +1,254 @@
+﻿@{
+    ViewBag.Title = "Impresión de Tickets";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<link href="~/Content/evento.css" rel="stylesheet" />
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>*@
+<script>
+    let EventoID = 0;
+    function getEvento() {
+        return { idEvento: EventoID };
+    }
+    function getEtapa() {
+        return { idEtapa: $("#Etapa").data("kendoDropDownList").value() };
+    }
+    function changeEtapa() {
+        $("#Localidad").data("kendoDropDownList").dataSource.read();
+    }
+    function ImprimirTickets() {
+        let etapa = $("#Etapa").data("kendoDropDownList");
+        if (etapa.value() == "") {
+            alert("Primero debe de seleccionar la estapa");
+            return
+        }
+        let localidad = $("#Localidad").data("kendoDropDownList");
+        if (localidad.value() == "") {
+            alert("Primero debe de selccionar la localidad");
+            return
+        }
+        let cantidad = $("#cantidad-tickets").val();
+        if (cantidad == "") {
+            alert("Debe de digitar la cantdad de tickets que desea imprimir");
+            return
+        }
+        let printer = $("#installedPrinterName").val();
+        //if (printer == "" || printer == "0") {
+        //    alert("Debe de seleccionar la impresora que desea utilizar");
+        //    return
+        //}
+
+
+        let get_data = function () {
+            return {
+                Id: EventoID,
+                IdTicketsEtapa: localidad.value(),
+                Cantidad: cantidad,
+                PrinterName: printer
+            }
+        };
+        Loading(true);
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("PrintTickets", "Evento")",
+            data: get_data(),
+            datatype: 'json',
+            success: function (e) {
+                $("#canvas-preview").html(e);
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+                Loading(false);
+            }
+        });
+    }
+    function showDetails(e) {
+        e.preventDefault();
+        let dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        if (dataItem.Id) {
+            jsWebClientPrint.getPrinters();
+            EventoID = dataItem.Id
+            $(".modal-title").html(dataItem.Nombre);
+            $("#Etapa").data("kendoDropDownList").dataSource.read();
+            $("#modal-print").modal("show");
+            @*$.post('@(Url.Action("PrintTicketsPartial", "Evento"))',
+                {
+                    Id: dataItem.Id,
+                    Nombre: dataItem.Nombre
+                }, function (content) {
+                    $("#modal-print .modal-content").html(content);
+                    $("#modal-print").modal("show");
+                })*@
+        }
+    }
+    function CustomPrint(e) {
+        e.preventDefault();
+        let dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        if (dataItem.Id) {
+            let url = '@(Url.Action("Index", "TicketsManagement", new { eventID = "param" }))';
+            window.location.href = url.replace("param", dataItem.Id);
+        }
+    }
+    $("#modal-print").on('hide.bs.modal', function (e) {
+        alert("Prueba Modale limprio")
+        onClose();
+    });
+    function onClose() {
+        var grid = $("#grid").data("kendoGrid");
+        grid.dataSource.read();
+        $("#Etapa").data("kendoDropDownList").value("");
+        $("#Localidad").data("kendoDropDownList").value("");
+        $("#cantidad-tickets").val("");
+        $("#canvas-preview").empty();
+        Loading(false);
+    }
+</script>
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ImpresionTicketsViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Nombre);
+                            columns.Bound(c => c.Disponibles);
+                            columns.Bound(c => c.Impresos);
+                            columns.Bound(c => c.ImpresosDefectuosos);
+                            columns.Command(command =>
+                            {
+                                command.Custom("Iprimir").Text("Imprimir Tickets").Click("showDetails");
+                                command.Custom("CustomPrint").Text("Impresión Personalizada").Click("CustomPrint");
+                            }).Width(220);
+                        })
+                        .HtmlAttributes(new { style = "height: 50em;" })
+                        .Scrollable()//EditorImpresionTickets
+                        .Filterable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("ImprimirTickets_Read", "Evento"))
+                         )
+
+)
+
+
+
+<!-- Modal -->
+<div id="modal-print" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.Label("Etapa", new { @class = "form-control-label" })
+                            @(Html.Kendo().DropDownList().Name("Etapa")
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("getEtapasByEvent", "Evento").Data("getEvento");
+                                })
+                                .ServerFiltering(true);
+                            })
+                            .Events(e => e.Select("changeEtapa"))
+                            .AutoBind(false)
+                            .OptionLabel("Seleccione")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.Label("Localidad", new { @class = "form-control-label" })
+                            @(Html.Kendo().DropDownList().Name("Localidad")
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("getLocalidadesByEtapa", "Evento").Data("getEtapa");
+                                })
+                                .ServerFiltering(true);
+                            })
+                            .AutoBind(false)
+                            .OptionLabel("Seleccione")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.Label("Cantidad de Tickets a imprimir", new { @class = "form-control-label" })
+                            @Html.TextBox("cantidad-tickets", new { }, new { @class = "form-control", type = "number", min = "0" })
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.Label("Impresoras Instaladas", new { @class = "form-control-label" })
+                            <select id="installedPrinterName" name="installedPrinterName" class="form-control">
+                                <option value="0">Seleccione</option>
+                            </select>
+                            <script type="text/javascript">
+                                //var wcppGetPrintersDelay_ms = 5000; //5 sec
+                                var wcppGetPrintersTimeout_ms = 10000; //10 sec
+                                var wcppGetPrintersTimeoutStep_ms = 500; //0.5 sec
+
+                                function wcpGetPrintersOnSuccess() {
+                                    // Display client installed printers
+                                    if (arguments[0].length > 0) {
+                                        var p = arguments[0].split("|");
+                                        var options = '<option value="0">Seleccione</option>';
+                                        for (var i = 0; i < p.length; i++) {
+                                            options += '<option value="' + p[i] + '">' + p[i] + '</option>';
+                                        }
+                                        $('#installedPrinters').css('visibility', 'visible');
+                                        $('#installedPrinterName').html(options);
+                                        $('#installedPrinterName').focus();
+                                        $('#loadPrinters').hide();
+                                    } else {
+                                        alert("No printers are installed in your system.");
+                                    }
+                                }
+                                function wcpGetPrintersOnFailure() {
+                                    // Do something if printers cannot be got from the client
+                                    alert("No printers are installed in your system.");
+                                }
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" id="canvas-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="ImprimirTickets()"><span class="glyphicon glyphicon-print" aria-hidden="true"></span>&nbsp;Imprimir Tickets</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@Html.Raw(ViewBag.WCPScript);

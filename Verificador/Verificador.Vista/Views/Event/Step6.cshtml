@@ -1,0 +1,125 @@
+﻿
+<script src="~/Scripts/pages/Evento/Step6.js"></script>
+<link href="~/Content/pages/Event/Step6.css" rel="stylesheet" />
+@model Verificador.Vista.Models.ViewModels.EtapasViewModel
+
+<section>
+    <div class="panel panel-primary" id="direccion-map">
+        <div class="panel-heading">5) Crear Tickets</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step7", "Evento", FormMethod.Post, new { id = "formTicketCreator" }))
+            {
+
+                <fieldset class="Etapa disabled" disabled>
+                
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @*<div class="form-group">
+                                @Html.Label("Fecha", new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.FechaInicial, new { @class = "form-control", value = Model.FechaInicial.ToLongDateString() })
+                            </div>*@
+                        </div>
+                       
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @*@Html.LabelFor(model => model.AplicaServicio, new { @class = "form-control-label" })
+                                @(Html.Kendo().DropDownListFor(m => m.AplicaServicio)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptonsVentasWeb())
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .Events(e => e.Change("showServicios"))
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))*@
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 hide" id="divServicio">
+                            @Html.Label("Servicio", new { @class = "form-control-label" })
+                            <div class="input-group">
+                                @(Html.Kendo().DropDownList().Name("Servicio")
+                                    .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoServicio.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button" onclick="AddServicio()">Agregar Servicio</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12" id="divServicios">
+                        </div>
+                    </div>
+                    <div class="row">
+                        @*<div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Cantidad total de ticketes para el evento", new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Tickets.Cantidad, new { @class = "form-control", type = "number", min = "1", required = "required" })
+                            </div>
+                        </div>*@
+                        @*<div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Tickets.InicioNumeracion, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Tickets.InicioNumeracion, new { @class = "form-control", type = "number", min = "1", required = "required" })
+                            </div>
+                        </div>*@
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.Label("Tipo de Tickete", new { @class = "form-control-label" })
+                                @(Html.Kendo().DropDownList().Name("TicketType")
+                                    .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                        new Verificador.Vista.Models.ViewModels.ListItem(){ Name = Verificador.Vista.Models.ViewModels.TicketType.small.ToString(), Text = "Ticket Peqeño"},
+                                        new Verificador.Vista.Models.ViewModels.ListItem(){ Name = Verificador.Vista.Models.ViewModels.TicketType.grande.ToString(), Text = "Ticket Grande"},
+                                    })
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                            </div>
+                        </div>
+                        <dv class="col-xs-12 col-sm-6 col-md-6" style="text-align:right">
+                            <span id="btnOpenTicketDesigner" class="btn btn-primary btn-lg" data-toggle="modal">
+                                <span class="glyphicon glyphicon-pencil"></span> Diseñar Ticket
+                            </span>
+                            <button class="btn btn-primary btn-lg hide" id="btn-preview" data-toggle="modal" data-target="#modalPreview">
+                                <span class="glyphicon glyphicon-eye-open"></span>Previsualizar tickete diseñado
+                            </button>
+                        </dv>
+                    </div>
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" class="btn btn-primary btn-lg Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg Finish">
+                                Finalizar <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </dv>
+                    </div>
+                </fieldset>
+            }
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade bs-example-modal-lg" id="modalTicket" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg" style="width:1230px" role="document">
+            <div class="modal-content">
+                <div class="modal-body" style="height:690px">
+                    <iframe id="iframe"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="SaveCanvas()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

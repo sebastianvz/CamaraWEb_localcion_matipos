@@ -1,0 +1,39 @@
+﻿@model Verificador.Vista.Models.ViewModels.PlantillasBoletosPapelViewModel
+
+@Html.HiddenFor(m => m.Id)
+<div class="editor-label">
+    @(Html.LabelFor(m => m.Nombre))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().TextBoxFor(m => m.Nombre)
+    )
+</div>
+<div class="editor-label">
+    @(Html.LabelFor(m => m.Descripcion))
+</div>
+<div class="editor-field">
+    @(Html.TextAreaFor(m => m.Descripcion, new { style = "height:75px; width:100%; resize:none; disabled:true" }))
+</div>
+<div class="editor-label">
+    @(Html.LabelFor(m => m.IdTipoBoletoPapel))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().DropDownListFor(m => m.IdTipoBoletoPapel)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoBoletoPapel.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .HtmlAttributes(new { style = "width:100%", placeholder = "Seleccione" }))
+
+</div>
+<div class="editor-label">
+    @(Html.LabelFor(m => m.CanvasJson))
+</div>
+<div class="editor-field">
+    @(Html.TextAreaFor(m => m.CanvasJson, new
+{
+    style = "height:75px; width:100%; resize:none",
+    disabled = "true"
+}))
+
+</div>

@@ -1,0 +1,92 @@
+﻿@model Verificador.Vista.Models.ViewModels.EventoViewModel
+
+<script src="~/Scripts/pages/Evento/Step1.js"></script>
+<link href="~/Content/pages/Event/Step1.css" rel="stylesheet" />
+
+<section>
+
+    <div class="panel panel-primary" id="informacion-adicional">
+        <div class="panel-heading">3) Información Adicional</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step2", "Evento", FormMethod.Post, new { id = "formDatosAdicionales" }))
+            {
+                <fieldset>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TipoRecaudo_id, new { @class = "form-control-label" })
+                                @(Html.Kendo().DropDownListFor(m => m.TipoRecaudo_id)
+                                    .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoRecaudo.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.CantidadDiasValides, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(m => m.CantidadDiasValides, new { @class = "form-control", type = "number", min = "1" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.EntradasxUsuario, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(m => m.EntradasxUsuario, new { @class = "form-control", type = "number", min = "1" })
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.EntradasxPedidoOcompra, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(m => m.EntradasxPedidoOcompra, new { @class = "form-control", type = "number", min = "1" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Impuestos", new { @class = "form-control-label" })
+                                @(Html.Kendo().DropDownList()
+                                .Name("Impuestos")
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioImpuesto.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .Events(e => e.Change("showValorIpuesto"))
+                                .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @Html.Label("Valor del Impuesto", new { @class = "form-control-label" })
+                            <div class="input-group">
+                                @Html.TextBox("ValorIpuesto", "", new { @class = "form-control", type = "number", min = "1", disabled = "disabled" })
+                                <span class="input-group-btn">
+                                    <button id="btnAddImpuesto" class="btn btn-primary" type="button">Aplicar Ipuesto</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12" id="divImpuestos">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" class="btn btn-primary btn-lg" id="Previous" name="Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg" id="Next" name="Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+

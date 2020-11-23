@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>IText tests | Fabric.js Demos</title>
+
+    <link rel="stylesheet" href="../../css/master.css">
+
+    <script src="../../lib/fabric.js" data-cover></script>
+    <!--[if lt IE 9]>
+      <script src="../../lib/excanvas.js"></script>
+    <![endif]-->
+    <script src="../../js/master.js"></script>
+
+  </head>
+  <body class="demo">
+    <ul id="header">
+  <li><a href="http://fabricjs.com/">Home</a></li>
+  <li><a href="http://fabricjs.com/demos">Demos</a></li>
+  <li><a href="http://fabricjs.com/articles">Tutorial</a></li>
+  <li><a href="http://fabricjs.com/docs">Docs</a></li>
+  <li><a href="http://fabricjs.com/build">Custom Build</a></li>
+  <li><a href="http://fabricjs.com/help">Support</a></li>
+  <li><a href="http://fabricjs.com/test">Tests/Benchmarks</a></li>
+  <li><a href="http://fabricjs.com/team">Team</a></li>
+
+  <li class="secondary">
+    <a href="https://codeclimate.com/repos/526a0ed089af7e6cf2001389/feed">
+      <img src="https://codeclimate.com/repos/526a0ed089af7e6cf2001389/badges/d1c922dd1511ffa8a72f/gpa.png">
+    </a>
+    <a href="http://travis-ci.org/#!/kangax/fabric.js">
+      <img src="https://api.travis-ci.org/kangax/fabric.js.png?branch=master">
+    </a>
+  </li>
+  <li class="gittip secondary">
+    <iframe style="border: 0; margin: 0; padding: 0;"
+      src="https://www.gittip.com/kangax/widget.html" width="48pt" height="22pt"></iframe>
+  </li>
+  <li class="flattr secondary">
+    <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://kangax.github.com/fabric.js"></a>
+    <noscript>
+      <a href="http://flattr.com/thing/391332/Fabric-js" target="_blank">
+        <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" />
+      </a>
+    </noscript>
+  </li>
+  <li class="github secondary">
+    <iframe src="http://ghbtns.com/github-btn.html?user=kangax&repo=fabric.js&type=watch&count=true"
+      allowtransparency="true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe>
+  </li>
+  <li class="twitter secondary">
+    <a href="https://twitter.com/fabricjs" class="twitter-follow-button" data-show-count="true">Follow @fabricjs</a>
+  </li>
+</ul>
+
+<script>
+(function() {
+
+  if (document.location.hostname === 'localhost') {
+    var links = document.getElementById('header').getElementsByTagName('a');
+    for (var i = 0, len = links.length; i < len; i++) {
+      // very retarted fix but fuck it
+      links[i].href = links[i].href.replace('fabricjs.com', 'localhost:4000');
+    }
+  }
+  else {
+    var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+    s.async = true;
+    s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+    t.parentNode.insertBefore(s, t);
+
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+  }
+})();
+</script>
+
+
+    <div id="bd-wrapper">
+      <h2><span>Fabric.js tests</span> &middot; IText tests</h2>
+
+      <style>
+  @font-face {
+    font-family: 'Lobster';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Lobster'), url(http://themes.googleusercontent.com/static/fonts/lobster/v5/NIaFDq6p6eLpSvtV2DTNDQLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+  }
+  .example {
+    margin-bottom: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: top;
+  }
+  h3 {
+    font-family: Helvetica, sans-serif;
+    font-weight: normal;
+    text-align: center;
+    background-color: #444;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 3px 0;
+  }
+  select { font-size: 16px; }
+</style>
+
+<p>
+  <button id="bold">Bold</button>
+  <button id="italic">Italic</button>
+  <button id="underline">Underline</button>
+  <button id="line-through">Line-through</button>
+  <input type="color" id="color">
+  <input type="color" id="bg-color">
+  <input type="range" min="5" max="150" value="40" id="size">
+</p>
+
+<div class="example">
+  <h3>Styled & with bg color</h3>
+  <canvas id="c2" width="250" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Styled & with bg color</h3>
+  <canvas id="c3" width="250" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Styled & with bg color</h3>
+  <canvas id="c4" width="250" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Styled & with empty line</h3>
+  <canvas id="c5" width="250" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Custom font</h3>
+  <canvas id="c6" width="250" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Empty text w. invitation</h3>
+  <canvas id="c7" width="250" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Lots of text to test double click</h3>
+  <canvas id="c8" width="600" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Right aligned</h3>
+  <canvas id="c9" width="400" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Center-aligned & styled</h3>
+  <canvas id="c10" width="300" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Breaking Bad</h3>
+  <canvas id="c11" width="300" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Center-align w. different size</h3>
+  <canvas id="c12" width="500" height="400" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>textBackgroundColor, decoration, font sizes</h3>
+  <canvas id="c13" width="400" height="400" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Shadows</h3>
+  <canvas id="c14" width="200" height="200" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Cursor detection in rotated</h3>
+  <canvas id="c15" width="400" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Cursor detection in scaled</h3>
+  <canvas id="c16" width="500" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Cursor detection in flipped</h3>
+  <canvas id="c18" width="400" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Vertical cursor movement in diff-sized text</h3>
+  <canvas id="c19" width="400" height="300" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>All kinds of styling</h3>
+  <canvas id="c1" width="600" height="400" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>Lots of text (performance test)</h3>
+  <canvas id="c17" width="500" height="600" style="border: 1px solid #ccc"></canvas>
+</div>
+<div class="example">
+  <h3>A bigger text (performance test)</h3>
+  <canvas id="c20" width="1000" height="900" style="border: 1px solid #ccc"></canvas>
+</div>
+<script src="/js/itext.js" charset="utf-8"></script>
+<script>
+  (function() {
+    var canvases = document.getElementsByClassName('canvas-container');
+    for (var i = 0, len = canvases.length; i < len; i++) {
+
+      var linkEl = document.createElement('a');
+      linkEl.href = '#';
+      linkEl.innerHTML = '<code style="display: block">toSVG()</code>';
+      canvases[i].parentNode.appendChild(linkEl);
+
+      linkEl.onclick = (function(container) {
+        return function() {
+          window.open('data:image/svg+xml;charset=utf-8,' +
+            encodeURIComponent(container.canvas.toSVG()));
+
+          return false;
+        };
+      })(canvases[i]);
+    }
+  })();
+</script>
+
+    </div>
+
+    <script>
+(function() {
+  fabric.util.addListener(fabric.window, 'load', function() {
+    var canvas = this.__canvas || this.canvas,
+        canvases = this.__canvases || this.canvases;
+
+    canvas && canvas.calcOffset && canvas.calcOffset();
+
+    if (canvases && canvases.length) {
+      for (var i = 0, len = canvases.length; i < len; i++) {
+        canvases[i].calcOffset();
+      }
+    }
+  });
+})();
+</script>
+
+  </body>
+</html>

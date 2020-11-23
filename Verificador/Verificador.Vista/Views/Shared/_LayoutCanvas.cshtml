@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html ng-app="kitchensink">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>@ViewBag.Title - Matipos - Verificador</title>
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.common-bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="~/Content/pages/Layout/_LayoutAdmin.css" rel="stylesheet" />
+    <script src="~/Scripts/utils/GlobalMessages.js"></script>
+
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+    <script src="@Url.Content("~/Scripts/pages/_LayoutAdmin/_LayoutAdmin.js")"></script>
+    <!-- Bootstrap -->
+    <link href="@Url.Content("~/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="@Url.Content("~/vendors/font-awesome/css/font-awesome.min.css")" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="@Url.Content("~/vendors/nprogress/nprogress.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- bootstrap-progressbar -->
+    <link href="@Url.Content("~/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css")" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="@Url.Content("~/vendors/jqvmap/dist/jqvmap.min.css")" rel="stylesheet" />
+
+    <script src='@Url.Content("~/ReportViewer/js/resources.es-ES.js")'></script>
+    <script src="@Url.Content("~/Scripts/jQuery.print.js")"></script>
+    
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
+    <script>
+
+        var urlBase = '@Url.Content("~/")';
+        var idSeleccionado = null;
+        var parametersUrl = "";
+        var gridActual = null;
+
+
+        function ValidateSession() {
+            var url = urlBase + "Session/ValidateSession";
+            parametersUrl = "";
+            $.post(url, null,
+            function (data) {
+                if (data.Ready) {
+                    setTimeout("ValidateSession();", 60000);
+                } else {
+                    var url = urlBase + "Admin";
+                    window.location = url;
+                }
+            });
+        }
+
+        function ValidarAccion() {
+            return confirm("Esta seguro de continuar?");
+        }
+        function addParameter() {
+            return {
+                id: idSeleccionado
+            }
+        }
+
+        function showVentana(ventana, grid, obj, e) {
+            var dataItem = obj.dataItem($(e.currentTarget).closest("tr"));
+            idSeleccionado = dataItem.Id;
+
+            $("#" + ventana).data("kendoWindow").center().open();
+            refrescarGrid(grid);
+        }
+
+        function refrescarGrid(grid) {
+            var grid = $("#" + grid).data("kendoGrid");
+            grid.dataSource.page(1);
+            grid.dataSource.read();
+        }
+
+        function GuardarAsociacion(idSel, ventana, controlador, accion) {
+            var ventana = $("#" + ventana);
+            var checks = ventana.find("input[name='chkSel']")
+            var ids = "";
+            for (var i = 0; i < checks.length; i++) {
+                if (checks[i].checked) {
+                    if (ids != "") {
+                        ids += ",";
+                    }
+                    ids += $(checks[i]).val();
+                }
+            }
+
+            var url = urlBase + controlador + "/" + accion;
+            $.get(url, { id: idSel, asociaciones: ids },
+            function (data) {
+                if (data != null && data != "") {
+                    alert(data);
+                } else {
+                    ventana.data("kendoWindow").close();
+                }
+            });
+        }
+
+        function get_time() {
+            var d = new Date();
+            var time = (d.getMonth() + 1) + "" + d.getDate() + "" + d.getFullYear() + "" + d.getHours() + "" + d.getMinutes() + "" + d.getSeconds();
+            return time;
+        }
+
+        function error_handler(args) {
+            if (args.errors) {
+
+                try {
+                    gridActual.one("dataBinding", function (e) {
+                        e.preventDefault();
+                        if (args.errors.ServerError) {
+                            alert(args.errors.ServerError.errors);
+                        }
+
+                    });
+                } catch (ex) {
+                    var message = "";
+                    $.each(args.errors, function (key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors, function () {
+                                message += this + "\n";
+                            });
+                        }
+                    });
+                    alert(message);
+                }
+            }
+        }
+
+        function RecargarImagen(idimage, tipo, id) {
+            if (id == null) {
+                id = "";
+            }
+            var imagen = $("#" + idimage);
+            if (tipo == 'nuevo') {
+                imagen[0].style.display = "none";
+            }
+            var src = '@Url.Content(string.Format("{0}?time=", "~/Imagenes.ashx"))' + get_time() + '&tipo=' + tipo + '&id=' + id;
+            imagen.attr("src", src);
+            if (tipo != 'nuevo') {
+                imagen[0].style.display = "inline";
+            }
+        }
+
+        $(document).ready(function () {
+            $("#formcambiarpw").kendoValidator().data("kendoValidator");
+            $("#formcambiarpw").submit(function (event) {
+                event.preventDefault();
+                
+                if(status == "False")
+                {
+                    var url = urlBase + "Admin" + "/" + "CambiarPW";
+                    parametersUrl = "";
+                    $.post(url, { password: $("#password").val(), passwordnuevo: $("#passwordnuevo").val(), passwordnuevorepetir: $("#passwordnuevorepetir").val() },
+                    function (data) {
+                        alert(data.Mensaje);
+                        if (data.Guardo) {
+                            $("#windowCambiarPW").data("kendoWindow").center().close();
+                        }
+                    });
+                }else
+                {
+                    var url = urlBase + "Empresarios" + "/" + "CambiarPW";
+                    parametersUrl = "";
+                    $.post(url, { password: $("#password").val(), passwordnuevo: $("#passwordnuevo").val(), passwordnuevorepetir: $("#passwordnuevorepetir").val() },
+                    function (data) {
+                        alert(data.Mensaje);
+                        if (data.Guardo) {
+                            $("#windowCambiarPW").data("kendoWindow").center().close();
+                        }
+                    });
+                }
+                
+            });
+            setTimeout("ValidateSession();", 60000);
+        });
+
+        function CambiarContrasena() {
+            $("#windowCambiarPW").data("kendoWindow").center().open();
+        }
+        var ME = "ERROR";
+        var MI = "INFO";
+        var MS = "SUCCESS";
+        function showMessage(msg, type) {
+            switch (type) {
+                case "ERROR":
+                    new PNotify({
+                        title: 'Error',
+                        text: msg,
+                        type: 'error',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                case "SUCCESS":
+                    new PNotify({
+                        title: 'Success',
+                        text: msg,
+                        type: 'success',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                case "INFO":
+                    new PNotify({
+                        title: 'Info',
+                        text: msg,
+                        type: 'info',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                default:
+
+            }
+        }
+
+        function Loading(visible) {
+            if (visible) {
+                $(".loading").show('100');
+            } else {
+                $(".loading").hide('100');
+            }
+        }
+
+        $(document).keypress(function (e) {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    </script>
+    <script>
+        var urlBase = '@Url.Content("~/")';
+        function RemoverAcentos(tx) {
+            var text = String(tx);
+            text = text.replace(/&Aacute;/g, "Á")
+                    .replace(/&aacute;/g, "á")
+                    .replace(/&Eacute;/g, "É")
+                    .replace(/&eacute;/g, "é")
+                    .replace(/&Iacute;/g, "Í")
+                    .replace(/&iacute;/g, "í")
+                    .replace(/&Oacute;/g, "Ó")
+                    .replace(/&oacute;/g, "ó")
+                    .replace(/&Uacute;/g, "Ú")
+                    .replace(/&uacute;/g, "ú")
+                    .replace(/&Uuml;/g, "Ü")
+                    .replace(/&uuml;/g, "ü")
+                    .replace(/&Ntilde;/g, "Ṅ")
+                    .replace(/&ntilde;/g, "ñ");
+            text = text.replace(/&#193;/g, "Á")
+                   .replace(/&#225;/g, "á")
+                   .replace(/&#201;/g, "É")
+                   .replace(/&#233;/g, "é")
+                   .replace(/&#205;/g, "Í")
+                   .replace(/&#237;/g, "í")
+                   .replace(/&#211;/g, "Ó")
+                   .replace(/&#243;/g, "ó")
+                   .replace(/&#218;/g, "Ú")
+                   .replace(/&#250;/g, "ú")
+                   .replace(/&#220;/g, "Ü")
+                   .replace(/&#252;/g, "ü")
+                   .replace(/&#209;/g, "ñ");
+            return text;
+        }
+    </script>
+
+</head>
+<body>
+    <header></header>
+    <div id="body">
+        @RenderBody()
+    </div>
+    <script src="@Url.Content("~/Content/bootstrap/js/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/Content/bootstrap/js/ie10-viewport-bug-workaround.js")"></script>
+    <!-- Libreria de mensajes  -->
+    <script src="~/Scripts/bootbox.min.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

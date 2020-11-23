@@ -1,0 +1,188 @@
+﻿@model Verificador.Vista.Models.EventoViewModel
+
+<div class="panel panel-primary" id="categorias">
+    <div class="panel-heading">1) Seleccione la Categoria</div>
+    <div class="panel-body">
+
+        @foreach (var categoria in new Verificador.Vista.Models.ServicioCategoria().Read())
+        {
+            <div class="col-md-3 col-sm-4 placeholder categoria" onclick="SelectedCategoria({ nombre: '@(categoria.Nombre)', id: @(categoria.Id) });">
+                <a class="img-responsive well well-sm">
+                    <p>
+                        @(categoria.Nombre)
+                    </p>
+                </a>
+            </div>
+        }
+        <div id="SelectedCategory" style="width:50%; margin-left:auto; margin-right:auto; display:none;">
+            <div class="alert alert-info alert-dismissable fade in" style="transition: height 4s;">
+                <a href="javascript:void(0)" class="close" aria-label="close" onclick="deselectedAlert()">&times;</a>
+                <div id="text"></div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<div class="panel panel-primary hide" id="informacion-general">
+    <div class="panel-heading">2) Información General</div>
+    <div class="panel-body">
+        @using (Html.BeginForm("Evento_1", "Evento", FormMethod.Post, new { id = "formDaosGenrales" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(model => model.Id)
+            @Html.HiddenFor(model => model.Categoria_id)
+
+            <fieldset>
+                @*<legend>EventoViewModel</legend>*@
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Nombre, new { @class = "form-control-label" })
+                            @Html.Kendo().TextBoxFor(model => model.Nombre).HtmlAttributes(new { @class = "form-control", required = "required" })
+                            @Html.ValidationMessageFor(model => model.Nombre)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Empresario_id, new { @class = "form-control-label" })
+                            @(Html.Kendo().DropDownListFor(m => m.Empresario_id)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .OptionLabel("Seleccione")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.TipoEvento_id, new { @class = "form-control-label" })
+                            @(Html.Kendo().DropDownListFor(m => m.TipoEvento_id)
+                                    .BindTo(Verificador.Vista.Models.ServicioTipoEvento.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Foto, new { @class = "form-control-label" })
+                            @(Html.Kendo().Upload()
+                                    .Name("files")
+                                    .Multiple(false)
+                                    .Async(a => a
+                                        .Save("Save", "Evento")
+                                        .Remove("Remove", "Evento")
+                                        .AutoUpload(true)
+                                    )
+                            )
+                        </div>
+                    </div>
+                    @*<div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.VerCodigoArtesEscenicas, new { @class = "form-control-label" })
+                            @(Html.Kendo().DropDownListFor(m => m.VerCodigoArtesEscenicas)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptonsVentasWeb())
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                        </div>
+                    </div>*@
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EventoPublico, new { @class = "form-control-label" })
+                            @(Html.Kendo().DropDownListFor(m => m.EventoPublico)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptonsVentasWeb())
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EdadMinima, new { @class = "form-control-label" })
+                            @Html.TextBoxFor(m => m.EdadMinima, new { @class = "form-control", type = "number", min = "1" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.AforoTotal, new { @class = "form-control-label" })
+                            @Html.TextBoxFor(m => m.AforoTotal, new { @class = "form-control", type = "number", min = "1" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Descripcion, new { @class = "form-control-label" })
+                            @(Html.Kendo().EditorFor(model => model.Descripcion)
+                                          .HtmlAttributes(new { style = "height:300px" })
+                                          .Tools(tools => tools
+                                                .Clear()
+                                                .Bold().Italic().Underline().Strikethrough()
+                                                .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+                                                .InsertUnorderedList().InsertOrderedList()
+                                                .Outdent().Indent()
+                                                .CreateLink().Unlink()
+                                              //.TableEditing()
+                                                .ViewHtml()
+                                                .Formatting()
+                                              //.CleanFormatting()
+                                                .FontName()
+                                                .FontSize()
+                                                .FontColor().BackColor()
+                                            )
+                            )
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <hr />
+                    <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                        <button type="submit" class="btn btn-primary btn-lg" name="Next" id="Next">
+                            Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                        </button>
+                    </dv>
+                </div>
+
+                @*<div class="row">
+                        <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                            <input type="submit" class="btn btn-primary" value="Siguiente" />
+                        </dv>
+                    </div>*@
+
+
+
+            </fieldset>
+        }
+    </div>
+</div>
+
+<script>
+    $("#Id").val(Evento_id);
+
+    var Estado = '@Model.Estado';
+    if (Estado == 'informacionGenral') {
+        SelectedCategoria({ nombre: '@Model.Categoria.Nombre', id: '@Model.Categoria.Id' });
+        $("#informacion-general").removeClass('hide');
+        Progress(12);
+    }
+</script>

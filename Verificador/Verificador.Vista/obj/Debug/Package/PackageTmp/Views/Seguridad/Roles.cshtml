@@ -1,0 +1,160 @@
+﻿@{
+    ViewBag.Title = "Roles";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script>
+    var idRolSeleccionado = null;
+    function showPermisos(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        idRolSeleccionado = dataItem.Id;
+        $("#windowPermisos").data("kendoWindow").center().open();
+        refrescarGrid();
+    }
+
+    function refrescarGrid() {
+        var grid = $("#gridPermisos").data("kendoGrid");
+        grid.dataSource.page(1);
+        grid.dataSource.read();
+    }
+
+    function addRolParameter() {
+        return {
+            idRol: idRolSeleccionado
+        }
+    }
+
+    function GuardarRoles() {
+        var windowPermisos = $("#windowPermisos");
+        var checks = windowPermisos.find("input[name='chkSel']")
+        var ids = "";
+        for (var i = 0; i < checks.length; i++) {
+            if (checks[i].checked) {
+                if (ids != "") {
+                    ids += ",";
+                }
+                ids += $(checks[i]).val();
+            }
+        }
+
+        var url = urlBase + "Seguridad" + "/" + "GuardarPermisosRol";
+        $.get(url, { idRol: idRolSeleccionado, permisos: ids },
+        function (data) {
+            if (data != null && data != "") {
+                alert(data);
+            } else {
+                $("#windowPermisos").data("kendoWindow").close();
+            }
+        });
+
+    }
+
+    function showDetalle(e) {
+        var divEdit = $("div[class='k-edit-form-container']");
+
+        var labels = $("div[class='editor-label']");
+        var fields = $("div[class='editor-field']");
+
+        labels[0].style.display = "none";
+        fields[0].style.display = "none";
+
+    }
+
+</script>
+
+
+@(Html.Kendo().Window()
+    .Name("windowPermisos")
+    .Width(600)    
+    .Title("Permisos del Rol")
+    .Scrollable(true)
+    .Visible(false)
+    .Content(
+        
+        Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.PermisoViewModel>()
+                        .Name("gridPermisos")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Seleccionado).ClientTemplate("<input name='chkSel' value='#= Id #' type='checkbox' #= Seleccionado ? checked='checked' : '' #  ></input>").Width(80).HtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(c => c.Nombre).Width(190);                            
+                        })
+                        .HtmlAttributes(new { /*style = "height: 300px;"*/ })                       
+                        .Editable(editable =>
+                                {
+                                    editable.Mode(GridEditMode.PopUp);                                    
+                                }
+                            )                            
+                        .Scrollable()
+                        .Filterable()                        
+                        .Sortable()                        
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize((new Verificador.Vista.Models.Servicios.ServicioPermisos().Read()).Count())
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+
+                            })
+                            .Read(read => read.Action("PermisosRol_Read", "Seguridad").Data("addRolParameter"))                            
+                         ).ToHtmlString() +
+                         "<br/><div style='text-align:right'>" +
+                         Html.Kendo().Button().
+                            Name("btnGuardarPermisos").Content("Guardar").Events(events => events.Click("GuardarRoles")) +
+                         "</div>"                   
+    )
+    
+)
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.RoleViewModel>()
+                        .Name("gridRoles")
+                        .Columns(columns =>
+                        {
+                            columns.Command(command =>
+                            {
+                                command.Edit();
+                                command.Destroy();
+                                command.Custom("verPermisos").Text("Ver Permisos").Click("showPermisos");
+                            }).Width(350);
+                            columns.Bound(c => c.Nombre);
+                            columns.Bound(c => c.ParaEmpresa).Title("Aplica para Empresarios");
+                            columns.Bound(c => c.ParaMatipos).Title("Aplica para Matipos");
+                            columns.Bound(c => c.FechaCreacion).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);                                                         
+                        })
+                        .HtmlAttributes(new { style = "height: 500px;"})
+                        .ToolBar(toolbar => {
+                            toolbar.Create();                                               
+                        })
+                        .Editable(editable =>
+                                {
+                                    editable.Mode(GridEditMode.PopUp);                                    
+                                }
+                            )
+                        .Events(events => events.Edit("showDetalle"))
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                                model.Field(p => p.Seleccionado).Editable(false);
+
+                            })
+                            .Read(read => read.Action("Roles_Read", "Seguridad"))
+                            .Create(update => update.Action("Roles_Create", "Seguridad"))
+                            .Update(update => update.Action("Roles_Update", "Seguridad"))
+                            .Destroy(update => update.Action("Roles_Destroy", "Seguridad"))
+                         )
+                                                  
+                    )
+

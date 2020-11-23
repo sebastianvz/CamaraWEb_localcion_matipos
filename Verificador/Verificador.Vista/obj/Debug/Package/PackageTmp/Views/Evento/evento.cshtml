@@ -1,0 +1,1469 @@
+﻿@model Verificador.Vista.Models.EventoViewModel
+
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    .categoria {
+        padding: 5px;
+    }
+
+        .categoria .img-responsive {
+            cursor: pointer;
+        }
+
+            .categoria .img-responsive:hover {
+                color: #337ab7;
+                border: 1px solid #337ab7 !important;
+            }
+
+    .servicios {
+        min-height: 20px;
+        padding: 10px 10px 0px 15px;
+        background-color: #f5f5f5;
+        border: 1px solid #e3e3e3;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+    }
+
+    #map {
+        width: 100%;
+        height: 200px;
+    }
+
+    .form-invalid {
+        background-color: #eac3c3 !important;
+        border: 1px solid red !important;
+    }
+</style>
+@*<script src="~/Scripts/pages/Evento/evento.js"></script>*@
+<script type="text/javascript">
+    var CategoriaSelected = 0;
+    @*var Evento_id = '@Model.Id';*@
+
+    var Evento_id = 0;
+
+    var Localidades = [],
+      divLocalidades = $("#divLocalidades"),
+      Localidad_id = 0,
+      LimpiarLocalidad = function () {
+          $(".Localidad .form-control").val("");
+          $("#TipoLocalidad").data("kendoDropDownList").value("");
+          $("#fmOrientacion").data("kendoDropDownList").value("");
+          $("#fmTipoNumeracion").data("kendoDropDownList").value("");
+          $("#fmTipoNumeracion").data("kendoDropDownList").value("");
+          $("#TipoPalco").data("kendoDropDownList").value("");
+          $("#PalcofmOrientacion").data("kendoDropDownList").value("");
+          $("#PalcofmTipoNumeracion").data("kendoDropDownList").value("");
+          $(".palco").addClass("hide");
+          $(".Localidad .panel").addClass("hide");
+      },
+      RemoveLocalidad = function (e) {
+          if (confirm('¿Esta seguro que desea eliminar esta localidad?')) {
+              for (var i = 0; i < Localidades.length; i++) {
+                  if (Localidades[i].Id == e) {
+                      Localidades.splice(i, 1);
+                      $("#Localidad" + e).remove();
+                  }
+              }
+          }
+      },
+      getLocalidadData = function () {
+          ddTipoLocalidad = $("#TipoLocalidad").data("kendoDropDownList");
+
+          var LocalidadMesasFilasSillas = [],
+              Sillas = [],
+              tipoLocalidad = parseInt(ddTipoLocalidad.value()),
+              cFilasMesas = tipoLocalidad == 2 ? $("#fmFilas").val() : tipoLocalidad == 3 ? $("#msCantidadMesas").val() : 0,
+              cSillas = tipoLocalidad == 2 ? $("#fmColumnas").val() : tipoLocalidad == 3 ? $("#msCantidadSillas").val() : 0;
+
+          switch (tipoLocalidad) {
+              case 2:
+                  for (var i = 0; i < cFilasMesas; i++) {
+                      for (var j = 0; j < cSillas; j++) {
+                          Sillas.push({
+                              Id: j,
+                              Label: "C" + j,
+                              Orientacion: $("#fmOrientacion").data("kendoDropDownList").value(),
+                              TipoNumeracion_id: $("#fmTipoNumeracion").data("kendoDropDownList").value()
+                          });
+                      }
+                      LocalidadMesasFilasSillas.push({
+                          MesasFilas: {
+                              Id: i,
+                              Label: "F" + i,
+                              Orientacion: $("#fmOrientacion").data("kendoDropDownList").value(),
+                              TipoNumeracion_id: $("#fmTipoNumeracion").data("kendoDropDownList").value(),
+                              Sillas: Sillas
+                          }, Consumo: {
+                              Id: i,
+                              Valor: $("#ValorConsumo").val(),
+                              descripcion: $("#DescripcionConsumo").val()
+                          }
+                      });
+                      Sillas = [];
+                  }
+                  break;
+              case 3:
+                  for (var i = 0; i < cFilasMesas; i++) {
+                      for (var j = 0; j < cSillas; j++) {
+                          Sillas.push({
+                              Id: j,
+                              Label: "S" + j,
+                              TipoNumeracion_id: $("#msTipoNumeracion").data("kendoDropDownList").value()
+                          });
+                      }
+                      LocalidadMesasFilasSillas.push({
+                          MesasFilas: {
+                              Id: i,
+                              Label: "M" + i,
+                              TipoNumeracion_id: $("#msTipoNumeracion").data("kendoDropDownList").value(),
+                              Sillas: Sillas
+                          }, Consumo: {
+                              Id: i,
+                              Valor: $("#ValorConsumo").val(),
+                              descripcion: $("#DescripcionConsumo").val()
+                          }
+                      });
+                      Sillas = [];
+                  }
+                  break;
+              case 4:
+                  ddlTipoPalco = $("#TipoPalco").data("kendoDropDownList");
+                  var tipoPalco = parseInt(ddlTipoPalco.value());
+                  LocalidadMesasFilasSillas = [];
+                  Sillas = [];
+                  cFilasMesas = tipoPalco == 2 ? $("#PalcofmFilas").val() : tipoLocalidad == 3 ? $("#PalcomsCantidadMesas").val() : 0;
+                  cSillas = tipoPalco == 2 ? $("#PalcofmColumnas").val() : tipoLocalidad == 3 ? $("#PalcofmColumnas").val() : 0;
+                  switch (tipoPalco) {
+                      case 2:
+                          for (var i = 0; i < cFilasMesas; i++) {
+                              for (var j = 0; j < cSillas; j++) {
+                                  Sillas.push({
+                                      Id: j,
+                                      Label: "P-C" + j,
+                                      Orientacion: $("#PalcofmOrientacion").data("kendoDropDownList").value(),
+                                      TipoNumeracion_id: $("#PalcofmOrientacion").data("kendoDropDownList").value()
+                                  });
+                              }
+                              LocalidadMesasFilasSillas.push({
+                                  MesasFilas: {
+                                      Id: i,
+                                      Label: "P-F" + i,
+                                      Orientacion: $("#PalcofmOrientacion").data("kendoDropDownList").value(),
+                                      TipoNumeracion_id: $("#PalcofmOrientacion").data("kendoDropDownList").value(),
+                                      Sillas: Sillas
+                                  }, Consumo: {
+                                      Id: i,
+                                      Valor: $("#ValorConsumo").val(),
+                                      descripcion: $("#DescripcionConsumo").val()
+                                  }
+                              });
+                              Sillas = [];
+                          }
+                          break;
+                      case 3:
+                          for (var i = 0; i < cFilasMesas; i++) {
+                              for (var j = 0; j < cSillas; j++) {
+                                  Sillas.push({
+                                      Id: j,
+                                      Label: "P-S" + j,
+                                      TipoNumeracion_id: $("#PalcomsTipoNumeracion").data("kendoDropDownList").value()
+                                  });
+                              }
+                              LocalidadMesasFilasSillas.push({
+                                  MesasFilas: {
+                                      Id: i,
+                                      Label: "P-M" + i,
+                                      TipoNumeracion_id: $("#PalcomsTipoNumeracion").data("kendoDropDownList").value(),
+                                      Sillas: Sillas
+                                  }, Consumo: {
+                                      Id: i,
+                                      Valor: $("#ValorConsumo").val(),
+                                      descripcion: $("#DescripcionConsumo").val()
+                                  }
+                              });
+                              Sillas = [];
+                          }
+                          break;
+                      default: LocalidadMesasFilasSillas = [];
+                  }
+                  break;
+              default: LocalidadMesasFilasSillas = [];
+          }
+          return LocalidadMesasFilasSillas;
+      },
+      getLocationHTML = function (e) {
+          var sHTML = '<div class="col-xs-12 col-sm-12 col-md-12" id="Localidad' + e.id + '">'
+          + '<div class="alert alert-info alert-dismissable fade in" style="padding:10px 10px 10px 16px" role="alert">'
+          + '<a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="RemoveLocalidad(' + e.id + ')"><span class="glyphicon glyphicon-remove" style="font-size: x-large" aria-hidden="true"></span></a>'
+          + '<div class="row"><div class="col-xs-1 col-sm-1 col-md-1">'
+          + '<span class="glyphicon ';
+          switch (e.tipo) {
+              case 1: sHTML += 'glyphicon-th-large'
+                  break;
+              case 2: sHTML += 'glyphicon-align-justify'
+                  break;
+              case 3: sHTML += 'glyphicon-bed'
+                  break;
+              case 4: sHTML += 'glyphicon-glass'
+                  break;
+          }
+          sHTML += '" style="font-size: -webkit-xxx-large;" aria-hidden="true"></span></div><div class="col-xs-10 col-sm-10 col-md-10">'
+              + '<h4 class="alert-heading">' + $("#NombreLocalidad").val() + ' <small>' + ddTipoLocalidad.text() + '</small></h4><table class="table"><tr>';
+          switch (e.tipo) {
+              case 1: sHTML += '<td><b>Capacidad: </b>' + $("#AforoCapacidad").val() + '</td>'
+                  + '<td><b>Valor del Consumo: </b>' + $("#ValorConsumo").val() + '</td>'
+                  + '<td><b>Descripción del Consumo: </b>' + $("#DescripcionConsumo").val() + '</td>';
+                  break;
+              case 2: sHTML += '<td><b>Cantidad de Filas: </b>' + $("#fmFilas").val() + '</td>'
+                  + '<td><b>Cantidad de Columnas: </b>' + $("#fmColumnas").val() + '</td>'
+                  + '<td><b>Orientación: </b>' + $("#fmOrientacion").data("kendoDropDownList").text() + '</td>'
+                  + '</tr><tr><td><b>Tipo de Numeración: </b>' + $("#fmTipoNumeracion").data("kendoDropDownList").text() + '</td>'
+                  + '<td><b>Valor del Consumo: </b>' + $("#ValorConsumo").val() + '</td>'
+                  + '<td><b>Descripción del Consumo: </b>' + $("#DescripcionConsumo").val() + '</td>';
+                  break;
+              case 3: sHTML += '<td><b>Cantidad de Mesas: </b>' + $("#msCantidadMesas").val() + '</td>'
+                  + '<td><b>Cantidad de Sillas por Mesa: </b>' + $("#msCantidadSillas").val() + '</td>'
+                  + '<td><b>Tipo de Numeración: </b>' + $("#msTipoNumeracion").data("kendoDropDownList").text() + '</td>'
+                  + '</tr><tr><td colspan="3"><table style="width:100%"><tr><td><b>Valor del Consumo: </b>' + $("#ValorConsumo").val() + '</td>'
+                  + '<td><b>Descripción del Consumo: </b>' + $("#DescripcionConsumo").val() + '</td></tr></table></td>';
+                  break;
+              case 4: sHTML += '<td><b>Tipo de Palco: </b>' + $("#TipoPalco").data("kendoDropDownList").text() + '</td></tr><tr><td colspan="3"><table style="width:100%"><tr>';
+                  switch (parseInt($("#TipoPalco").data("kendoDropDownList").value())) {
+                      case 1: sHTML += '<td><b>Capacidad: </b>' + $("#PalcoAforoCapacidad").val() + '</td>'
+                          + '<td><b>Valor del Consumo: </b>' + $("#ValorConsumo").val() + '</td>'
+                          + '<td><b>Descripción del Consumo: </b>' + $("#AforoCapacidad").val() + '</td>';
+                          break;
+                      case 2: sHTML += '<td><b>Cantidad de Filas: </b>' + $("#PalcofmFilas").val() + '</td>'
+                          + '<td><b>Cantidad de Columnas: </b>' + $("#PalcofmColumnas").val() + '</td>'
+                          + '<td><b>Orientación: </b>' + $("#PalcofmOrientacion").data("kendoDropDownList").text() + '</td></tr><tr>'
+                          + '<td><b>Tipo de Numeración: </b>' + $("#PalcofmTipoNumeracion").data("kendoDropDownList").text() + '</td>'
+                          + '<td><b>Valor del Consumo: </b>' + $("#ValorConsumo").val() + '</td>'
+                          + '<td><b>Descripción del Consumo: </b>' + $("#DescripcionConsumo").val() + '</td>';
+                          break;
+                      case 3: sHTML += '<td><b>Cantidad de Mesas: </b>' + $("#PalcomsCantidadMesas").val() + '</td>'
+                          + '<td><b>Cantidad de Sillas por Mesa: </b>' + $("#PalcomsCantidadSillas").val() + '</td>'
+                          + '<td><b>Tipo de Numeración: </b>' + $("#PalcomsTipoNumeracion").data("kendoDropDownList").text() + '</td>'
+                          + '</tr><tr><td colspan="3"><table style="width:100%"><tr><td><b>Valor del Consumo: </b>' + $("#ValorConsumo").val() + '</td>'
+                          + '<td><b>Descripción del Consumo: </b>' + $("#DescripcionConsumo").val() + '</td></tr></table></td>';
+                          break;
+                  }
+                  sHTML += '</tr></table></td>';
+                  break;
+          }
+          sHTML += '</tr></table></div></div></div></div>';
+          return sHTML;
+      },
+      ValidateLocacion = function (e) {
+          var invalid = false;
+          if ($("#NombreLocalidad").val() == "") {
+              $("#NombreLocalidad").addClass("form-invalid");
+              invalid = true;
+          }
+          if ($("#TipoLocalidad").data("kendoDropDownList").value() == "") {
+              $("#TipoLocalidad").addClass("form-invalid");
+              invalid = true;
+          }
+          if ($("#ValorConsumo").val() == "") {
+              $("#ValorConsumo").addClass("form-invalid");
+              invalid = true;
+          }
+          if ($("#DescripcionConsumo").val() == "") {
+              $("#DescripcionConsumo").addClass("form-invalid");
+              invalid = true;
+          }
+          switch (e) {
+              case 1: if ($("#AforoCapacidad").val() == "") {
+                  $("#AforoCapacidad").addClass("form-invalid");
+                  invalid = true;
+              }
+                  break;
+              case 2: if ($("#fmFilas").val() == "") {
+                  $("#fmFilas").addClass("form-invalid");
+                  invalid = true;
+              } if ($("#fmColumnas").val() == "") {
+                  $("#fmColumnas").addClass("form-invalid");
+                  invalid = true;
+              } if ($("#fmOrientacion").data("kendoDropDownList").value() == "") {
+                  $("#fmOrientacion").addClass("form-invalid");
+                  invalid = true;
+              } if ($("#fmTipoNumeracion").data("kendoDropDownList").value() == "") {
+                  $("#fmTipoNumeracion").addClass("form-invalid");
+                  invalid = true;
+              }
+                  break;
+              case 3: if ($("#msCantidadMesas").val() == "") {
+                  $("#msCantidadMesas").addClass("form-invalid");
+                  invalid = true;
+              } if ($("#msCantidadSillas").val() == "") {
+                  $("#msCantidadSillas").addClass("form-invalid");
+                  invalid = true;
+              } if ($("#msTipoNumeracion").data("kendoDropDownList").value() == "") {
+                  $("#msTipoNumeracion").addClass("form-invalid");
+                  invalid = true;
+              }
+                  break;
+              case 4: if ($("#TipoPalco").data("kendoDropDownList").value() == "") {
+                  $("#TipoPalco").addClass("form-invalid");
+                  invalid = true;
+              } else {
+                  switch (parseInt($("#TipoPalco").data("kendoDropDownList").value())) {
+                      case 1: if ($("#PalcoAforoCapacidad").val() == "") {
+                          $("#PalcoAforoCapacidad").addClass("form-invalid");
+                          invalid = true;
+                      }
+                          break;
+                      case 2: if ($("#PalcofmFilas").val() == "") {
+                          $("#PalcofmFilas").addClass("form-invalid");
+                          invalid = true;
+                      } if ($("#PalcofmColumnas").val() == "") {
+                          $("#PalcofmColumnas").addClass("form-invalid");
+                          invalid = true;
+                      } if ($("#PalcofmOrientacion").data("kendoDropDownList").value() == "") {
+                          $("#PalcofmOrientacion").addClass("form-invalid");
+                          invalid = true;
+                      } if ($("#PalcofmTipoNumeracion").data("kendoDropDownList").value() == "") {
+                          $("#PalcofmTipoNumeracion").addClass("form-invalid");
+                          invalid = true;
+                      }
+                          break;
+                      case 3: if ($("#PalcomsCantidadMesas").val() == "") {
+                          $("#PalcomsCantidadMesas").addClass("form-invalid");
+                          invalid = true;
+                      } if ($("#PalcomsCantidadSillas").val() == "") {
+                          $("#PalcomsCantidadSillas").addClass("form-invalid");
+                          invalid = true;
+                      } if ($("#PalcomsTipoNumeracion").data("kendoDropDownList").value() == "") {
+                          $("#PalcomsTipoNumeracion").addClass("form-invalid");
+                          invalid = true;
+                      }
+                          break;
+                  }
+              }
+
+                  break;
+          }
+          return invalid;
+      },
+      AddLocalidad = function () {
+          ddTipoLocalidad = $("#TipoLocalidad").data("kendoDropDownList");
+          Localidad_id -= 1,
+          tipoLocalidad = parseInt(ddTipoLocalidad.value());
+          if (ValidateLocacion(tipoLocalidad)) {
+              return;
+          }
+          var Localidad = {
+              Id: Localidad_id,
+              Label: $("#NombreLocalidad").val(),
+              TipoLocalidad_id: tipoLocalidad,
+              Aforo: tipoLocalidad == 4 ? $("#PalcoAforoCapacidad").val() : $("#AforoCapacidad").val(),
+              LocalidadMesasFilasSillas: getLocalidadData()
+          }
+          Localidades.push(Localidad);
+          divLocalidades.append(getLocationHTML({ id: Localidad_id, tipo: tipoLocalidad }));
+          LimpiarLocalidad();
+      };
+
+    function ShowTipoPalco() {
+        ddlTipoPalco = $("#TipoPalco").data("kendoDropDownList");
+        $(".palco").addClass("hide");
+        var idPanel = "#Palco #" + ddlTipoPalco.text().replace(' y ', '');
+        $(idPanel).removeClass("hide");
+    }
+
+    function ShowTipoLocation() {
+        ddlTipoLocalidad = $("#TipoLocalidad").data("kendoDropDownList");
+        $(".Localidad .panel").addClass("hide");
+        var idPanel = "#" + ddlTipoLocalidad.text().replace(' y ', '');
+        $(idPanel).removeClass("hide");
+    }
+
+    function showValorIpuesto() {
+        ddlImpueto = $("#Impuestos").data("kendoDropDownList");
+        if (ddlImpueto.value() == '0' || ddlImpueto.value() == '') {
+            return false;
+        }
+        var url = urlBase + "Evento/getValorImpuesto";
+        $.get(url, { id: ddlImpueto.value() }, function (e) {
+            $("#ValorIpuesto").val(e.Valor);
+        });
+    }
+
+    //var Impuestos = [],
+    //   divImpuestos = $("#divImpuestos"),
+    //   AddImpueto = function () {
+    //       ddlImpueto = $("#Impuestos").data("kendoDropDownList");
+    //       if (isItemRepeat(Impuestos, ddlImpueto.value())) {
+    //           alert("El impuesto " + ddlImpueto.text() + " ya se encuentra aplicado a este evento");
+    //           return false;
+    //       }
+    //       Impuestos.push({ Id: ddlImpueto.value() });
+    //       divImpuestos.append('<div class="col-md-3">'
+    //       + '<div class="alert alert-info alert-dismissible fade in" style="padding:10px 20px 10px 10px" role="alert">'
+    //       + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="RemoveImpuesto(' + ddlImpueto.value() + ')">'
+    //       + '<span aria-hidden="true">&times;</span>'
+    //       + '</button>'
+    //       + '<strong>'
+    //       + ddlImpueto.text()
+    //       + '</strong> '
+    //       + $("#ValorIpuesto").val()
+    //       + '</div>'
+    //       + '</div>');
+    //   },
+    //   RemoveImpuesto = function (e) {
+    //       for (var i = 0; i < Impuestos.length; i++) {
+    //           if (Impuestos[i].Id == e) {
+    //               Impuestos.splice(i, 1);
+    //           }
+    //       }
+    //   };
+
+
+    var Funciones = [],
+        FuncionActual = 0,
+        divFunciones = $("#divFunciones"),
+        AddFuncion = function () {
+            var inicio = $("#InicioFuncion").val(),
+                final = $("#FinalFuncion").val(),
+                now = Date.now();
+            if (inicio == '' || final == '') {
+                alert("La fecha de inicio y final son obligatorias");
+                return false;
+            }
+            inicio = Date.parse(inicio);
+            final = Date.parse(final);
+            if ((inicio < now) || final < now) {
+                alert("La fecha de inicio y final no deben de ser menores a la fecha actual");
+                return false;
+            }
+            if (inicio > final) {
+                alert("La fecha de inicio no puede ser mayor a la final");
+                return false;
+            }
+            if (inicio.getTime() === final.getTime()) {
+                alert("La fecha inicial no debe de ser igual a la final");
+                return false;
+            }
+            if ((final - inicio) > 86400000) {
+                alert("las funciones no deben de tener una duración mayor a 24 horas");
+                return false;
+            }
+            FuncionActual += 1;
+            Funciones.push({
+                Id: FuncionActual,
+                CodigoPulep: $("#CodigoPulep").val(),
+                FechaInicial: $("#InicioFuncion").val(),
+                FechaFinal: $("#FinalFuncion").val(),
+                AperturaPuertas: $("#HoraInicioFuncion").val(),
+                Descripcion: $("#descripcionFuncion").val(),
+                Label: $("#LabelFuncion").val()
+            });
+            var nombreFuncion = $("#LabelFuncion").val(),
+                sHTML = '<div class="col-xs-12 col-sm-12 col-md-12">'
+                    + '<div class="alert alert-info alert-dismissible fade in" style="padding:10px 20px 10px 10px" role="alert">'
+                    + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="RemoveFuncion(' + FuncionActual + ')">'
+                    + '<span aria-hidden="true">&times;</span>'
+                    + '</button>'
+                    + '<div class="row" style="padding:0px 0px 0px 15px;">'
+                    + '<table style="width:100%"><tr>'
+                    + '<td><p><b>' + (nombreFuncion == '' ? "Funcion # " + FuncionActual : nombreFuncion) + '</b></p></td>'
+                    + '<td><p><b>' + $("#CodigoPulep").val() + '</b></p></td>'
+                    + '<td><p><b>Desde:</b> ' + $("#InicioFuncion").val() + '</p></td>'
+                    + '<td><p><b>Hasta:</b> ' + $("#FinalFuncion").val() + '</p></td>'
+                    + '<td><p><b>Hora de apertura:</b> ' + $("#HoraInicioFuncion").val() + '</p></td>'
+                    + '</tr><tr><td colspan="5"><p>' + $("#descripcionFuncion").val() + '</p></td>'
+                    + '</tr></table>'
+                    + '</div>'
+                    + '</div>'
+                    + '</div>';
+            divFunciones.append(sHTML);
+            $(".Funcion .form-control").val("");
+        },
+        RemoveFuncion = function (e) {
+            for (var i = 0; i < Funciones.length; i++) {
+                if (Funciones[i].Id == e) {
+                    Funciones.splice(i, 1);
+                }
+            }
+        };
+
+    function showServicios() {
+        var estado = $("#AplicaServicio").val();
+        if (estado == "Si") {
+            $("#divServicio").removeClass("hide");
+        } else {
+            $("#divServicio").addClass("hide");
+        }
+    }
+
+    //var Servicios = [],
+    //    divServicios = $("#divServicios"),
+    //    AddServicio = function () {
+    //        ddlServicio = $("#Servicio").data("kendoDropDownList");
+    //        if (isItemRepeat(Servicios, ddlServicio.value())) {
+    //            alert("El servicio " + ddlServicio.text() + " ya se encuentra asociado al evento");
+    //            return false;
+    //        }
+    //        Servicios.push({ Id: ddlServicio.value() });
+    //        divServicios.append('<div class="col-md-3">'
+    //        + '<div class="alert alert-primary alert-dismissible fade in" style="padding:10px 20px 10px 10px" role="alert">'
+    //        + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="RemoveServicio(' + ddlServicio.value() + ')">'
+    //        + '<span aria-hidden="true">&times;</span>'
+    //        + '</button>'
+    //        + '<strong>'
+    //        + ddlServicio.text()
+    //        + '</strong>'
+    //        + '</div>'
+    //        + '</div>');
+    //    },
+    //    RemoveServicio = function (e) {
+    //        for (var i = 0; i < Servicios.length; i++) {
+    //            if (Servicios[i].Id == e) {
+    //                Servicios.splice(i, 1);
+    //            }
+    //        }
+    //    };
+
+    function isItemRepeat(array, e) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].Id == e) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function SelectedCategoria(categoria) {
+        $(".categoria").fadeOut("slow");
+        $("#text").html("<strong>" + categoria.nombre + "</strong>");
+        $("#SelectedCategory").show();
+        CategoriaSelected = categoria.id;
+        $("#Categoria_id").val(categoria.id);
+        Progress(12);
+        $("#informacion-general").removeClass('hide');
+    }
+
+    function deselectedAlert() {
+        $("#SelectedCategory").hide();
+        $(".categoria").fadeIn("slow");
+        $("#text").html("");
+        CategoriaSelected = 0;
+        $("#Categoria_id").val();
+        Progress(0);
+        $("#informacion-general").addClass('hide');
+    }
+
+    function Progress(value) {
+        var progress = $('.progress-bar');
+        progress.css('width', value + '%').attr('aria-valuenow', value).html(value + '%');
+    }
+</script>
+
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
+
+<section>
+    <div class="container">
+        <div class="panel panel-primary" id="categorias">
+            <div class="panel-heading">1) Seleccione la Categoria</div>
+            <div class="panel-body">
+                @foreach (var categoria in new Verificador.Vista.Models.ServicioCategoria().Read())
+                {
+                    <div class="col-md-3 col-sm-4 placeholder categoria" onclick="SelectedCategoria({ nombre: '@(categoria.Nombre)', id: @(categoria.Id) });">
+                        <a class="img-responsive well well-sm">
+                            <p>
+                                @(categoria.Nombre)
+                            </p>
+                        </a>
+                    </div>
+                }
+                <div id="SelectedCategory" style="width:50%; margin-left:auto; margin-right:auto; display:none;">
+                    <div class="alert alert-info alert-dismissable fade in" style="transition: height 4s;">
+                        <a href="javascript:void(0)" class="close" aria-label="close" onclick="deselectedAlert()">&times;</a>
+                        <div id="text"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel panel-primary hide" id="informacion-general">
+            <div class="panel-heading">2) Información General</div>
+            <div class="panel-body">
+                @using (Html.BeginForm("InformacionGeneral_save", "Evento", FormMethod.Post, new { id = "formDaosGenrales" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    @Html.HiddenFor(model => model.Id)
+                    @Html.HiddenFor(model => model.Categoria_id)
+
+                    <fieldset>
+                        @*<legend>EventoViewModel</legend>*@
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Nombre, new { @class = "form-control-label" })
+                                    @Html.Kendo().TextBoxFor(model => model.Nombre).HtmlAttributes(new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Nombre)
+                                    <small class="form-text text-muted">Example help text that remains unchanged.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Empresario_id, new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownListFor(m => m.Empresario_id)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .OptionLabel("Seleccione")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.TipoEvento_id, new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownListFor(m => m.TipoEvento_id)
+                                    .BindTo(Verificador.Vista.Models.ServicioTipoEvento.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Foto, new { @class = "form-control-label" })
+                                    @(Html.Kendo().Upload()
+                                    .Name("files")
+                                    .Multiple(false)
+                                    .Async(a => a
+                                        .Save("Save", "Evento")
+                                        .Remove("Remove", "Evento")
+                                        .AutoUpload(true)
+                                    )
+                                    )
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.VerCodigoArtesEscenicas, new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownListFor(m => m.VerCodigoArtesEscenicas)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptonsVentasWeb())
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.EventoPublico, new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownListFor(m => m.EventoPublico)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptonsVentasWeb())
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.EdadMinima, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(m => m.EdadMinima, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.AforoTotal, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(m => m.AforoTotal, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Descripcion, new { @class = "form-control-label" })
+                                    @(Html.Kendo().EditorFor(model => model.Descripcion)
+                                          .HtmlAttributes(new { style = "height:300px" })
+                                          .Tools(tools => tools
+                                                .Clear()
+                                                .Bold().Italic().Underline().Strikethrough()
+                                                .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+                                                .InsertUnorderedList().InsertOrderedList()
+                                                .Outdent().Indent()
+                                                .CreateLink().Unlink()
+                                              //.TableEditing()
+                                                .ViewHtml()
+                                                .Formatting()
+                                              //.CleanFormatting()
+                                                .FontName()
+                                                .FontSize()
+                                                .FontColor().BackColor()
+                                            )
+                                    )
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                                <input type="submit" class="btn btn-primary" value="Siguiente" />
+                            </dv>
+                        </div>
+
+
+
+                    </fieldset>
+                }
+            </div>
+        </div>
+
+        <script>
+            @*$("#Id").val(Evento_id);
+
+            var Estado = '@Model.Estado';
+            if (Estado == 'informacionGenral') {
+                $("#informacion-general").removeClass('hide');
+            }*@
+        </script>
+        <div class="panel panel-primary" id="informacion-adicional">
+            <div class="panel-heading">3) Información Adicional</div>
+            <div class="panel-body">
+                @using (Html.BeginForm("InformacionAdicional_Next", "Evento", FormMethod.Post, new { id = "formDatosAdicionales" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    @Html.TextBoxFor(model => model.Id, new { @class = "hide" })
+
+                    <fieldset>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.TipoRecaudo_id, new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownListFor(m => m.TipoRecaudo_id)
+                                    .BindTo(Verificador.Vista.Models.ServicioTipoRecaudo.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.CantidadDiasValides, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(m => m.CantidadDiasValides, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.AplicaServicio, new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownListFor(m => m.AplicaServicio)
+                                    .BindTo(Verificador.Vista.Models.ServicioEmpresarios.getOptonsVentasWeb())
+                                    .DataTextField("Text")
+                                    .DataValueField("Name")
+                                    .Events(e => e.Change("showServicios"))
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6 hide" id="divServicio">
+                                @Html.Label("Servicio", new { @class = "form-control-label" })
+                                <div class="input-group">
+                                    @(Html.Kendo().DropDownList().Name("Servicio")
+                                    .BindTo(Verificador.Vista.Models.ServicioTipoServicio.getOptions())
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" onclick="AddServicio()">Agregar Servicio</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12" id="divServicios">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.EntradasxUsuario, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(m => m.EntradasxUsuario, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.EntradasxPedidoOcompra, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(m => m.EntradasxPedidoOcompra, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Impuestos", new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownList()
+                                .Name("Impuestos")
+                                .BindTo(Verificador.Vista.Models.ServicioImpuesto.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .Events(e => e.Change("showValorIpuesto"))
+                                .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                @Html.Label("Valor del Impuesto", new { @class = "form-control-label" })
+                                <div class="input-group">
+                                    @Html.TextBox("ValorIpuesto", "", new { @class = "form-control", type = "number", disabled = "disabled" })
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" onclick="AddImpueto()">Aplicar Ipuesto</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12" id="divImpuestos">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                                @*<input type="button" class="btn btn-primary" id="Next" value="Siguiente" />*@
+
+                                <ul class="pager">
+                                    <li class="previous"><a href="javascript:void(0)" id="Previous">Previous</a></li>
+                                    <li class="next"><a href="javascript:void(0)" id="Next">Next</a></li>
+                                </ul>
+
+                            </dv>
+                        </div>
+
+                    </fieldset>
+                }
+            </div>
+        </div>
+        <script type="text/javascript">
+            var Impuestos = [],
+              divImpuestos = $("#divImpuestos"),
+              AddImpueto = function () {
+                  ddlImpueto = $("#Impuestos").data("kendoDropDownList");
+                  if (isItemRepeat(Impuestos, ddlImpueto.value())) {
+                      alert("El impuesto " + ddlImpueto.text() + " ya se encuentra aplicado a este evento");
+                      return false;
+                  }
+                  Impuestos.push({ Id: parseInt(ddlImpueto.value()), Nombre: 'Prueba Impuesto' });
+                  divImpuestos.append('<div class="col-md-3">'
+                  + '<div class="alert alert-info alert-dismissible fade in" style="padding:10px 20px 10px 10px" role="alert">'
+                  + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="RemoveImpuesto(' + ddlImpueto.value() + ')">'
+                  + '<span aria-hidden="true">&times;</span>'
+                  + '</button>'
+                  + '<strong>'
+                  + ddlImpueto.text()
+                  + '</strong> '
+                  + $("#ValorIpuesto").val()
+                  + '</div>'
+                  + '</div>');
+              },
+              RemoveImpuesto = function (e) {
+                  for (var i = 0; i < Impuestos.length; i++) {
+                      if (Impuestos[i].Id == e) {
+                          Impuestos.splice(i, 1);
+                      }
+                  }
+              };
+
+            var Servicios = [],
+                divServicios = $("#divServicios"),
+                AddServicio = function () {
+                    ddlServicio = $("#Servicio").data("kendoDropDownList");
+                    if (isItemRepeat(Servicios, ddlServicio.value())) {
+                        alert("El servicio " + ddlServicio.text() + " ya se encuentra asociado al evento");
+                        return false;
+                    }
+                    Servicios.push({ Id: parseInt(ddlServicio.value()) });
+                    divServicios.append('<div class="col-md-3">'
+                    + '<div class="alert alert-info alert-dismissible fade in" style="padding:10px 20px 10px 10px" role="alert">'
+                    + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="RemoveServicio(' + ddlServicio.value() + ')">'
+                    + '<span aria-hidden="true">&times;</span>'
+                    + '</button>'
+                    + '<strong>'
+                    + ddlServicio.text()
+                    + '</strong>'
+                    + '</div>'
+                    + '</div>');
+                },
+                RemoveServicio = function (e) {
+                    for (var i = 0; i < Servicios.length; i++) {
+                        if (Servicios[i].Id == e) {
+                            Servicios.splice(i, 1);
+                        }
+                    }
+                };
+
+            function getDatosAdicionales() {
+                var evento = {
+                    Id: Evento_id,
+                    TipoRecaudo_id: $("#TipoRecaudo_id").val(),
+                    CantidadDiasValides: $("#CantidadDiasValides").val(),
+                    AplicaServicio: $("#AplicaServicio").val(),
+                    AplicaServicio: $("#AplicaServicio").val(),
+                    TipoServicios: Servicios,
+                    EntradasxUsuario: $("#EntradasxUsuario").val(),
+                    EntradasxPedidoOcompra: $("#EntradasxPedidoOcompra").val(),
+                    Impuestos: Impuestos
+                }
+                //var prueba = JSON.stringify({ evento: evento });
+                return evento;
+            }
+
+            //REVIZAR ERROR DE CONEXION A LA DB, SEGUIR CON EL ALMACENAMIENTO DE LA DIRECCION
+
+            $('#Next').click(function (ev) {
+                ev.preventDefault();
+                var url = '@Url.Action("InformacionAdicional_save", "Evento")';
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: $.postifyData(getDatosAdicionales()),
+                    datatype: 'json',
+                    success: function (e) {
+                        if (e.success) {
+                            $('#formDatosAdicionales').submit();
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+
+            $("#Id").val(Evento_id);
+            //Progress(24);
+        </script>
+        <div class="panel panel-primary" id="venue-map">
+            <div class="panel-heading">4) Agregar Dirección</div>
+            <div class="panel-body">
+                @using (Html.BeginForm("DireccionMap_save", "Evento", FormMethod.Post, new { id = "formDireccionMAP" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    @Html.HiddenFor(model => model.Id)
+                    @Html.HiddenFor(model => model.Venue.Id)
+
+                    <fieldset class="Funcion">
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(e => e.Venue.Nombre, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(e => e.Venue.Nombre, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(e => e.Venue.Telefono, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(e => e.Venue.Telefono, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(e => e.Venue.E_mail, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(e => e.Venue.E_mail, new { @class = "form-control", type = "email" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(e => e.Venue.Aforo, new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(e => e.Venue.Aforo, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-6">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(e => e.Venue.Direccion, new { @class = "form-control-label" })
+                                            @Html.TextBoxFor(e => e.Venue.Direccion, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="locality">Ciudad</label>
+                                            <input type="text" class="form-control" id="locality" disabled>
+                                            @Html.TextBoxFor(e => e.Venue.Ciudad_id, new { @class = "hide" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="postal_code">Codigo Postal</label>
+                                            <input type="text" class="form-control" id="postal_code" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="administrative_area_level_1">Departamento</label>
+                                            <input type="text" class="form-control" id="administrative_area_level_1" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="country">País</label>
+                                            <input type="text" class="form-control" id="country" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row"></div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6">
+                                <div id="map"></div>
+                                <ul id="geoData" class="hide">
+                                    <li>Full Address: <span id="location"></span></li>
+                                    <li>Postal Code: <span id="postal_code"></span></li>
+                                    <li>Country: <span id="country"></span></li>
+                                    <li>Latitude: <span id="lat"></span></li>
+                                    <li>Longitude: <span id="lon"></span></li>
+                                    <li>street_number: <span id="street_number"></span></li>
+                                    <li>route: <span id="route"></span></li>
+                                    <li>locality: <span id="locality"></span></li>
+                                    <li>administrative_area_level_1: <span id="administrative_area_level_1"></span></li>
+                                    <li>country: <span id="country"></span></li>
+                                    <li>postal_code: <span id="postal_code"></span></li>
+                                </ul>
+                                @Html.TextBoxFor(e => e.Venue.Latitud, new { @class = "hide" })
+                                @Html.TextBoxFor(e => e.Venue.Longitud, new { @class = "hide" })
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                                @*<input type="button" class="btn btn-primary" id="Next" value="Siguiente" />*@
+
+                                <ul class="pager">
+                                    <li class="previous"><a href="javascript:void(0)" class="btn btn-primary" id="Previous">Previous</a></li>
+                                    <li class="next"><input type="submit" class="btn btn-primary" id="Next" value="Next" /></li>
+                                </ul>
+                            </dv>
+                        </div>
+
+                    </fieldset>
+                }
+            </div>
+        </div>
+        <script src="~/Scripts/pages/Evento/locationMap.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUmPAAfY0nhl2yexBx8Lph_YAy2gyqpiQ&libraries=places&callback=initMap" async defer></script>
+        <script>
+            //Progress(36);
+        </script>
+        <div class="panel panel-primary" id="crear-funciones">
+            <div class="panel-heading">5) Crear Funciones</div>
+            <div class="panel-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+
+                    <fieldset class="Funcion">
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Nombre de la Función", new { @class = "form-control-label" })
+                                    @Html.TextBox("LabelFuncion", "", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Codigo Pulep", new { @class = "form-control-label" })
+                                    @Html.TextBox("CodigoPulep", "", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Fecha Inicial", new { @class = "form-control-label" })
+                                    @(Html.Kendo().DateTimePicker().Name("InicioFuncion").HtmlAttributes(new { @class = "form-control" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Fecha Final", new { @class = "form-control-label" })
+                                    @(Html.Kendo().DateTimePicker().Name("FinalFuncion").HtmlAttributes(new { @class = "form-control" }))
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    @Html.Label("Hora de Apertura de Puertas", new { @class = "form-control-label" })
+                                    @(Html.Kendo().TimePicker().Name("HoraInicioFuncion").HtmlAttributes(new { @class = "form-control" }))
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    @Html.Label("Descripción", new { @class = "form-control-label" })
+                                    @Html.TextArea("descripcionFuncion", new { @class = "form-control", rows = "3" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                                <button type="button" class="btn btn-primary btn-lg" onclick="AddFuncion()">
+                                    <span class="glyphicon glyphicon-plus"></span> Agregar Funcion
+                                </button>
+                            </dv>
+                        </div>
+
+                        <div class="row" id="divFunciones">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="alert alert-info alert-dismissible fade in" style="padding:10px 20px 10px 10px" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="RemoveFuncion(1)">
+                                        <span aria-hidden="true">×</span>
+                                    </button><div class="row" style="padding:0px 0px 0px 15px;">
+                                        <table style="width:100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td><p><b>Nombre de la fincion</b></p></td>
+                                                    <td><p><b>COdigo</b></p></td>
+                                                    <td><p><b>Desde:</b> 2017-02-05 0:00</p></td>
+                                                    <td><p><b>Hasta:</b> 2017-02-06 0:00</p></td>
+                                                    <td><p><b>Hora de apertura:</b> 1:00</p></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <p>oijs odi aiosiodjioas jiodj aois iod jioasj odij aosjd oj asoi jdoija soi jdoiaj sdoiasjdjoiasjd asoi jd jasiojd oiasj dj asod joasi jdo ajsod jaso djoasj doas id</p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                                @*<input type="button" class="btn btn-primary" id="Next" value="Siguiente" />*@
+
+                                <ul class="pager">
+                                    <li class="previous"><a href="javascript:void(0)" class="btn btn-primary" id="Previous">Previous</a></li>
+                                    <li class="next"><input type="submit" class="btn btn-primary" id="Next" value="Next" /></li>
+                                </ul>
+                            </dv>
+                        </div>
+
+
+                    </fieldset>
+                }
+            </div>
+        </div>
+        <script>
+            //Progress(36);
+        </script>
+        <div class="panel panel-primary" id="crear-localidades">
+            <div class="panel-heading">6) Agregar o Crear Mapa de Localidades</div>
+            <div class="panel-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+
+                    <fieldset class="Localidad">
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Nombre de la Localidad", new { @class = "form-control-label" })
+                                    @Html.TextBox("NombreLocalidad", "", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Tipo de Localidad", new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownList()
+                                    .Name("TipoLocalidad")
+                                    .BindTo(Verificador.Vista.Models.ServicioTipoLocalidad.getOptions())
+                                    .OptionLabel("Seleccione")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .Events(e => e.Change("ShowTipoLocation"))
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default hide" id="Aforo">
+                            <div class="panel-heading">Aforo</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.Label("Capacidad", new { @class = "form-control-label" })
+                                            @Html.TextBox("AforoCapacidad", "", new { @class = "form-control", type = "number" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default hide" id="FilasColumnas">
+                            <div class="panel-heading">Filas y Columnas</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Filas", new { @class = "form-control-label" })
+                                            @Html.TextBox("fmFilas", "", new { @class = "form-control", type = "number" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Columnas", new { @class = "form-control-label" })
+                                            @Html.TextBox("fmColumnas", "", new { @class = "form-control", type = "number" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Orientacion", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("fmOrientacion")
+                                            .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                new Verificador.Vista.Models.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                new Verificador.Vista.Models.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("fmTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default hide" id="MesasSillas">
+                            <div class="panel-heading">Mesas y Sillas</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Mesas", new { @class = "form-control-label" })
+                                            @Html.TextBox("msCantidadMesas", "", new { @class = "form-control", type = "number" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Sillas por Mesa", new { @class = "form-control-label" })
+                                            @Html.TextBox("msCantidadSillas", "", new { @class = "form-control", type = "number" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("msTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default hide" id="Palco">
+                            <div class="panel-heading">Palco</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Tipo de Palco", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("TipoPalco")
+                                            .BindTo(Verificador.Vista.Models.ServicioTipoLocalidad.getOptions().Where(e => e.Value != 4))
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .Events(e => e.Change("ShowTipoPalco"))
+                                            .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row palco hide" id="Aforo">
+                                    <!--Aforo-->
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.Label("Capacidad", new { @class = "form-control-label" })
+                                            @Html.TextBox("PalcoAforoCapacidad", "", new { @class = "form-control", type = "number" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="palco hide" id="FilasColumnas">
+                                    <!--Filas y Columnas-->
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                @Html.Label("Cantidad de Filas", new { @class = "form-control-label" })
+                                                @Html.TextBox("PalcofmFilas", "", new { @class = "form-control", type = "number" })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                @Html.Label("Cantidad de Columnas", new { @class = "form-control-label" })
+                                                @Html.TextBox("PalcofmColumnas", "", new { @class = "form-control", type = "number" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                @Html.Label("Orientacion", new { @class = "form-control-label" })
+                                                @(Html.Kendo().DropDownList()
+                    .Name("PalcofmOrientacion")
+                                            .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                new Verificador.Vista.Models.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                new Verificador.Vista.Models.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                                @(Html.Kendo().DropDownList()
+                    .Name("PalcofmTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="palco hide" id="MesasSillas">
+                                    <!--Mesas y Sillas-->
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Cantidad de Mesas", new { @class = "form-control-label" })
+                                                @Html.TextBox("PalcomsCantidadMesas", "", new { @class = "form-control", type = "number" })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Cantidad de Sillas por Mesa", new { @class = "form-control-label" })
+                                                @Html.TextBox("PalcomsCantidadSillas", "", new { @class = "form-control", type = "number" })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                                @(Html.Kendo().DropDownList()
+                        .Name("PalcomsTipoNumeracion")
+                                                .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Valor del Consuomo", new { @class = "form-control-label" })
+                                    @Html.TextBox("ValorConsumo", "", new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Descripción del Consumo", new { @class = "form-control-label" })
+                                    @Html.TextBox("DescripcionConsumo", "", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                                <button type="button" class="btn btn-primary btn-lg" onclick="AddLocalidad()">
+                                    <span class="glyphicon glyphicon-plus"></span> Agregar Locación
+                                </button>
+                            </dv>
+                        </div>
+
+                        <div class="row" id="divLocalidades">
+                            <div class="col-xs-12 col-sm-12 col-md-12" id="Localidad-3">
+                                <div class="alert alert-info alert-dismissable fade in" style="padding:10px 10px 10px 16px" role="alert"><a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="RemoveLocalidad(-3)"><span class="glyphicon glyphicon-remove" style="font-size: x-large" aria-hidden="true"></span></a><div class="row"><div class="col-xs-1 col-sm-1 col-md-1"><span class="glyphicon glyphicon-th-large" style="font-size: -webkit-xxx-large;" aria-hidden="true"></span></div><div class="col-xs-10 col-sm-10 col-md-10"><h4 class="alert-heading">qwewqeqwe <small>Aforo</small></h4><table class="table"><tr><td><b>Capacidad: </b>8</td><td><b>Valor del Consumo: </b>6</td><td><b>Descripción del Consumo: </b>ñlsdlsdkksdlñkfñlsdf</td></tr></table></div></div></div>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+

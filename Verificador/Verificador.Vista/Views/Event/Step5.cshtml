@@ -1,0 +1,197 @@
+﻿
+<script src="~/Scripts/pages/Evento/Step5.js"></script>
+<link href="~/Content/pages/Event/Step5.css" rel="stylesheet" />
+@model Verificador.Vista.Models.ViewModels.EtapasViewModel
+
+
+<section>
+    <div class="panel panel-primary" id="direccion-map">
+        <div class="panel-heading">4) Agregar Etapas</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step6", "Evento", FormMethod.Post, new { id = "formEtapas" }))
+            {
+                <fieldset class="Etapa">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Nombre, new { @class = "form-control-label" })
+                                @Html.TextBox("NombreEtapa", "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Localidad", new { @class = "form-control-label" })
+
+                                <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                                    <select id="dllLocalidades" class="form-control">
+                                        <option value="0">Seleccione</option>
+                                    </select>
+                                    <div class="input-group-addon btn btn-success add-localidad">
+                                        <i class="glyphicon glyphicon-plus"></i>&nbsp;Agregar Localidad
+                                    </div>
+                                </div>
+                                @*@(Html.Kendo().DropDownListFor(e => e.Localidad_id)
+                                    .DataSource(source =>
+                                    {
+                                        source.Read(read =>
+                                        {
+                                            read.Action("getLocalidadesOptions", "Evento").Data("getVenue");
+                                        })
+                                        .ServerFiltering(true);
+                                    })
+                                    .Events(e => e.Change("ControlLocalidad"))
+                                    .OptionLabel("Seleccione")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="table-responsive" id="table-localidades">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tipo</th>
+                                            <th>Aforo</th>
+                                            <th>Cantidad tickets</th>
+                                            <th>Precio</th>
+                                            <th>Servicio</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                @Html.Label("Cantidad de Tickets por etapa", new { @class = "form-control-label", id = "tipo-localidad" })
+                                <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                                    @Html.TextBoxFor(e => e.Cantidad, new { @class = "form-control", type = "number", onblur = "consumirAforo(this)" })
+                                    <div class="input-group-addon">#####</div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Precio del Ticket por Etapa", new { @class = "form-control-label" })
+                                    @Html.TextBoxFor(e => e.Precio, new { @class = "form-control", type = "number" })
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.FechaInicial, new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePicker().Name("FechaInicialEtapa").HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Fecha Final", new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePicker().Name("FechaFinalEtapa").HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Descripcion, new { @class = "form-control-label" })
+                                @Html.TextArea("DescripcionEtapa", new { @class = "form-control", rows = "3" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" id="ckbCodigo" />
+                                @Html.Label("Habilitar codigo", new { @class = "form-control-label", @for = "ckbCodigo" })
+                            </div>
+                        </div>                       
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-6">
+                            <div class="form-group" id="div-codigo" style="display:none;">
+                                @Html.Label("CodigoEtapa", new { @class = "form-control-label" })
+                                @Html.TextBox("CodigoEtapa", "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                            <button type="button" id="btnAddEtapa" class="btn btn-primary btn-lg">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Etapa
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" id="divEtapas"></div>
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" class="btn btn-primary btn-lg Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+
+<div id="modalConfigEtapas" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Configuración de Etapas</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label class="switch">
+                            <input type="checkbox" checked id="ConfigCategories">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-10">
+                        <label for="ConfigCategories" id="ConfigEtapasLabel">Manejar varias etapas para el evento</label>
+                    </div>
+                </div>
+                @*<div class="row" style="display:none" id="div-config-etapa">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label for="ticket-price" class="form-control-label">Precio del tiquete</label>
+                                <input id="ticket-price" type="text" class="form-control required" />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label for="aforo-inicial" class="form-control-label">Aforo de inicio del evento</label>
+                                <input id="aforo-inicial" type="text" class="form-control required" />
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="cloce-modal">Crear Etapas</button>
+                <button type="button" class="btn btn-primary" style="display:none" id="Next-1" name="Next">
+                    <span class="glyphicon glyphicon-cog"></span> Configurar Etapa
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

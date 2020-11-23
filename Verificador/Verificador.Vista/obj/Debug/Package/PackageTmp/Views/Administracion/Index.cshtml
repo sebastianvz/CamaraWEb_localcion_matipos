@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "Bienvenido Ticket Evento app";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    /*
+    .k-edit-form-container
+    {
+        width:900px;
+    }
+
+    div label.k-checkbox-label {
+        top: -10px !important;
+    }
+    .row label
+    {
+        top:5px !important;
+        position: relative;
+    }*/
+</style>
+@*<script src="~/Scripts/pluggins/autocomplete/autocomplete.js"></script>*@
+<div>
+    @*<input type="hidden" id="PatientID" name="PatientID" value="">
+    <input id="PatientID_id" class="form-control k-autocomplete k-state-default" style="width: 100%;" placeholder="Buscar por nombre o cedula" name="PatientID_id" />
+    <script>
+        (function CargarPacients() {
+            $("#PatientID_id").kendoAutoComplete({
+                template: '<div class="PatientID-id" style="display:none;" onchange="setVenue(this);">#= Id #</div> #= Nombre #',
+                dataTextField: "label",
+                height: 520,
+                dataSource: {
+                    transport: {
+                        read: "@(Url.Action("getVenueByName", "Evento"))",
+                        parameterMap: function () {
+                            return { query: $("#PatientID_id").data("kendoAutoComplete").value() };
+                        }
+                    },
+                    pageSize: 80,
+                    serverPaging: true,
+                    serverFiltering: true
+                },
+                select: onSelectPatient,
+            });
+        })();
+        function onSelectPatient(e) {
+            var oItem = this.dataItem(e.item.index())
+            console.log(oItem)
+            console.log(e)
+            e.sender.element["0"].value = oItem.Nombre
+        }
+    </script>*@
+</div>

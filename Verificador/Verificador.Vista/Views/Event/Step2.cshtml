@@ -1,0 +1,117 @@
+﻿@model Verificador.Vista.Models.ViewModels.VenueViewModel
+
+<script src="~/Scripts/pages/Evento/Step2.js"></script>
+<link href="~/Content/pages/Event/Step2.css" rel="stylesheet" />
+
+<section>
+    <div class="panel panel-primary" id="venue-map">
+        <div class="panel-heading">4) Agregar Dirección</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step3", "Evento", FormMethod.Post, new { id = "formDireccionMAP" }))
+            {   
+                <fieldset class="Funcion">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Nombre, new { @class = "form-control-label" })
+                                <input id="VenueName" class="form-control k-autocomplete k-state-default" style="width: 100%;" required="required" name="Nombre" />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="" id="div-switch" style="display:none">
+                                <label class="switch">
+                                    <input type="checkbox" id="ImportSteges">
+                                    <span class="slider round"></span>
+                                </label>
+                                <label for="ImportSteges" id="ImportStegesLabel" class="form-control-label">Importar Localidades</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.E_mail, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.E_mail, new { @class = "form-control", type = "email" })
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Telefono, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Telefono, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-6">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        @Html.LabelFor(e => e.Direccion, new { @class = "form-control-label" })
+                                        @Html.TextBoxFor(e => e.Direccion, new { @class = "form-control required", required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="locality">Ciudad</label>
+                                        <input type="text" class="form-control" id="locality" disabled>
+                                        @Html.TextBoxFor(e => e.Ciudad_id, new { @class = "hide" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="postal_code">Codigo Postal</label>
+                                        <input type="text" class="form-control" id="postal_code" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="administrative_area_level_1">Departamento</label>
+                                        <input type="text" class="form-control" id="administrative_area_level_1" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="country">País</label>
+                                        <input type="text" class="form-control" id="country" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row"></div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6">
+                            <div id="map" style="height:200px"></div>
+                            <ul id="geoData" class="hide">
+                                <li>Full Address: <span id="location"></span></li>
+                                <li>Latitude: <span id="lat"></span></li>
+                                <li>Longitude: <span id="lon"></span></li>
+                                <li>street_number: <span id="street_number"></span></li>
+                                <li>route: <span id="route"></span></li>
+                            </ul>
+                            @Html.TextBoxFor(e => e.Latitud, new { @class = "hide" })
+                            @Html.TextBoxFor(e => e.Longitud, new { @class = "hide" })
+                            @Html.HiddenFor(e => e.GeoCode)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" class="btn btn-primary btn-lg Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+<script src="~/Scripts/pages/Evento/locationMap.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAch2HsEcPfCG33CQLoQeDAjZTrSqJAr_I&libraries=places&callback=initMap" async defer></script>
+

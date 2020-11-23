@@ -1,0 +1,72 @@
+﻿@model Verificador.Vista.Models.ViewModels.FuncionesEventoViewModel
+<script src="~/Scripts/pages/Evento/Step3.js"></script>
+<link href="~/Content/pages/Event/Step3.css" rel="stylesheet" />
+<section>
+    <div class="panel panel-primary" id="crear-funciones">
+        <div class="panel-heading">5) Crear Funciones</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step4", "Evento", FormMethod.Post, new { id = "formFunciones" }))
+            {
+                <fieldset class="Funcion">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Label, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Label, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.FechaInicial, new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePicker().Name("SS_FunctionFechaInicial").HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.FechaFinal, new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePicker().Name("SS_FunctionFechaFinal").HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.Label("Hora de Apertura Puertas", new { @class = "form-control-label" })
+                                @(Html.Kendo().TimePickerFor(e => e.AperturaPuertas).Format("h:mm tt").HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Descripcion, new { @class = "form-control-label" })
+                                @Html.TextArea("FunctionDescripcion", new { @class = "form-control", rows = "3" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                            <button type="button" id="btn-add" class="btn btn-primary btn-lg">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Funcion
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" id="divFunciones"></div>
+                    <div class="row">
+                        <hr />
+                        <div class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" class="btn btn-primary btn-lg Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>

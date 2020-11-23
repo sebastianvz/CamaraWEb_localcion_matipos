@@ -1,0 +1,77 @@
+﻿@{
+    ViewBag.Title = "Tipos de Numeracion";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script>
+    function showDetalle(e) {
+        var divEdit = $("div[class='k-edit-form-container']");
+
+        var labels = $("div[class='editor-label']");
+        var fields = $("div[class='editor-field']");
+
+        labels[0].style.display = "none";
+        fields[0].style.display = "none";
+
+        labels[labels.length - 1].style.display = "none";
+        fields[fields.length - 1].style.display = "none";
+        
+    }
+</script>
+
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.TipoLocalidadViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Nombre);
+                            columns.Bound(c => c.Descripcion);                            
+                            columns.Bound(c => c.FechaCreacion).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);                     
+                            columns.Command(command => { 
+                                command.Edit(); 
+                                command.Destroy();                                
+                            }).Width(220);                                                        
+                            
+                        })
+                        .HtmlAttributes(new { /*style = "height: 300px;"*/ })
+                        .ToolBar(toolbar => {
+                            toolbar.Create();
+                            toolbar.Excel();
+                            toolbar.Pdf();                                                        
+                        })
+                        .Pdf(pdf => pdf
+                            .FileName("TipoEventos.pdf")
+                        )
+                        .Excel(excel => excel
+                            .FileName("TipoEventos.xlsx")
+                        )
+                        .Editable(editable =>
+                                {
+                                    editable.Mode(GridEditMode.PopUp);                                    
+                                }
+                            )
+                        .Events(events => events.Edit("showDetalle"))
+                        .Scrollable()
+                        .Filterable()
+                        .Groupable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                                    .Read(read => read.Action("TipoLocalidad_Read", "Evento"))
+                            .Create(update => update.Action("TipoLocalidad_Create", "Evento"))
+                            .Update(update => update.Action("TipoLocalidad_Update", "Evento"))
+                            .Destroy(update => update.Action("TipoLocalidad_Destroy", "Evento"))
+                         )
+                                                  
+                    )
+

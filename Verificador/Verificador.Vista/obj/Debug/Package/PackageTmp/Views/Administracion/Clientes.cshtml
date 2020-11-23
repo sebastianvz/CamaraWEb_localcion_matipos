@@ -1,0 +1,67 @@
+﻿@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    .k-edit-form-container {
+        width: inherit !important;
+    }
+    .cliente 
+    {
+    }
+    .empresa 
+    {
+    }
+</style>
+
+<script src="~/Scripts/pages/Administracion/Clientes.js"></script>
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.ClienteViewModel>()
+                        .Name("gridClientes")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.NombreTipoDocumento).Width(190);
+                            columns.Bound(c => c.IdentificacionShowGrid).Width(190);
+                            columns.Bound(c => c.NombreCompleto).Width(190);
+                            columns.Bound(c => c.Email).Width(190);
+                            columns.Bound(c => c.JornadaEntrega).Width(190);
+                            columns.Command(command =>
+                            {
+                                command.Edit();
+                                command.Destroy();
+                            }).Width(220);
+                        })
+                        .ToolBar(toolbar =>
+                        {
+                            toolbar.Create();
+                        })
+                        .Editable(editable =>
+                        {
+                            editable.Mode(GridEditMode.PopUp).TemplateName("EditorCliente").Window(c => c.Width(900).Height(500));
+                        }
+                            )
+                        .Events(events => events.Edit("showDetalleCliente"))
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .HtmlAttributes(new { style = "height: 800px;" })
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                                .Events(events => events.Error("error_handler").RequestEnd("RefreshGirdClientes"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                                   .Read(read => read.Action("Clientes_Read", "Administracion"))
+                                   .Create(update => update.Action("Clientes_Create", "Administracion"))
+                                   .Update(update => update.Action("Clientes_Update", "Administracion"))
+                                   .Destroy(update => update.Action("Clientes_Destroy", "Administracion"))
+                         )
+
+)

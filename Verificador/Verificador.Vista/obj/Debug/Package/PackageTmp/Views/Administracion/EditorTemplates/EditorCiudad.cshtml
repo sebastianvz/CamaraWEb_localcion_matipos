@@ -1,0 +1,42 @@
+﻿@model Verificador.Vista.Models.ViewModels.CiudadViewModel
+
+@Html.HiddenFor(m => m.Id)
+    <div class="editor-label">
+        @(Html.LabelFor(m => m.IdDepartamento))
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().ComboBoxFor(m => m.IdDepartamento)
+                        .DataTextField("NombreDepartamento")
+                        .DataValueField("Id")
+                        .MinLength(3)
+                        .Enable(Model == null)
+                        .Filter(FilterType.Contains)
+                        .DataSource(dataSource => dataSource
+                                .Read(read => read.Action("ReadDepartamento", "Administracion"))
+                                .ServerFiltering(true)
+                        )
+                        .Enable(Model == null || Model.Id == 0)
+                        .HtmlAttributes(new
+                        {
+                            /*required = "required",
+                            validationmessage = "El campo Identificación Tributaria es requerido",*/
+
+                            style = "width:100%"
+                        })
+                        .AutoBind(false)
+        )
+    </div>
+<div class="editor-label">
+    @(Html.LabelFor(m => m.Codigo))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().TextBoxFor(m => m.Codigo)
+    )
+</div>
+    <div class="editor-label">
+        @(Html.LabelFor(m => m.NombreCiudad))
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().TextBoxFor(m => m.NombreCiudad)
+        )
+    </div>

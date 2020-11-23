@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "Printer Tickets";
+    Layout = "~/Views/Shared/_LayoutCanvas.cshtml";
+}
+<script src="~/Scripts/pages/TicketsManagement/TicketsManagement.js"></script>
+<link href="~/Content/Tickets.css" rel="stylesheet" />
+
+<section>
+
+    <!-- conteneur global -->
+    <div id="wrapper">
+
+        <!-- LIGNE BARRE DU HAUT -->
+        <div class="row">
+            <!-- BARRE DE MENU TOP -->
+            <nav class="navbar navbar-fixed-top navbar-inverse">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button class="navbar-toggle" type="button" data-target=".navbar-collapse" data-toggle="collapse">
+                            <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">Nombre del Evento</a>
+                    </div>
+
+                </div>
+                <!-- /.container -->
+            </nav>
+            <!-- /BARRE DE MENU TOP -->
+        </div>
+        <!-- / LIGNE BARRE DU HAUT -->
+        <!-- ligne barre gauche / structure drawer / barre droite -->
+        
+            
+                <!-- MENU HUCKEL GAUCHE  -->
+                <div class="navbar navbar-default col-xs-3 col-sm-2" id="sidebarLeft" role="navigation">
+                    <div>
+                        <h4>Localidades por Etapa</h4>
+                        @if (ViewBag.Menu != null)
+                    {
+                            @Html.Partial("MenuLocalidades", (ViewBag.Menu as List<Verificador.Vista.Models.ViewModels.EtapasViewModel>))
+                    }
+                    </div>
+                </div>
+                <!-- / MENU HUCKEL GAUCHE  -->
+                <!-- CONTENU CENTRE  -->
+                <div id="structure-content" class="col-xs-6 col-sm-8">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <div id="t-tickets"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- / CONTENU CENTRE -->
+                <!-- MENU MESOMERY DROITE  -->
+                <nav class="navbar navbar-default col-xs-3 col-sm-2" id="sidebarRight">
+                    <div>
+                        <h4>Acciones</h4>
+                        <ul class="nav nav-pills nav-stacked">
+                            @*<li role="presentation" class="active" tabindex="-1"><a id="brandMesomery" role="menuitem" tabindex="-1" href="#">Mesomery</a></li>*@
+                            <li role="presentation" tabindex="-1">
+                                <a id="SelectAll" role="menuitem" tabindex="-1" class="btn btn-info disabled" href="javascript:void(0)">
+                                    <i class="glyphicon glyphicon-th"></i> Seleccionar Todo
+                                </a>
+                            </li>
+                            <li role="presentation" tabindex="-1">
+                                <a id="DeselectedAll" role="menuitem" tabindex="-1" class="btn btn-warning disabled" href="javascript:void(0)">
+                                    <i class="fa fa-eraser"></i> Borrar Selección
+                                </a>
+                            </li>
+                            <li role="presentation" tabindex="-1">
+                                <a id="Print" role="menuitem" tabindex="-1" class="btn btn-success disabled" href="javascript:void(0)">
+                                    <i class="fa fa-print"></i>
+                                    Imprimir Seleccionados
+                                </a>
+                            </li>
+                            <li role="presentation" tabindex="-1">
+                                <a id="Delete" role="menuitem" tabindex="-1" class="btn btn-danger disabled" href="javascript:void(0)">
+                                    <i class="fa fa-trash"></i>
+                                    Eliminar Seleccionados
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="h1"></div>
+                        <h4>Estado de los Tickets</h4>
+                        <ul class="nav nav-pills nav-stacked">
+                            @*<li role="presentation" class="active" tabindex="-1"><a id="brandMesomery" role="menuitem" tabindex="-1" href="#">Mesomery</a></li>*@
+                            <li role="presentation" tabindex="-1">
+                                <a role="menuitem" tabindex="-1" class="btn impreso" href="javascript:void(0)">
+                                    <i class="glyphicon glyphicon-th"></i> Impreso
+                                </a>
+                            </li>
+                            <li role="presentation" tabindex="-1">
+                                <a role="menuitem" tabindex="-1" class="btn impreso_defectuoso" href="javascript:void(0)">
+                                    <i class="fa fa-eraser"></i> Defectuoso
+                                </a>
+                            </li>
+                            <li role="presentation" tabindex="-1">
+                                <a role="menuitem" tabindex="-1" class="btn reimpreso" href="javascript:void(0)">
+                                    <i class="fa fa-print"></i> Re-impreso                                    
+                                </a>
+                            </li>
+                            <li role="presentation" tabindex="-1">
+                                <a role="menuitem" tabindex="-1" class="btn en_cola" href="javascript:void(0)">
+                                    <i class="fa fa-trash"></i> En cola de impresión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <!--  / MENU MESOMERY DROITE  -->
+            </div>
+        
+        <!-- /ligne barre gauche / structure drawer / barre droite   -->
+    
+</section>
+

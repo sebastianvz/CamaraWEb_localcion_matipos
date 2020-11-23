@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Verificador.Vista.Models.EtapasViewModel>
+
+@foreach (var item in Model)
+{
+    if (item == null)
+    {
+        continue;
+    }
+    <div class="col-xs-12 col-sm-12 col-md-12" id="Localidad-3">
+        <div class="alert alert-info alert-dismissable fade in" style="padding:10px 10px 10px 16px" role="alert">
+            <a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="RemoveEtapa(@(item.Id))">
+                <span class="glyphicon glyphicon-remove" style="font-size: x-large" aria-hidden="true">
+                </span>
+            </a>
+            <a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="EditarEtapa('@(item.Id)')"><span class="glyphicon glyphicon-pencil" style="font-size: x-large" aria-hidden="true"></span></a>
+            <div class="row">
+                <div class="col-xs-1 col-sm-1 col-md-1">
+                    <span class="glyphicon glyphicon-calendar" style="font-size: -webkit-xxx-large;" aria-hidden="true">
+                    </span>
+                </div>
+                <div class="col-xs-9 col-sm-9 col-md-9">
+                    <h4 class="alert-heading">@Html.DisplayFor(modelItem => item.Nombre) <small> Localidad: @Html.DisplayFor(modelItem => item.Localidad.Label)</small></h4>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td><p><b>Precio del ticket:</b> @Html.DisplayFor(modelItem => item.Precio)</p></td>
+                                <td><p><b>Catidad de tickets:</b> @Html.DisplayFor(modelItem => item.Cantidad)</p></td>
+                                <td><p><b>Desde:</b> @Html.DisplayFor(modelItem => item.FechaInicial)</p></td>
+                                <td><p><b>Hasta:</b> @Html.DisplayFor(modelItem => item.FechaFinal)</p></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <p>@Html.DisplayFor(modelItem => item.Descripcion)</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@*<div class="col-xs-12 col-sm-12 col-md-12" id="Localidad-3"><div class="alert alert-info alert-dismissable fade in" style="padding:10px 10px 10px 16px" role="alert">
+<a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="RemoveEtapa(' + e.Id + ')">
+<span class="glyphicon glyphicon-remove" style="font-size: x-large" aria-hidden="true">
+</span></a><a href="javascript:void(0)" class="btn btn-link" style="position:relative; float:right" onclick="EditarEtapa(' + e.Id + ')"><span class="glyphicon glyphicon-pencil" style="font-size: x-large" aria-hidden="true"></span></a>
+<div class="row"><div class="col-xs-1 col-sm-1 col-md-1"><span class="glyphicon glyphicon-calendar" style="font-size: -webkit-xxx-large;" aria-hidden="true">
+</span></div><div class="col-xs-9 col-sm-9 col-md-9"><h4 class="alert-heading">' + e.Nombre + '</h4><table class="table"><tbody><tr><td><p><b>Desde:</b> ' + e.FechaFinal + '</p></td>
+<td><p><b>Hasta:</b> ' + e.FechaFinal + '</p></td></tr><tr><td colspan="4"><p>' + e.Descripcion + '</p></td></tr></tbody></table></div></div></div></div>*@

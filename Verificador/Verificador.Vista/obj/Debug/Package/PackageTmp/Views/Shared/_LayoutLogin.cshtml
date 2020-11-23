@@ -1,0 +1,193 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>@ViewBag.Title - Matipos - Verificador</title>
+    <!--<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />-->
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.common-bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+
+    <link href="@Url.Content("~/vendors/pnotify/dist/pnotify.css")" rel="stylesheet">
+    <link href="@Url.Content("~/vendors/pnotify/dist/pnotify.buttons.css")" rel="stylesheet">
+    <link href="@Url.Content("~/vendors/pnotify/dist/pnotify.nonblock.css")" rel="stylesheet">
+
+
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+
+    <!-- Custom Theme Style -->
+    <link href="../build/css/custom.css" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link href="@Url.Content("~/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="@Url.Content("~/vendors/font-awesome/css/font-awesome.min.css")" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="@Url.Content("~/vendors/nprogress/nprogress.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- bootstrap-progressbar -->
+    <link href="@Url.Content("~/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css")" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="@Url.Content("~/vendors/jqvmap/dist/jqvmap.min.css")" rel="stylesheet" />
+
+    <!-- Custom Theme Style -->
+    <link href="@Url.Content("~/build/css/custom.min.css")" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link href="@Url.Content("~/vendors/animate.css/animate.min.css")" rel="stylesheet">
+
+    <!-- Spinner.css -->
+    <link href="~/Content/pages/Layout/_LayoutAdmin.css" rel="stylesheet" />
+
+    <script src='@Url.Content("~/ReportViewer/js/resources.es-ES.js")'></script>    
+    <script src="@Url.Content("~/Scripts/jQuery.print.js")"></script>
+
+    <script src="@Url.Content("~/vendors/pnotify/dist/pnotify.js")"></script>
+    <script src="@Url.Content("~/vendors/pnotify/dist/pnotify.buttons.js")"></script>
+    <script src="@Url.Content("~/vendors/pnotify/dist/pnotify.nonblock.js")"></script>
+
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
+    <script>
+
+        var gridActual = null;
+        var urlBase = '@Url.Content("~/")';
+        var idSeleccionado = null;
+
+        function ValidarAccion() {
+            return confirm("Esta seguro de continuar?");
+        }
+        function addParameter() {
+            return {
+                id: idSeleccionado
+            }
+        }
+
+        function showVentana(ventana, grid, obj, e) {
+            var dataItem = obj.dataItem($(e.currentTarget).closest("tr"));
+            idSeleccionado = dataItem.Id;
+
+            $("#" + ventana).data("kendoWindow").center().open();
+            refrescarGrid(grid);
+        }
+
+        function refrescarGrid(grid) {
+            var grid = $("#" + grid).data("kendoGrid");
+            grid.dataSource.page(1);
+            grid.dataSource.read();
+        }
+
+        function get_time() {
+            var d = new Date();
+            var time = (d.getMonth() + 1) + "" + d.getDate() + "" + d.getFullYear() + "" + d.getHours() + "" + d.getMinutes() + "" + d.getSeconds();
+            return time;
+        }
+        function error_handler(args) {
+            if (args.errors) {
+                try {
+                    gridActual.one("dataBinding", function (e) {
+                        e.preventDefault();
+                        if (args.errors.ServerError) {
+                            alert(args.errors.ServerError.errors);
+                        }
+
+                    });
+                } catch (ex) {
+                    var message = "";
+                    $.each(args.errors, function (key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors, function () {
+                                message += this + "\n";
+                            });
+                        }
+                    });
+                    alert(message);
+                }
+            }
+        }
+
+        var ME = "ERROR";
+        var MI = "INFO";
+        var MS = "SUCCESS";
+        function showMessage(msg, type) {
+            switch (type) {
+                case "ERROR":
+                    new PNotify({
+                        title: 'Error',
+                        text: msg,
+                        type: 'error',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                case "SUCCESS":
+                    new PNotify({
+                        title: 'Success',
+                        text: msg,
+                        type: 'success',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                case "INFO":
+                    new PNotify({
+                        title: 'Info',
+                        text: msg,
+                        type: 'info',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                default:
+
+            }
+        }
+
+        function Loading(visible)
+        {
+            if (visible) {
+                $(".loading").show('100');
+            } else {
+                $(".loading").hide('100');
+            }
+        }
+
+    </script>
+    <style>
+
+        .row { 
+            padding-bottom: 3px;
+        }
+
+        #tablepassword td {
+            padding-top: .5em;
+            padding-bottom: .5em;
+        }
+
+        .label_barra {
+            font-family: verdana;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body class="login">
+    <div>
+        @RenderBody()
+        <div class="background loading"></div>
+        <div id="loader" class="loading animate-bottom"></div>
+    </div>
+    <script type="text/javascript">
+    $(document).ready(function () { Loading(false); });
+    </script>
+
+</body>
+</html>
+

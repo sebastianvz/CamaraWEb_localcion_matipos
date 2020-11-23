@@ -1,0 +1,56 @@
+﻿@model Verificador.Vista.Models.ViewModels.EventoViewModel
+
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link href="~/Content/evento.css" rel="stylesheet" />
+<script src="~/Scripts/pages/Evento/evento.js"></script>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
+<section>
+    <div class="panel panel-primary" id="direccion-map">
+        <div class="panel-heading">6) Creación del Evento Fializada</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step8", "Evento", FormMethod.Post, new { id = "formEtapas" }))
+            {
+                if (!string.IsNullOrEmpty(ViewBag.error))
+                {
+                    <div class="alert alert-danger">
+                        <strong>No se puedo almacenar el evento!</strong> @(ViewBag.error).
+                    </div>
+                }
+                <fieldset>
+                   
+                    <div class="row">
+                        <dv class="col-xs-12 col-sm-6 col-md-6" style="text-align:right">
+                            <h3>Evento Finalizado, haga click en el boton de finalizar para terminar el proceso!</h3>
+                        </dv>
+                    </div>
+
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="submit" class="btn btn-primary btn-lg" id="Previus" name="Previous" onclick="Loading(true);">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="submit" class="btn btn-primary btn-lg" id="Next" name="Next" onclick="Loading(true);">
+                                <span class="glyphicon glyphicon-thumbs-up"></span> Finalizar Evento
+                            </button>
+                        </dv>
+                    </div>
+                </fieldset>
+            }
+        </div>
+    </div>
+
+  
+</section>
+<script>
+    Progress(100);
+</script>
+

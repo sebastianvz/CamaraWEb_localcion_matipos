@@ -1,0 +1,556 @@
+﻿@model Verificador.Vista.Models.ViewModels.EmpresarioViewModel
+@(Html.HiddenFor(m => m.EmpresarioId))
+<script src="~/Scripts/pages/Camara/main.js"></script>
+<div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                    Datos de la Persona
+                </a>
+            </h4>
+        </div>
+        <div id="collapse1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="row cliente">
+                    <div class="col-sm-4">
+                        <video autoplay style="width:320px;height:240px;align-content:center"></video>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="center-block" onclick="TomarFoto()">Tomar Foto</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <canvas></canvas>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.TipoPersona_id))
+                            @(Html.Kendo().DropDownListFor(m => m.TipoPersona_id)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoPersona.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .HtmlAttributes(new { style = "width:100%", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.TipoDocumento_id))
+                            @(Html.Kendo().DropDownListFor(m => m.TipoDocumento_id)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoDocumento.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .Events(e => e.Change("ChangeEmpresa"))
+                                .HtmlAttributes(new { style = "width:100%", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.Identificacion))
+
+                            @(Html.Kendo().TextBoxFor(m => m.Identificacion).HtmlAttributes(new
+                        {
+                            @onchange = "VerificarIdentificacion()",
+                            //@onchange = "AgregarDigito()",
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-2 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.Digito))
+                            @(Html.Kendo().TextBoxFor(m => m.Digito)
+                                   .Enable(false)
+                                   .HtmlAttributes(new
+                                   {
+                                       style = "width:100%"
+                                   }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row cliente">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.PrimerApellido))
+
+                            @(Html.Kendo().TextBoxFor(m => m.PrimerApellido).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            required = "required",
+                            validationmessage = "El campo primer apellido es requerido"
+
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.SegundoApellido))
+
+                            @(Html.Kendo().TextBoxFor(m => m.SegundoApellido).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row empresa">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.RazonSocial))
+
+                            @(Html.Kendo().TextBoxFor(m => m.RazonSocial).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            required = "required",
+                            validationmessage = "El campo razon social es requerido"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row cliente">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.PrimerNombres))
+
+                            @(Html.Kendo().TextBoxFor(m => m.PrimerNombres).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            required = "required",
+                            validationmessage = "El campo primer nombre es requerido"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.SegundoNombres))
+
+                            @(Html.Kendo().TextBoxFor(m => m.SegundoNombres).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row cliente">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.Genero_id))
+
+                            @(Html.Kendo().DropDownListFor(m => m.Genero_id)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioGenero.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                        .HtmlAttributes(new
+                                        {
+                                            style = "width:100%",
+                                            placeholder = "Seleccione",
+                                            required = "required",
+                                            validationmessage = "El campo Genero es requerido"
+                                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.FechaNacimiento))
+                            @(Html.Kendo().DatePickerFor(m => m.FechaNacimiento)
+                                                .ParseFormats(new[] { "yyyyMMdd" })
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Fecha es requerido"
+                                                }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.Email))
+
+                            @(Html.Kendo().TextBoxFor(m => m.Email).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            type = "email"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.Celular))
+
+                            @(Html.Kendo().TextBoxFor(m => m.Celular).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            type = "phone"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.TelefonoCasa))
+
+                            @(Html.Kendo().TextBoxFor(m => m.TelefonoCasa).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            type = "phone"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.TelefonoOficina))
+
+                            @(Html.Kendo().TextBoxFor(m => m.TelefonoOficina).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            type = "phone"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="form-group">
+                            @(Html.Kendo().TextBoxFor(m => m.strImagen).HtmlAttributes(new
+                        {
+                            style = "display:none",
+                        }))
+                        </div>
+                        <div class="form-group">
+                            @(Html.Kendo().TextBoxFor(m => m.ClienteId).HtmlAttributes(new
+                        {
+                            style = "display:none",
+                        }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Direcciones</a>
+            </h4>
+        </div>
+        <div id="collapse2" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-10">
+                        <h4></h4>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        @(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.DireccionViewModel>()
+                        .Name("gridDirecciones")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.FullAdress).Title("Dirección Completa");
+                            columns.Command(command =>
+                            {
+                                command.Edit().Text("Editar").UpdateText("Guardar");
+                                command.Destroy().Text("Eliminar");
+                            }).Width(250);
+                        })
+                        .HtmlAttributes(new { style = "height: 250px;width: 99%;" })
+                        .ToolBar(toolbar =>
+                        {
+                            toolbar.Create().Text("Agregar Datos de Contacto");
+                        })
+                        .Editable(editable =>
+                            {
+                                editable.Mode(GridEditMode.PopUp).TemplateName("EditorDireccionCliente").Window(w => w.Title("Datos de Contacto").Width(500).Height(600));
+                                editable.DisplayDeleteConfirmation("¿Esta seguro que quiere eliminar este registro?");
+                            }
+                            )
+                        .Events(events => events.Edit("showDetalleDireccion"))
+                        .Scrollable()
+                        .Filterable()
+                        .Groupable(c => c.Enabled(false))
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5)
+                            .Messages(m => m.ItemsPerPage("filas por página")))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                                    .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("get_DireccionesByCliente", "Administracion").Data("getID"))
+                            .Create(update => update.Action("DireccionesCliente_Create", "Administracion").Data("getID"))
+                            .Update(update => update.Action("DireccionesCliente_Update", "Administracion").Data("getID"))
+                            .Destroy(update => update.Action("DireccionesPaciente_Destroy", "Administracion"))
+                         )
+
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                    Datos del Representan Legal de la Empresa
+                </a>
+            </h4>
+        </div>
+        <div id="collapse3" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioPulet))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioPulet).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.NumeroRegistroArtesEscenicas))
+
+                            @(Html.Kendo().TextBoxFor(m => m.NumeroRegistroArtesEscenicas).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioEmailNotificacion))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioEmailNotificacion).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.NombreEstablecimeinto))
+
+                            @(Html.Kendo().TextBoxFor(m => m.NombreEstablecimeinto).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioTipoDocumento_idRL))
+
+                            @(Html.Kendo().DropDownListFor(m => m.EmpresarioTipoDocumento_idRL)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoDocumento.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .HtmlAttributes(new { style = "width:100%" }))
+                        </div>
+                    </div>
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioIdentificacionRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioIdentificacionRL).HtmlAttributes(new
+                        {
+                            placeholder = "No escriba el digito de verificación",
+                            style = "width:100%",
+                            required = "required",
+                            validationmessage = "El campo identificación es requerido"
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioPrimerApellidosRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioPrimerApellidosRL).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            required = "required",
+                            validationmessage = "El campo primer apellido es requerido"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioSegundoApellidosRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioSegundoApellidosRL).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                        }))
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioPrimerNombreRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioPrimerNombreRL).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            required = "required",
+                            validationmessage = "El campo primer nombre es requerido"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioSegundoNombreRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioSegundoNombreRL).HtmlAttributes(new
+                        {
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioGenero_idRL))
+
+                            @(Html.Kendo().DropDownListFor(m => m.EmpresarioGenero_idRL)
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioGenero.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .HtmlAttributes(new { style = "width:100%", placeholder = "Seleccione" }))
+                        </div>
+                    </div>
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioFechaNacimientoRL))
+                            @(Html.Kendo().DatePickerFor(m => m.EmpresarioFechaNacimientoRL)
+                                .HtmlAttributes(new
+                                {
+                                    @class = "form-control",
+                                    required = "required",
+                                    validationmessage = "El campo fecha es requerido"
+                                }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioEmailRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioEmailRL).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            type = "email",
+                            required = "required",
+                            validationmessage = "El campo email es requerido"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5 empresa">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.EmpresarioCelularRL))
+
+                            @(Html.Kendo().TextBoxFor(m => m.EmpresarioCelularRL).HtmlAttributes(new
+                        {
+                            style = "width:100%",
+                            type = "phone",
+                            required = "required",
+                            validationmessage = "El campo celular es requerido"
+                        }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">
+                    Datos Usuario Empresario
+                </a>
+            </h4>
+        </div>
+        <div id="collapse4" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.UserEmpresario))
+                            @(Html.Kendo().TextBoxFor(m => m.UserEmpresario).HtmlAttributes(new
+                        {
+                            @onchange = "VerificarUserNameEmailSession()",
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.UserEmailEmpresario))
+
+                            @(Html.Kendo().TextBoxFor(m => m.UserEmailEmpresario).HtmlAttributes(new
+                        {
+                            @onchange = "VerificarUserNameEmailSession()",
+                            style = "width:100%",
+                            type = "email",
+                        }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.PasswordEmpresaio))
+
+                            @(Html.Kendo().TextBoxFor(m => m.PasswordEmpresaio).HtmlAttributes(new
+                        {
+                            type = "password",
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @(Html.LabelFor(m => m.ConfriPassEmpresario))
+
+                            @(Html.Kendo().TextBoxFor(m => m.ConfriPassEmpresario).HtmlAttributes(new
+                        {
+                            type = "password",
+                            style = "width:100%"
+                        }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

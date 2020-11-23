@@ -1,0 +1,593 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<log esquema="ventatiquetes">
+  <table tablaOrigen="te_autorizacionescortesia"  >
+    <campos>
+      <campo nombre='idtiquete' tipo='int  null  ' esclave='true' />
+      <campo nombre='idusuario' tipo='int  null  ' esclave='true' />
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='codigoautorizacion' tipo='varchar(30)  null  '  />
+    </campos>
+  </table>
+  <table tablaOrigen="te_boletas_tiquete"  >
+    <campos>
+      <campo nombre='preciopagado' tipo='decimal(18,3)  null  ' />
+      <campo nombre='idrango' tipo='int  null ' />
+      <campo nombre='sexo' tipo='varchar(1)  null  ' />
+      <campo nombre='idcajacompensacion' tipo='int  null ' />
+      <campo nombre='idcategoria' tipo='int  null ' />
+      <campo nombre='idproducto' tipo='int  null ' />
+      <campo nombre='idtipoprecio' tipo='int  null ' />
+      <campo nombre='idbono' tipo='int  null ' />
+      <campo nombre='codigo' tipo='varchar(20)  null  ' />
+      <campo nombre='idtiquete' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_bonos"  >
+    <campos>
+      <campo nombre='fechaexacta' tipo='int  null  ' />
+      <campo nombre='idusuario' tipo='int  null  ' />
+      <campo nombre='fechaefectivo' tipo='datetime  null ' />
+      <campo nombre='fechacreacion' tipo='datetime  null ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='codigo' tipo='varchar(30)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_cajas"  >
+    <campos>
+      <campo nombre='formatoimpresionfinal' tipo='varchar(4000)  null  ' />
+      <campo nombre='diaspreviosnotificacion' tipo='int  null  ' />
+      <campo nombre='cantidadminimaconsecutivos' tipo='int  null  ' />
+      <campo nombre='fechavencimientofacturacion' tipo='datetime  null ' />
+      <campo nombre='formatoimpresion' tipo='varchar(4000)  null  ' />
+      <campo nombre='consecutivofacturacion' tipo='int  null  ' />
+      <campo nombre='rangofinalfacturacion' tipo='int  null  ' />
+      <campo nombre='rangoinicialfacturacion' tipo='int  null  ' />
+      <campo nombre='prefijofactura' tipo='varchar(30)  null  ' />
+      <campo nombre='ip' tipo='varchar(30)  null  ' />
+      <campo nombre='numero_caja' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_cajas_compensacion"  >
+    <campos>
+      <campo nombre='nombrecaja' tipo='varchar(100)  null  ' />
+      <campo nombre='codigo' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_cargasbackup"  >
+    <campos>
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_categorias"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  '  autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='codigo' tipo='varchar(20)  null  ' />
+      <campo nombre='siemprevisible' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_ciudades"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  '  autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='iddepartamento' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_clase_productos"  >
+    <campos>
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_conf_tipo_tiquete_categoria"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idcategoria' tipo='int  null  ' />
+      <campo nombre='idtipo' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_config"  >
+    <campos>
+      <campo nombre='formatoimpresionfinal' tipo='varchar(4000)  null ' />
+      <campo nombre='horaenviocerre' tipo='datetime  null  ' />
+      <campo nombre='cantidadmanillas' tipo='int  null  ' />      
+      <campo nombre='formatoimpresion' tipo='varchar(4000)  null ' />
+      <campo nombre='consecutivofacturacion' tipo='int  null  ' />
+      <campo nombre='rangofinalfacturacion' tipo='int  null  ' />
+      <campo nombre='rangoinicialfacturacion' tipo='int  null  ' />
+      <campo nombre='codigoautorizacioncortesia' tipo='varchar(30)  null ' />
+      <campo nombre='nombresdiscoteta' tipo='varchar(200)  null ' />
+      <campo nombre='aforoadicional' tipo='int  null  ' />
+      <campo nombre='aforo' tipo='int  null  ' />
+      <campo nombre='moneda' tipo='varchar(10)  null  ' />
+      <campo nombre='idciudad' tipo='int  null  ' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_cuentas"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  '  autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='codigo' tipo='varchar(30)  null  ' />
+      <campo nombre='espordefecto' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_departamentos"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='idpais' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_descuentos_tiquete"  >
+    <campos>
+      <campo nombre='idtiquete' tipo='int  null  ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='tipodescuento' tipo='varchar(1)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_elementos"  >
+    <campos>
+      <campo nombre='direccion' tipo='VARCHAR(1)  null ' />
+      <campo nombre='codigobarras' tipo='VARCHAR(20)  null ' />
+      <campo nombre='idplantilla' tipo='int  null ' />
+      <campo nombre='tamano' tipo='int  null ' />
+      <campo nombre='fuente' tipo='varchar(50)  null ' />
+      <campo nombre='visible' tipo='int  null  ' />
+      <campo nombre='height' tipo='int  null ' />
+      <campo nombre='width' tipo='int  null ' />
+      <campo nombre='Y' tipo='int  null ' />
+      <campo nombre='X' tipo='int  null ' />
+      <campo nombre='nombre' tipo='varchar(45)  null  ' />
+      <campo nombre='tipo' tipo='varchar(5)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_estadosciviles"  >
+    <campos>
+      <campo nombre='nombre' tipo='varchar(30)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_formapago_tiquete"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idtiquete' tipo='int  null  ' />
+      <campo nombre='tipoforma' tipo='varchar(1)  null  ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_impuestos"  >
+    <campos>
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_impuestos_boleta"  >
+    <campos>
+      <campo nombre='preciobase' tipo='decimal(18,3)  null  ' />
+      <campo nombre='valorcobrado' tipo='decimal(18,3)  null  ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='idboleta' tipo='int  null  ' esclave='true' />
+      <campo nombre='idimpuesto' tipo='int  null  ' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_impuestos_precio"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idimpuesto' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_impuestos_producto"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idimpuesto' tipo='int  null  ' />
+      <campo nombre='idproducto' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_impuestos_tiposprecio"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idimpuesto' tipo='int  null  ' />
+      <campo nombre='idtipo' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_impuestos_tiquete"  >
+    <campos>
+      <campo nombre='idimpuesto' tipo='int  null  ' esclave='true' />
+      <campo nombre='idtiquete' tipo='int  null  '  esclave='true' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='valorcobrado' tipo='decimal(18,3)  null  ' />
+      <campo nombre='preciobase' tipo='decimal(18,3)  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_inicio_dia_usuario"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idusuario' tipo='int  null  ' />
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='valoriniciodia' tipo='decimal(18,3)  null  ' />
+      <campo nombre='caja' tipo='int  null  '  />
+      <campo nombre='valorterminadia' tipo='decimal(18,3)  null  ' />
+      <campo nombre='fechacierre' tipo='datetime  null  ' />
+    </campos>
+  </table>
+
+  <table tablaOrigen="te_ips"  >
+    <campos>
+      <campo nombre='tipo' tipo='varchar(20)  null  ' />
+      <campo nombre='ip' tipo='varchar(30)  null  ' />
+      <campo nombre='id' tipo='int  null  '  autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_mediospagotiquete"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idtiquete' tipo='int  null  ' />
+      <campo nombre='valorpagado' tipo='decimal(18,3)  null  ' />
+      <campo nombre='idmedio' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_notificacion_facuracion_caja"  >
+    <campos>
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='idcaja' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_paises"  >
+    <campos>
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_parametros"  >
+    <campos>
+      <campo nombre='valorstring' tipo='varchar(500)  null ' />
+      <campo nombre='tipo' tipo='char(1)  null  ' />
+      <campo nombre='valorbool' tipo='int  null ' />
+      <campo nombre='valorfecha' tipo='datetime  null ' />
+      <campo nombre='valorint' tipo='int  null ' />
+      <campo nombre='valordecimal' tipo='decimal(18,3)  null ' />
+      <campo nombre='descripcion' tipo='varchar(200)  null ' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      valorstring
+    </campos>
+  </table>
+  <table tablaOrigen="te_permisos"  >
+    <campos>
+      <campo nombre='idpermisopadre' tipo='int  null ' />
+      <campo nombre='tipo' tipo='varchar(2)  null  ' />
+      <campo nombre='descripcion' tipo='varchar(200)  null ' />
+      <campo nombre='nombre' tipo='varchar(30)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_permisos_rol"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idpermiso' tipo='int  null  ' />
+      <campo nombre='idrol' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_permitir_aforo_adicional"  >
+    <campos>
+      <campo nombre='aforoadicional' tipo='int  null  ' />
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='id' tipo='int  null  '  autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_personas"  >
+    <campos>
+      <campo nombre='esempresa' tipo='int null ' />
+      <campo nombre='idcategoria' tipo='int  null ' />
+      <campo nombre='idcajacompensacion' tipo='int  null ' />
+      <campo nombre='sexo' tipo='varchar(1)  null ' />
+      <campo nombre='pin' tipo='varchar(30)  null ' />
+      <campo nombre='idestadocivil' tipo='int  null ' />
+      <campo nombre='idusuario' tipo='int  null ' />
+      <campo nombre='esvip' tipo='int  null  ' />
+      <campo nombre='espromotor' tipo='int  null  ' />
+      <campo nombre='facebook' tipo='varchar(150)  null ' />
+      <campo nombre='twitter' tipo='varchar(150)  null ' />
+      <campo nombre='instagram' tipo='varchar(150)  null ' />
+      <campo nombre='fechanacimiento' tipo='datetime  null ' />
+      <campo nombre='email' tipo='varchar(50)  null ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombres' tipo='varchar(60)  null  ' />
+      <campo nombre='apellidos' tipo='varchar(60)  null  ' />
+      <campo nombre='idtipoidentificacion' tipo='int  null ' />
+      <campo nombre='identificacion' tipo='VARCHAR(20)  null  ' />
+      <campo nombre='telefono' tipo='varchar(30)  null ' />
+      <campo nombre='celular' tipo='varchar(20)  null ' />
+      <campo nombre='idciudad' tipo='int  null ' />
+      <campo nombre='direccion' tipo='varchar(50)  null ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_personas_promotor"  >
+    <campos>
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='idpersona' tipo='int  null  ' />
+      <campo nombre='idpromotor' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_precios"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='dia' tipo='int  null ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='fecha' tipo='datetime  null ' />
+      <campo nombre='idtipoprecio' tipo='int  null ' />
+      <campo nombre='idproducto' tipo='int  null ' />
+      <campo nombre='idcategoria' tipo='int  null ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_precios_tipo"  >
+    <campos>
+      <campo nombre='venderenduplos' tipo='int  null ' />
+      <campo nombre='idcuenta' tipo='int  null ' />
+      <campo nombre='codigo' tipo='varchar(50)  null  ' />
+      <campo nombre='cantidadminima' tipo='int  null  ' />
+      <campo nombre='precio' tipo='decimal(18,3)  null  ' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='id' tipo='int  null  '  autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_productos"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='precio' tipo='decimal(18,3)  null  ' />
+      <campo nombre='idclaseproducto' tipo='int  null  ' />
+      <campo nombre='escombo' tipo='int  null  ' />
+      <campo nombre='logo' tipo='varbinary(max)  null ' />
+      <campo nombre='usoilimitado' tipo='int  null  ' />
+      <campo nombre='codigo' tipo='varchar(50)  null  ' />
+      <campo nombre='idcuenta' tipo='int  null ' />
+      <campo nombre='consumirautomaticamente' tipo='int  null ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_productos_combo"  >
+    <campos>
+      <campo nombre='cantidad' tipo='int  null  ' />
+      <campo nombre='idproductoasociado' tipo='int  null  ' />
+      <campo nombre='idproducto' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_rangos_edad"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='codigo' tipo='varchar(20)  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_rangos_tipotiquete"  >
+    <campos>
+      <campo nombre='idrango' tipo='int  null  ' />
+      <campo nombre='idtipo' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_reglas"  >
+    <campos>
+      <campo nombre='idproducto' tipo='int  null ' />
+      <campo nombre='idtipoprecio' tipo='int  null ' />
+      <campo nombre='noaplicadescuentopromotor' tipo='int  null ' />
+      <campo nombre='noaceptabono' tipo='int  null  ' />
+      <campo nombre='noaplicadescuentocarolina' tipo='int  null  ' />
+      <campo nombre='noaplicadescuentocumpleanos' tipo='int  null  ' />
+      <campo nombre='noaplicadescuentovip' tipo='int  null  ' />
+      <campo nombre='tipo' tipo='varchar(2)  null  ' />
+      <campo nombre='dia' tipo='int  null ' />
+      <campo nombre='fecha' tipo='datetime  null ' />
+      <campo nombre='horainicial' tipo='datetime  null ' />
+      <campo nombre='horafinal' tipo='datetime  null ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idcategoria' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_reservas"  >
+    <campos>
+      <campo nombre='ubicacion' tipo='varchar(200)  null ' />
+      <campo nombre='fecha' tipo='datetime  null ' />
+      <campo nombre='idtiporeserva' tipo='int  null ' />
+      <campo nombre='descripcion' tipo='varchar(300)  null ' />
+      <campo nombre='numeropersonas' tipo='int  null  ' />
+      <campo nombre='idpersona' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_roles"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(30)  null  ' />
+      <campo nombre='permiteautorizaciones' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_roles_usuario"  >
+    <campos>
+      <campo nombre='idusuario' tipo='int  null  ' />
+      <campo nombre='idrol' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_tipoidentificaciones"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(30)  null  ' />
+      <campo nombre='descripcion' tipo='varchar(100)  null ' />
+      <campo nombre='codigoconsultas' tipo='varchar(20)  null ' />
+      <campo nombre='codigo' tipo='varchar(20)  null ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_tiporeserva"  >
+    <campos>
+      <campo nombre='nombre' tipo='varchar(30)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_tipotiquete_tiquete"  >
+    <campos>
+      <campo nombre='idproducto' tipo='int  null ' />
+      <campo nombre='precioboleta' tipo='decimal(18,3)  null  ' />
+      <campo nombre='idtipoprecio' tipo='int  null ' />
+      <campo nombre='cantidad' tipo='int  null  ' />
+      <campo nombre='idtiquete' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true'  />
+    </campos>
+  </table>
+  <table tablaOrigen="te_tipotiquete_tiquete_servicios"  >
+    <campos>
+      <campo nombre='cantidad' tipo='int  null  ' />
+      <campo nombre='idtipotiquete' tipo='int  null  ' />
+      <campo nombre='idproducto' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_tiquetes"  >
+    <campos>
+      <campo nombre='fechacancelacion' tipo='datetime  null ' />
+      <campo nombre='cancelada' tipo='int  null  ' />
+      <campo nombre='idcliente' tipo='int  null ' />
+      <campo nombre='numerofactura' tipo='varchar(20)  null  ' />
+      <campo nombre='escortesia' tipo='int  null  ' />
+      <campo nombre='valorpagado' tipo='decimal(18,3)  null ' />
+      <campo nombre='valor' tipo='decimal(18,3)  null  ' />
+      <campo nombre='idusuario' tipo='int  null ' />
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='subtotal' tipo='decimal(18,3)  null ' />
+      <campo nombre='total' tipo='decimal(18,3)  null ' />
+      <campo nombre='caja' tipo='int  null  ' />
+      <campo nombre='idtiqueteinicial' tipo='int  null  ' />
+      <campo nombre='idventa' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_usuarios"  >
+    <campos>
+      <campo nombre='email' tipo='varchar(50)  null  ' />
+      <campo nombre='bloqueado' tipo='int  null  ' />
+      <campo nombre='contrasena' tipo='varchar(80)  null  ' />
+      <campo nombre='nombre' tipo='varchar(30)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='codigoacceso' tipo='int  null ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_usuarios_camacol"  >
+    <campos>
+      <campo nombre='razonsocial' tipo='varchar(50)  null  ' />
+      <campo nombre='nit' tipo='varchar(20)  null  ' />
+      <campo nombre='sexo' tipo='varchar(1)  null  ' />
+      <campo nombre='fechaNacimiento' tipo='datetime  null  ' />
+      <campo nombre='codigoCategoria' tipo='varchar(1)  null  ' />
+      <campo nombre='segundoNombre' tipo='varchar(20)  null  ' />
+      <campo nombre='primerNombre' tipo='varchar(20)  null  ' />
+      <campo nombre='segundoApellido' tipo='varchar(20)  null  ' />
+      <campo nombre='primerApellido' tipo='varchar(20)  null  ' />
+      <campo nombre='Documento' tipo='varchar(20)  null  ' />
+      <campo nombre='TipoDocumento' tipo='varchar(20)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_verificacion"  >
+    <campos>
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='codigo' tipo='varchar(20) NULL  ' />
+      <campo nombre='idproducto' tipo='int  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='idboleta' tipo='int  null  ' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_verificacion_ingreso"  >
+    <campos>
+      <campo nombre='tipo' tipo='varchar(1) NULL   ' />
+      <campo nombre='idcomponente' tipo='int  null  ' />
+      <campo nombre='codigo' tipo='varchar(20) NULL  ' />
+      <campo nombre='fecha' tipo='datetime  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_plantillas"  >
+    <campos>
+      <campo nombre='alto' tipo='int  null ' />
+      <campo nombre='ancho' tipo='int  null ' />
+      <campo nombre='espordefecto' tipo='int  null  ' />
+      <campo nombre='nombre' tipo='varchar(45)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_autorizaciones"  >
+    <campos>
+      <campo nombre='descripcion' tipo='VARCHAR(500) null  ' />
+      <campo nombre='fecha' tipo='DATETIME  null  ' />
+      <campo nombre='idusuario' tipo='int  null ' />
+      <campo nombre='tipo' tipo='varchar(50)  null  ' />
+      <campo nombre='idasociado' tipo='int  null ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_torniquetes"  >
+    <campos>
+      <campo nombre='ip' tipo='varchar(30)  null  ' />
+      <campo nombre='numero_torniquete' tipo='int  null ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_alertas"  >
+    <campos>
+      <campo nombre='diasemana' tipo='int  null ' />
+      <campo nombre='tipo' tipo='varchar(80)  null  ' />
+      <campo nombre='correos' tipo='varchar(2000)  null  ' />
+      <campo nombre='diahora' tipo='DATETIME  null  ' />
+      <campo nombre='frecuencia' tipo='varchar(20)  null  ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_ventas"  >
+    <campos>
+      <campo nombre='enviarcorreo' tipo='int  null  ' />
+      <campo nombre='consecutivo' tipo='int  null ' />
+      <campo nombre='fechaexacta' tipo='int  null  ' />
+      <campo nombre='permitiradicionarentradas' tipo='int  null  ' />
+      <campo nombre='impresa' tipo='int  null  ' />
+      <campo nombre='numero' tipo='varchar(20)  null  ' />
+      <campo nombre='fechamaximaconsumol' tipo='DATETIME  null  ' />
+      <campo nombre='fechaventa' tipo='DATETIME  null  ' />
+      <campo nombre='tipo' tipo='varchar(2)  null  ' />
+      <campo nombre='idcliente' tipo='int  null ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_tipo_tiquetes_venta"  >
+    <campos>
+      <campo nombre='idcategoria' tipo='int  null ' />
+      <campo nombre='precio' tipo='DECIMAL(18,3)  null ' />
+      <campo nombre='cantidad' tipo='int  null ' />
+      <campo nombre='idtipo' tipo='int  null ' />
+      <campo nombre='idventa' tipo='int  null ' />
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+    </campos>
+  </table>
+  <table tablaOrigen="te_mediospago"  >
+    <campos>
+      <campo nombre='id' tipo='int  null  ' autogenerado='true' esclave='true' />
+      <campo nombre='nombre' tipo='varchar(50)  null  ' />
+      <campo nombre='codigo' tipo='varchar(20)  null  ' />
+      <campo nombre='visible' tipo='int  null  ' />
+      <campo nombre='esefectivo' tipo='int  null  ' />
+      <campo nombre='requiereaprobacion' tipo='int  null  ' />
+    </campos>
+  </table>
+</log>

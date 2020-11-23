@@ -1,0 +1,133 @@
+﻿@model Verificador.Vista.Models.ImpresionTicketsViewModel
+
+<script>
+    function getEvento() {
+        return { idEvento: '@(Model.Id)' };
+    }
+    function ImprimirTickets() {
+        let etapa = $("#Etapa").data("kendoDropDownList");
+        if (etapa.value() == "") {
+            alert("Primero debe de seleccionar la estapa");
+        }
+        let localidad = $("#Localidad").data("kendoDropDownList");
+        if (localidad.value() == "") {
+            alert("Primero debe de selccionar la localidad");
+        }
+        let cantidad = $("#cantidad-tickets").val();
+        if (cantidad == "") {
+            alert("Debe de digitar la cantdad de tickets que desea imprimir");
+        }
+        $.post("@Url.Action("PrintTickets", "Evento")",
+    {
+        Id: @(Model.Id),
+        Etapa: etapa.value(),
+        Localidad: localidad.value(),
+        Cantidad: cantidad
+    }, function (e) {
+        //alert("Tickets en cola de impresion");
+        $("#canvas-preview").html(e);
+        //$("#modal-print").modal("hide");
+    });
+    }
+</script>
+
+<h4 class="modal-title">@(Model.Nombre)</h4>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            @Html.Label("Etapa", new { @class = "form-control-label" })
+            @(Html.Kendo().DropDownList().Name("Etapa")
+                .DataSource(source =>
+                {
+                    source.Read(read =>
+                    {
+                        read.Action("getEtapasByEvent", "Evento").Data("getEvento");
+                    })
+                    .ServerFiltering(true);
+                })
+                .OptionLabel("Seleccione")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            @Html.Label("Localidad", new { @class = "form-control-label" })
+            @(Html.Kendo().DropDownList().Name("Localidad")
+                .DataSource(source =>
+                {
+                    source.Read(read =>
+                    {
+                        read.Action("getLocalidadesByEvent", "Evento").Data("getEvento");
+                    })
+                    .ServerFiltering(true);
+                })
+                .OptionLabel("Seleccione")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            @Html.Label("Cantidad de Tickets a imprimir", new { @class = "form-control-label" })
+            @Html.TextBox("cantidad-tickets", new { }, new { @class = "form-control", type = "number", min = "0" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12" id="canvas-preview"></div>
+</div>
+
+
+
+
+@*@Html.HiddenFor(m => m.Id)
+    <div class="editor-label">
+        @(Html.LabelFor(m => m.IdDepartamento))
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().ComboBoxFor(m => m.IdDepartamento)
+                        .DataTextField("NombreDepartamento")
+                        .DataValueField("Id")
+                        .MinLength(3)
+                        .Enable(Model == null)
+                        .Filter(FilterType.Contains)
+                        .DataSource(dataSource => dataSource
+                                .Read(read => read.Action("ReadDepartamento", "Administracion"))
+                                .ServerFiltering(true)
+                        )
+                        .Enable(Model == null || Model.Id == 0)
+                        .HtmlAttributes(new
+                        {
+                            /*required = "required",
+                            validationmessage = "El campo Identificación Tributaria es requerido",*/
+
+                            style = "width:100%"
+                        })
+                        .AutoBind(false)
+        )
+    </div>
+<div class="editor-label">
+    @(Html.LabelFor(m => m.Codigo))
+</div>
+<div class="editor-field">
+    @(Html.Kendo().TextBoxFor(m => m.Codigo)
+    )
+</div>
+    <div class="editor-label">
+        @(Html.LabelFor(m => m.NombreCiudad))
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().TextBoxFor(m => m.NombreCiudad)
+        )
+    </div>*@

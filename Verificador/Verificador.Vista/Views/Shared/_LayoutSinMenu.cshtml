@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>@ViewBag.Title - Matipos - Verificador</title>
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.common-bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+
+    <link href="@Url.Content("~/Content/bootstrap/css/bootstrap.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/bootstrap/css/ie10-viewport-bug-workaround.css")" rel="stylesheet">
+
+
+
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+    <script src="@Url.Content("~/Content/bootstrap/js/ie-emulation-modes-warning.js")"></script>
+    <script src='@Url.Content("~/ReportViewer/js/resources.es-ES.js")'></script>
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
+    <style>
+        html
+        {
+            background-color: inherit !important;
+        }
+
+        #body
+        {
+            background-color: #fff !important;
+        }
+    </style>
+    <script>
+        var gridActual = null;
+        var urlBase = '@Url.Content("~/")';
+        var idSeleccionado = null;
+
+        function ValidarAccion() {
+            return confirm("Esta seguro de continuar?");
+        }
+        function addParameter() {
+            return {
+                id: idSeleccionado
+            }
+        }
+
+        function showVentana(ventana, grid, obj, e) {
+            var dataItem = obj.dataItem($(e.currentTarget).closest("tr"));
+            idSeleccionado = dataItem.Id;
+
+            $("#" + ventana).data("kendoWindow").center().open();
+            refrescarGrid(grid);
+        }
+
+        function refrescarGrid(grid) {
+            var grid = $("#" + grid).data("kendoGrid");
+            grid.dataSource.page(1);
+            grid.dataSource.read();
+        }
+
+        function get_time() {
+            var d = new Date();
+            var time = (d.getMonth() + 1) + "" + d.getDate() + "" + d.getFullYear() + "" + d.getHours() + "" + d.getMinutes() + "" + d.getSeconds();
+            return time;
+        }
+        function error_handler(args) {
+            if (args.errors) {
+                try {
+                    gridActual.one("dataBinding", function (e) {
+                        e.preventDefault();
+                        if (args.errors.ServerError) {
+                            alert(args.errors.ServerError.errors);
+                        }
+
+                    });
+                } catch (ex) {
+                    var message = "";
+                    $.each(args.errors, function (key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors, function () {
+                                message += this + "\n";
+                            });
+                        }
+                    });
+                    alert(message);
+                }
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <header>
+    </header>
+    <div id="body">
+        @RenderSection("featured", required: false)
+        @RenderBody()
+        <div style="padding-left:35%;padding-right:35%;text-align:center;display:none">
+            <p>&copy; @DateTime.Now.Year - Matipos S.A.S</p>
+        </div>
+    </div>
+
+
+    <script src="@Url.Content("~/Content/bootstrap/js/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/Content/bootstrap/js/ie10-viewport-bug-workaround.js")"></script>
+</body>
+</html>

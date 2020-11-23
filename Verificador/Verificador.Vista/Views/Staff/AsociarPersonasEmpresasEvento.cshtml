@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "Asociar staff a evento";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2 id="NombreEvento"></h2>
+<div class="panel-body">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                @Html.Label("Empresa")
+                @(Html.Kendo().ComboBox()
+                                    .Name("Empresa")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .MinLength(3)
+                                    .Filter(FilterType.Contains)
+                                    .Events(e => e.Select("ChangeEmpresa"))
+                                    .DataSource(dataSource => dataSource
+                                    .Read(read => read.Action("EmpresabyText", "Administracion"))
+                                    .ServerFiltering(true)
+                                    )
+                                    .HtmlAttributes(new
+                                    {
+                                        
+                                        style = "width:100%",
+                                        placeholder = "Busque o seleccione" 
+                                    })
+                                    .AutoBind(false)
+                )
+            </div>
+        </div>
+    </div>
+</div>
+
+<section>
+    <div class="container">
+        <div class="panel-body">
+            <form id="buscarClienteForm">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @Html.Label("Tipo de identificación")
+                            @(Html.Kendo().DropDownList()
+                                .Name("TipoIdentificacionId")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoDocumento.getOptions())
+                                .HtmlAttributes(new
+                                {
+                                    style = "width:100%",
+                                    placeholder = "Seleccione",
+                                    required = "required",
+                                    validationmessage = "Seleccione un tipo de documento ",
+                                }))
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            @Html.Label("Identificación")
+                            @(Html.Kendo().TextBox()
+                                .Name("numeroIdentificacion")
+                                .HtmlAttributes(new
+                                {
+                                    required = "required",
+                                    validationmessage = "El campo no debe estar vacio",
+                                    style = "width:100%",
+                                }))
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary btn-sm" style="margin-top:25px" onclick="BuscarCliente()">
+                                Buscar <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <h3>Staff</h3>
+        <hr />
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    @(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.StaffViewModel>()
+                        .Name("gridStaff")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.NombreEmpresa).Width(190).Title("Empresa");
+                            columns.Bound(c => c.IdentificacionCliente).Width(190).Title("Identificación");
+                            columns.Bound(c => c.NombreCliente).Width(190).Title("Nombre completo");
+                            columns.Bound(c => c.CodigoUnico).Width(190).Title("Código");
+                            columns.Command(command =>
+                            {
+                                command.Destroy();
+                            }).Width(220);
+
+                        })
+                        .ToolBar(toolbar =>
+                        {
+                            toolbar.Template("<a class='k-button k-button-icontext k-grid-add' href='#' onclick='OpenNewPsersona()'><span class='k-icon k-add'></span>Añadir Persona</a>");
+                        })
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .HtmlAttributes(new { style = "height: 800px;" })
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                                   .Read(read => read.Action("ReadStaff", "Staff").Data("DatosGrid"))
+                                   .Destroy(update => update.Action("Staff_Destroy", "Staff"))
+                         )
+
+                    )
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="windowstaff" role="dialog">
+    <div class="modal-dialog" style="width:900px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <h4 class="modal-title">Datos persona</h4>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" class="close" data-dismiss="modal" onclick="CloseModal()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="clientesForm">
+                    <div class="row" id="FotoPersonaCargada">
+                        <div class="col-sm-12" style="text-align: center;">
+                            <img id="imagen" src="" style="height:240px;width:320px" />
+                        </div>
+                    </div>
+                    <div class="row" id="TomarNewFoto">
+                        <div class="col-sm-5">
+                            <video autoplay style="width:320px;height:240px;align-content:center"></video>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" class="center-block" onclick="TomarFoto()">Tomar Foto</button>
+                        </div>
+                        <div class="col-sm-5">
+                            <canvas></canvas>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Tipo de Documento</label>
+                                @(Html.Kendo().DropDownList()
+                                .Name("tipoIdentificacion")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoDocumento.getOptions())
+                                .HtmlAttributes(new
+                                {
+                                    style = "width:100%",
+                                    placeholder = "Seleccione",
+                                    required = "required",
+                                    validationmessage = "Seleccione un tipo de documento ",
+                                }))
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Identificación</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("identificacion")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Identificación es requerido"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Primer apellido</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("primerApellido")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Primer apellidoes requerido"
+                                                }))
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Segundo apellido</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("segundoApellido")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Primer nombre</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("primerNombre")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Primer nombrees requerido"
+                                                }))
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Segundo nombre</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("segundoNombre")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Genero</label>
+                                @(Html.Kendo().DropDownList()
+                                .Name("genero")
+                                .BindTo(Verificador.Vista.Models.Servicios.ServicioGenero.getOptions())
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                        .HtmlAttributes(new
+                                        {
+                                            style = "width:100%",
+                                            placeholder = "Seleccione",
+                                            required = "required",
+                                            validationmessage = "El campo Genero es requerido"
+                                        }))
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Fecha nacimiento</label>
+                                @(Html.Kendo().DatePicker()
+                                                .Name("fechaNacimiento")
+                                                .ParseFormats(new[] { "yyyyMMdd" })
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Fecha es requerido"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Email</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("email")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Email es requerido"
+                                                }))
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Celular</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("celular")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%",
+                                                    required = "required",
+                                                    validationmessage = "El campo Celular es requerido"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Teléfono casa</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("casa")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%"
+                                                }))
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label ">Teléfono oficina</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("oficina")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="DireccionPersona">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="control-label ">Dirección</label>
+                                @(Html.Kendo().TextBox()
+                                                .Name("direccion")
+                                                .HtmlAttributes(new
+                                                {
+                                                    style = "width:100%"
+                                                }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @(Html.Kendo().TextBox()
+                            .Name("strImagen")
+                            .HtmlAttributes(new
+                                {
+                                    style = "display:none",
+                                }))
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="row" id="btnPersonaCargada">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="float:right">
+                            <button id=" btnCancelar" class="btn btn-primary" type="button" data-toggle="modal" onclick="CloseModal()">
+                                Cancelar
+                            </button>
+                            <button id="btnAsociar" class="btn btn-primary" type="button" data-toggle="modal" onclick="AsociarStaff()">Asociar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="btnNewPersona">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="float:right">
+                            <button id=" btnSalir" class="btn btn-primary" type="button" data-toggle="modal" onclick="CloseModal()">
+                                Cancelar
+                            </button>
+                            <button id="btnGuardar" class="btn btn-primary" type="button" data-toggle="modal" onclick="GuardarCLiente()">Guardar y Asociar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/pages/Staff/Asociar.js"></script>
+<script src="~/Scripts/pages/Camara/main.js"></script>

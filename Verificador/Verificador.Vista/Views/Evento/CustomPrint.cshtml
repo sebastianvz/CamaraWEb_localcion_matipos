@@ -1,0 +1,290 @@
+﻿@model Verificador.Vista.Models.TicketsEventoViewModel
+@{
+    ViewBag.Title = "Eventos";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<section class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="form-control-label" for="inicio">Numero Inicial<b>*</b></label>
+                <input type="number" name="inicio" id="inicio" class="form-control" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="form-control-label" for="final">Numero Final<b>*</b></label>
+                <input type="number" name="final" id="final" class="form-control" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="form-control-label" for="inicio">Etapas Disponibles</label>
+                @(Html.Kendo().DropDownList()
+                                .Name("Etapa")
+                                .BindTo(Verificador.Vista.Models.ServicioEtapas.getOptions((int)Model.Evento_id))
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Seleccione")
+                                .Events(e => e.Change("changeEtapa"))
+                                .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="form-control-label" for="inicio">Localidades por Etapa</label>
+                @(Html.Kendo().DropDownList().Name("Localidad")
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("getLocalidadesByEtapa", "Evento").Data("getEtapa");
+                                })
+                                .ServerFiltering(true);
+                            })
+                            .AutoBind(false)
+                            .OptionLabel("Seleccione")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:center">
+            <button type="button" class="btn btn-primary">Consultar</button>
+            @*<button type="button" class="btn btn-default">Consultar para eliminar</button>*@
+        </div>
+
+    </div>
+
+</section>
+<div>
+    @(Html.Kendo().Grid<Verificador.Vista.Models.TicketViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Numero);
+                            columns.Bound(c => c.Estado);
+                            columns.Command(command =>
+                            {
+                                command.Custom("Imprimir").Text("Imprimir").Click("Imprimir");
+                                command.Custom("Eliminar").Text("Eliminar").Click("Eliminar");
+                            }).Width(220);
+                        })
+                        .HtmlAttributes(new { /*style = "height: 300px;"*/ })
+                        .AutoBind(false)
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("getTicketsByEvento", "Evento").Data("getData"))
+                         //.Destroy(update => update.Action("Eventos_Destroy", "Evento"))
+                         )
+
+    )
+</div>
+<section class="container-fluid">
+    <div class="row">
+        <div class="h1"></div>
+        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:center">
+            <button type="button" class="btn btn-info">Imprimir Rango</button>
+            <button type="button" class="btn btn-danger">Eliminar Rango</button>
+        </div>
+    </div>
+</section>
+
+<script>
+    let EventoID = 0;
+    function getData() {
+        return {
+            idevento: '@(Model.Evento_id)',
+            inicio: $("#inicio").val(),
+            final: $("#final").val(),
+            etapa: $("#Etapa").data("kendoDropDownList").value(),
+            localidad: $("#Localidad").data("kendoDropDownList").value()
+        }
+    }
+    function getEvento() {
+        return { idEvento: EventoID };
+    }
+    function getEtapa() {
+        return { idEtapa: $("#Etapa").data("kendoDropDownList").value() };
+    }
+    function changeEtapa() {
+        $("#Localidad").data("kendoDropDownList").dataSource.read();
+    }
+    function Imprimir(e) {
+        e.preventDefault();
+        let dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        if (dataItem.Numero) {
+
+            let inicio = $("#inicio").val()
+            let final = $("#final").val()
+
+            $("#inicio").val(dataItem.Numero)
+            $("#final").val(parseInt(dataItem.Numero) + 1)
+
+            Printer.PrintRange();
+
+            $("#inicio").val(inicio)
+            $("#final").val(final)
+        }
+    }
+    function Eliminar(e) {
+        e.preventDefault();
+        let dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        if (dataItem.Id) {
+            $.get("@(Url.Action("RemoveTickets", "Evento"))", { Id: dataItem.Id }, function (e) {
+                alert(e.message)
+                Loading(false);
+            })
+        }
+    }
+    var Printer = {
+        DataToPrint: {},
+        Init: function()  {
+
+        },
+        Config: function()  {
+            $("button.btn-primary").on("click", function()  {
+                if (Printer.Validate()) {
+                    Printer.ReloadTable();
+                }
+            })
+            $("button.btn-info").on("click", function()  {
+                Printer.PrintRange();
+            })
+            $("button.btn-danger").on("click", function()  {
+                Printer.RemoveTickets();
+            })
+        },
+        HideCanvas: function()  {
+            $("#canvas-preview").hide();
+        },
+        PrintRange: function()  {
+            if (!Printer.ValidateData()) {
+                return;
+            }
+            if (Printer.DataToPrint === {}) {
+                alert("No se tomaron los datos adecuadamente");
+                return
+            }
+            Printer.DataToPrint.IdTicketsEtapa = $("#Etapa").data("kendoDropDownList").value();
+            Printer.DataToPrint.inicio = $("#inicio").val();
+            Printer.DataToPrint.final = $("#final").val();
+
+            Loading(true);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("PrepareToPrint", "Evento")",
+                data: Printer.DataToPrint,
+                datatype: 'json',
+                success: function (e) {
+                    alert(e.message)
+                    Loading(false);
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                    Loading(false);
+                }
+            });
+
+        },
+        ReloadTable: function()  {
+            let grid = $("#grid").data("kendoGrid");
+            grid.dataSource.read();
+        },
+        RemoveTickets: function()  {
+            Loading(true);
+            let getData = function()  {
+                return {
+                    Id: '@Model.Id',
+                    inicio: $("#inicio").val(),
+                    final: $("#final").val()
+                }
+            }
+
+            $.get("@(Url.Action("RemoveTickets", "Evento"))", getData(), function (e) {
+                alert(e.message)
+                Loading(false);
+            })
+        },
+        Validate: function()  {
+            let inicio = $("#inicio").val()
+            let final = $("#final").val()
+            return !(inicio == '' || final == '');
+        },
+        LoadPartial: function()  {
+            if (!Printer.ValidateData()) {
+                return;
+            }
+            let get_data = function () {
+                return {
+                    Id: EventoID,
+                    IdTicketsEtapa: localidad.value(),
+                    Cantidad: cantidad,
+                    PrinterName: printer
+                }
+            };
+            Loading(true);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("PrintTickets", "Evento")",
+                data: get_data(),
+                datatype: 'json',
+                success: function (e) {
+                    $("#canvas-preview").html(e);
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                    Loading(false);
+                }
+            });
+
+        },
+        ValidateData: function()  {
+            let etapa = $("#Etapa").data("kendoDropDownList");
+            if (etapa.value() == "") {
+                alert("Primero debe de seleccionar la estapa");
+                return false
+            }
+            let localidad = $("#Localidad").data("kendoDropDownList");
+            if (localidad.value() == "") {
+                alert("Primero debe de selccionar la localidad");
+                return false
+            }
+            let inicio = $("#inicio").val();
+            if (inicio == "") {
+                alert("Debe de digitar la cantdad de tickets que desea imprimir");
+                return false
+            }
+            let final = $("#final").val();
+            if (final == "" || final == "0") {
+                alert("Debe de seleccionar la impresora que desea utilizar");
+                return false
+            }
+            if (inicio > final) {
+                alert("El numero inicial no debe de ser mayor al final");
+                return false
+            }
+            return true
+        }
+    }
+    $(document).ready(function()  {
+        Printer.Config();
+    });
+
+</script>
+<section id="canvas-preview">
+    @Html.Partial("CustomCanvasTicketsPartial", Model)
+</section>

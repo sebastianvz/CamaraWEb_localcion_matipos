@@ -1,0 +1,141 @@
+﻿@model Verificador.Vista.Models.ViewModels.DireccionViewModel
+@(Html.HiddenFor(m => m.IdCliente))
+<div class="panel-body">
+    <div class="row">
+        <div class="editor-label">
+            <label for="Pais_id">País</label>
+        </div>
+        <div class="editor-field">
+            @(Html.Kendo().ComboBoxFor(m => m.Pais_id)
+                    .Placeholder("Seleccione")
+                    .DataTextField("Label")
+                    .DataValueField("Id")
+                    .MinLength(3)
+                    .Filter(FilterType.Contains)
+                    .DataSource(dataSource => dataSource
+                    .Read(read => read.Action("ReadPais", "Administracion"))
+                    .ServerFiltering(true)
+                    )
+                    //.Enable(Model == null || Model.Id == 0)
+                    .HtmlAttributes(new
+                    {
+                        data_value_primitive = "true",
+                        style = "width:100%",
+                    })
+                    .AutoBind(true)
+            )
+        </div>
+    </div>
+    <div class="row">
+        <div class="editor-label">
+            <label for="Departamneto_id">Departamento</label>
+        </div>
+        <div class="editor-field">
+            @(Html.Hidden("hfDepartamento"))
+            @(Html.Kendo().ComboBoxFor(m => m.Departamneto_id)
+                    .Placeholder("Seleccione")
+                    .DataTextField("Label")
+                    .DataValueField("Id")
+                    .MinLength(3)
+                    .Filter(FilterType.Contains)
+                    .DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ReadDepartamentos", "Administracion")
+                            .Data("getDepartamentos");
+                        })
+                        .ServerFiltering(true);
+                    })
+                    .Enable(Model == null || Model.Id == 0)
+                    .HtmlAttributes(new
+                    {
+                        style = "width:100%",
+                    })
+                    .Enable(false)
+                    .AutoBind(true)
+                    .CascadeFrom("Pais_id")
+            )
+        </div>
+    </div>
+    <div class="row">
+        <div class="editor-label">
+            <label for="Ciudad_id">Ciudad</label>
+        </div>
+        <div class="editor-field">
+            @(Html.Hidden("hfMunicipio"))
+            @(Html.Kendo().ComboBoxFor(m => m.Ciudad_id)
+                    .Placeholder("Seleccione")
+                    .DataTextField("Label")
+                    .DataValueField("Id")
+                    .MinLength(3)
+                    .Filter(FilterType.Contains)
+                    .DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("ReadCiudad", "Administracion")
+                            .Data("getMunicipios");
+                        })
+                        .ServerFiltering(true);
+                    })
+                    .Enable(Model == null || Model.Id == 0)
+                    .HtmlAttributes(new
+                    {
+                        required = "required",
+                        validationmessage = "El pais es requerido",
+                        style = "width:100%",
+                    })
+                    .Enable(false)
+                    .AutoBind(true)
+                    .CascadeFrom("Departamneto_id")
+            )
+        </div>
+    </div>
+    <div class="row">
+        <div class="editor-label">
+            <label for="CodigoPostal">Codigo Postal</label>
+        </div>
+        <div class="editor-field">
+            @(Html.Kendo().TextBoxFor(m => m.CodigoPostal).HtmlAttributes(new
+                                    {
+                                        style = "width:100%"
+                                    }))
+        </div>
+    </div>
+    <div class="row">
+        <div class="editor-label">
+            <label for="Direccion">Dirección</label>
+        </div>
+        <div class="editor-field">
+            @Html.TextAreaFor(m => m.Direccion, new { @class = "form-control required", style = "width:90%; border-radius:5px" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="editor-field">
+            @(Html.Kendo().TextBoxFor(m => m.Latitud).HtmlAttributes(new
+                    {
+                        style = "display:none",
+                    }))
+            @(Html.Kendo().TextBoxFor(m => m.Longitud).HtmlAttributes(new
+                    {
+                        style = "display:none",
+                    }))
+        </div>
+    </div>
+    <div class="row">
+        <div style="text-align: center">
+            Ubique su dirección en el mapa (Opcional)
+        </div>
+    </div>
+    <div class="row">
+        <div class="row">
+            <div id="map" style="width: 90%; height: 300px; background-color: grey; margin-left: auto; margin-right: auto; display: block;">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAch2HsEcPfCG33CQLoQeDAjZTrSqJAr_I&libraries=places&callback=initMap" async defer></script>
+
+
+

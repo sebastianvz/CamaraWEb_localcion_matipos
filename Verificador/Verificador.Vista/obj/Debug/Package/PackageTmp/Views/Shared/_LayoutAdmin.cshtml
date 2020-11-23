@@ -1,0 +1,533 @@
+﻿@using Verificador.Vista.Models;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - Matipos - Verificador</title>
+    <!--<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />-->
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.common-bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/2014.3.1314/kendo.dataviz.bootstrap.min.css")" rel="stylesheet" type="text/css" />
+
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/2014.3.1314/kendo.aspnetmvc.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+
+    <script src="@Url.Content("~/Scripts/pages/_LayoutAdmin/_LayoutAdmin.js")"></script>
+    <!-- Bootstrap -->
+    <link href="@Url.Content("~/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="@Url.Content("~/vendors/font-awesome/css/font-awesome.min.css")" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="@Url.Content("~/vendors/nprogress/nprogress.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- bootstrap-progressbar -->
+    <link href="@Url.Content("~/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css")" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="@Url.Content("~/vendors/jqvmap/dist/jqvmap.min.css")" rel="stylesheet" />
+    <!-- Custom Theme Style -->
+    <link href="@Url.Content("~/build/css/custom.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/vendors/pnotify/dist/pnotify.css")" rel="stylesheet">
+    <link href="@Url.Content("~/vendors/pnotify/dist/pnotify.buttons.css")" rel="stylesheet">
+    <link href="@Url.Content("~/vendors/pnotify/dist/pnotify.nonblock.css")" rel="stylesheet">
+
+    <script src='@Url.Content("~/ReportViewer/js/resources.es-ES.js")'></script>
+    <script src="@Url.Content("~/Scripts/jQuery.print.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootbox.all.min.js")"></script>
+    <link href="~/Content/pages/Layout/_LayoutAdmin.css" rel="stylesheet" />
+    <script src="~/Scripts/utils/GlobalMessages.js"></script>
+    <script src="~/Scripts/pluggins/moment-date/moment.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
+    <script>
+
+        var urlBase = '@Url.Content("~/")';
+        var idSeleccionado = null;
+        var parametersUrl = "";
+        var gridActual = null;
+
+
+        function ValidateSession() {
+            var url = urlBase + "Session/ValidateSession";
+            parametersUrl = "";
+            $.post(url, null,
+            function (data) {
+                if (data.Ready) {
+                    setTimeout("ValidateSession();", 60000);
+                } else {
+                    var url = urlBase + "Admin";
+                    window.location = url;
+                }
+            });
+        }
+
+        function ValidarAccion() {
+            return confirm("Esta seguro de continuar?");
+        }
+        function addParameter() {
+            return {
+                id: idSeleccionado
+            }
+        }
+
+        function showVentana(ventana, grid, obj, e) {
+            var dataItem = obj.dataItem($(e.currentTarget).closest("tr"));
+            idSeleccionado = dataItem.Id;
+
+            $("#" + ventana).data("kendoWindow").center().open();
+            refrescarGrid(grid);
+        }
+
+        function refrescarGrid(grid) {
+            var grid = $("#" + grid).data("kendoGrid");
+            grid.dataSource.page(1);
+            grid.dataSource.read();
+        }
+
+        function GuardarAsociacion(idSel, ventana, controlador, accion) {
+            var ventana = $("#" + ventana);
+            var checks = ventana.find("input[name='chkSel']")
+            var ids = "";
+            for (var i = 0; i < checks.length; i++) {
+                if (checks[i].checked) {
+                    if (ids != "") {
+                        ids += ",";
+                    }
+                    ids += $(checks[i]).val();
+                }
+            }
+
+            var url = urlBase + controlador + "/" + accion;
+            $.get(url, { id: idSel, asociaciones: ids },
+            function (data) {
+                if (data != null && data != "") {
+                    alert(data);
+                } else {
+                    ventana.data("kendoWindow").close();
+                }
+            });
+        }
+
+        function get_time() {
+            var d = new Date();
+            var time = (d.getMonth() + 1) + "" + d.getDate() + "" + d.getFullYear() + "" + d.getHours() + "" + d.getMinutes() + "" + d.getSeconds();
+            return time;
+        }
+
+        function error_handler(args) {
+            if (args.errors) {
+
+                try {
+                    gridActual.one("dataBinding", function (e) {
+                        e.preventDefault();
+                        if (args.errors.ServerError) {
+                            alert(args.errors.ServerError.errors);
+                        }
+
+                    });
+                } catch (ex) {
+                    var message = "";
+                    $.each(args.errors, function (key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors, function () {
+                                message += this + "\n";
+                            });
+                        }
+                    });
+                    alert(message);
+                }
+            }
+        }
+
+        function RecargarImagen(idimage, tipo, id) {
+            if (id == null) {
+                id = "";
+            }
+            var imagen = $("#" + idimage);
+            if (tipo == 'nuevo') {
+                imagen[0].style.display = "none";
+            }
+            var src = '@Url.Content(string.Format("{0}?time=", "~/Imagenes.ashx"))' + get_time() + '&tipo=' + tipo + '&id=' + id;
+            imagen.attr("src", src);
+            if (tipo != 'nuevo') {
+                imagen[0].style.display = "inline";
+            }
+        }
+
+        $(document).ready(function () {
+            $("#formcambiarpw").kendoValidator().data("kendoValidator");
+            $("#formcambiarpw").submit(function (event) {
+                event.preventDefault();
+                var LoginEmpre = "@Utilidades.GetStatusUsuarioEmpresario(Utilidades.GetCurrentUser().Id)";
+                if(status == "False")
+                {
+                    var url = urlBase + "Admin" + "/" + "CambiarPW";
+                    parametersUrl = "";
+                    $.post(url, { password: $("#password").val(), passwordnuevo: $("#passwordnuevo").val(), passwordnuevorepetir: $("#passwordnuevorepetir").val() },
+                    function (data) {
+                        alert(data.Mensaje);
+                        if (data.Guardo) {
+                            $("#windowCambiarPW").data("kendoWindow").center().close();
+                        }
+                    });
+                }else
+                {
+                    var url = urlBase + "Empresarios" + "/" + "CambiarPW";
+                    parametersUrl = "";
+                    $.post(url, { password: $("#password").val(), passwordnuevo: $("#passwordnuevo").val(), passwordnuevorepetir: $("#passwordnuevorepetir").val() },
+                    function (data) {
+                        alert(data.Mensaje);
+                        if (data.Guardo) {
+                            $("#windowCambiarPW").data("kendoWindow").center().close();
+                        }
+                    });
+                }
+                
+            });
+            setTimeout("ValidateSession();", 60000);
+        });
+
+        function CambiarContrasena() {
+            $("#windowCambiarPW").data("kendoWindow").center().open();
+        }
+        var ME = "ERROR";
+        var MI = "INFO";
+        var MS = "SUCCESS";
+        function showMessage(msg, type) {
+            switch (type) {
+                case "ERROR":
+                    new PNotify({
+                        title: 'Error',
+                        text: msg,
+                        type: 'error',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                case "SUCCESS":
+                    new PNotify({
+                        title: 'Success',
+                        text: msg,
+                        type: 'success',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                case "INFO":
+                    new PNotify({
+                        title: 'Info',
+                        text: msg,
+                        type: 'info',
+                        styling: 'bootstrap3'
+                    });
+                    break;
+                default:
+
+            }
+        }
+
+        function Loading(visible) {
+            if (visible) {
+                $(".loading").show('100');
+            } else {
+                $(".loading").hide('100');
+            }
+        }
+
+        $(document).keypress(function (e) {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    </script>
+    <style>
+        .row {
+            padding-bottom: 3px;
+        }
+
+        #tablepassword td {
+            padding-top: .5em;
+            padding-bottom: .5em;
+        }
+
+        .label_barra {
+            font-family: verdana;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <div style="background-color:#EDEDED; height:64px;text-align:center">
+                            <a href='@Url.Content("~/")'>
+                                <img style="width: 100%; max-width:100px; height: 45px; margin-top:4px; " src='@Url.Content("~/Images/logo_t.png")' />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <!-- menu profile quick info -->
+                    <div class="profile">
+                        <!--<div class="profile_pic">
+                            &nbsp;
+                            <img src="images/img.jpg" alt="..." class="img-circle profile_img">
+                        </div>-->
+                        <!--<div class="profile_info" style="width:100%">
+                            <span>Bienvenido, </span>
+                            <h2>@((Verificador.Vista.Models.Utilidades.GetCurrentUser() as Verificador.Vista.Models.ViewModels.UsuarioViewModel).Usuario)</h2>
+                        </div>-->
+                    </div>
+                    <!-- /menu profile quick info -->
+                    <br />
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>Opciones Generales</h3>
+                            <ul class="nav side-menu">
+                                @if (Utilidades.Usuario != null)
+                                {
+                                    var Menus = Utilidades.Usuario.Menus.OrderBy(c=> c.Menu).ThenBy(c=> c.LabelMenu).GroupBy(c => c.Menu).Select(c => c).ToList();
+                                    foreach (var itemGeneral in Menus)
+                                    {
+                                        <li>
+                                            <a><i class="@itemGeneral.First().Icono"></i>@itemGeneral.First().Menu<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+                                                @foreach (var item in itemGeneral)
+                                                {
+                                                    if (item.Menu == item.Menu)
+                                                    {
+                                                        <li>@(Html.ActionLink(item.LabelMenu, item.Accion, item.Controlador)) </li>
+                                                    }
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /sidebar menu -->
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="#" onclick="$('#btnSalir').click();" class="glyphicon glyphicon-lock"><label style="font-family:Verdana, Geneva, Tahoma, sans-serif; font-size:12px">&nbsp;Salir</label></a>
+                                <form id="formlogout" action='@Url.Content("~/Admin/Logout")' method="post">
+                                    <input type="submit" id="btnSalir" name="btnSalir" style="display:none" />
+                                </form>
+                            </li>
+                            <li>
+                                <a onclick="javascript:void(CambiarContrasena())" href="javascript:;" class="glyphicon glyphicon-lock"><label style="font-family:Verdana, Geneva, Tahoma, sans-serif; font-size:12px">&nbsp;Contraseña</label></a>
+                            </li>
+                            <li class="">
+                                <a href="javascript:;" class="glyphicon glyphicon-user">
+                                    <label style="font-family:Verdana, Geneva, Tahoma, sans-serif; font-size:12px">@((Verificador.Vista.Models.Utilidades.GetCurrentUser() as Verificador.Vista.Models.ViewModels.UsuarioViewModel).Usuario)</label>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <!-- top tiles -->
+                <h3>@ViewBag.Title</h3>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        @RenderBody()
+                    </div>
+                </div>
+                <!-- /top tiles -->
+                @*<div id="loader"></div>*@
+                <div class="background loading"></div>
+                <div id="loader" class="loading animate-bottom"></div>
+                <br />
+
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    &copy; @DateTime.Now.Year - <a href="http://www.manillasparaeventos.com/">Matipos S.A.S</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <div id="modalConfirmGeneric" class="modal fade">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                </div>
+                <div class="modal-body">
+                    <p class=""></p>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnAgreeEditDynamic" class="btn btn-secondary trn" data-trn-key-input="Yes" data-dismiss="modal" />
+                    <input type="button" id="btnDisagreeEditDynamic" class="btn btn-secondary trn" data-trn-key-input="No" data-dismiss="modal" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @(Html.Kendo().Window()
+    .Name("windowCambiarPW")
+    .Width(480)
+    .Height(260)
+    .Title("Cambiar Contraseña")
+    .Modal(true)
+    .Visible(false)
+    .Content(@<div>
+        <form id="formcambiarpw" class="k-content" action='#' method="post">
+            <table id="tablepassword" style="width:100%;">
+                <tr>
+                    <td>
+                        <label class="required">Contraseña Actual</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().TextBox()
+                              .Name("password")
+                              .HtmlAttributes(new
+                              {
+
+                                  type = "password",
+                                  required = "required",
+                                  validationmessage = "El campo Contraseña Actual es requerido",
+                                  style = "width:200px"
+                              }))
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="required">Nueva Contraseña</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().TextBox()
+                              .Name("passwordnuevo")
+                              .HtmlAttributes(new
+                              {
+
+                                  type = "password",
+                                  required = "required",
+                                  validationmessage = "El campo Nueva Contraseña es requerido",
+                                  style = "width:200px"
+                              }))
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="required">Repetir Nueva Contraseña</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().TextBox()
+                              .Name("passwordnuevorepetir")
+                              .HtmlAttributes(new
+                              {
+
+                                  type = "password",
+                                  required = "required",
+                                  validationmessage = "El campo Repetir Nueva Contraseña es requerido",
+                                  style = "width:200px"
+                              }))
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:right" colspan="2">
+                        <button class="k-button k-primary" type="submit">Guardar</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+                                )
+    )
+    <!-- jQuery
+    <script src="../vendors/jquery/dist/jquery.min.js"></script> -->
+    <!-- Bootstrap -->
+    <script src="@Url.Content("~/vendors/bootstrap/dist/js/bootstrap.min.js")"></script>
+    <!-- FastClick -->
+    <script src="@Url.Content("~/vendors/fastclick/lib/fastclick.js")"></script>
+    <!-- NProgress -->
+    <script src="@Url.Content("~/vendors/nprogress/nprogress.js")"></script>
+    <!-- Chart.js -->
+    <script src="@Url.Content("~/vendors/Chart.js/dist/Chart.min.js")"></script>
+    <!-- gauge.js -->
+    <script src="@Url.Content("~/vendors/gauge.js/dist/gauge.min.js")"></script>
+    <!-- bootstrap-progressbar -->
+    <script src="@Url.Content("~/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js")"></script>
+    <!-- iCheck -->
+    <script src="@Url.Content("~/vendors/iCheck/icheck.min.js")"></script>
+    <!-- Skycons -->
+    <script src="@Url.Content("~/vendors/skycons/skycons.js")"></script>
+    <!-- Flot -->
+    <script src="@Url.Content("~/vendors/Flot/jquery.flot.js")"></script>
+    <script src="@Url.Content("~/vendors/Flot/jquery.flot.pie.js")"></script>
+    <script src="@Url.Content("~/vendors/Flot/jquery.flot.time.js")"></script>
+    <script src="@Url.Content("~/vendors/Flot/jquery.flot.stack.js")"></script>
+    <script src="@Url.Content("~/vendors/Flot/jquery.flot.resize.js")"></script>
+    <!-- Flot plugins -->
+    <script src="@Url.Content("~/vendors/flot.orderbars/js/jquery.flot.orderBars.js")"></script>
+    <script src="@Url.Content("~/vendors/flot-spline/js/jquery.flot.spline.min.js")"></script>
+    <script src="@Url.Content("~/vendors/flot.curvedlines/curvedLines.js")"></script>
+    <!-- DateJS -->
+    <script src="@Url.Content("~/vendors/DateJS/build/date.js")"></script>
+    <!-- JQVMap -->
+    <script src="@Url.Content("~/vendors/jqvmap/dist/jquery.vmap.js")"></script>
+    <script src="@Url.Content("~/vendors/jqvmap/dist/maps/jquery.vmap.world.js")"></script>
+    <script src="@Url.Content("~/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js")"></script>
+    <!-- bootstrap-daterangepicker -->
+    @*<script src="@Url.Content("~/js/moment/moment.min.js")"></script>
+        <script src="@Url.Content("~/js/datepicker/daterangepicker.js")"></script>*@
+    <!-- Custom Theme Scripts -->
+    <script src="@Url.Content("~/build/js/custom.min.js")"></script>
+    <script src="@Url.Content("~/vendors/pnotify/dist/pnotify.js")"></script>
+    <script src="@Url.Content("~/vendors/pnotify/dist/pnotify.buttons.js")"></script>
+    <script src="@Url.Content("~/vendors/pnotify/dist/pnotify.nonblock.js")"></script>
+    @RenderSection("scripts", required: false)
+    <!--
+
+        <li class="dropdown">
+                            <a href='#' class="glyphicon glyphicon-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><label class="label_barra"></label><span class="caret"></span></a>
+                        </li>
+
+                        <li>
+
+                        </li>
+
+
+
+
+    <footer>
+        <div class="content-wrapper">
+            <div class="float-left">
+
+            </div>
+        </div>
+    </footer>
+        -->
+    <script type="text/javascript">
+        $(document).ready(function () { Loading(false); });
+    </script>
+</body>
+</html>

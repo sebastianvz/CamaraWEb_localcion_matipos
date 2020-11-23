@@ -1,0 +1,204 @@
+﻿@{
+    ViewBag.Title = "Ingreso al Sistema";
+}
+<script>
+
+
+</script>
+<a class="hiddenanchor" id="forgot"></a>
+<a class="hiddenanchor" id="signup"></a>
+<a class="hiddenanchor" id="signin"></a>
+
+<div class="login_wrapper">
+    <div class="animate form login_form">
+        <section class="login_content">
+            <form id="formlogin" action='#' method="post" class="form-horizontal form-label-left input_mask">
+                <h1>Ingreso al Sistema</h1>
+                <div class="has-feedback">
+                    @(Html.Kendo().TextBox()
+                                .Name("username")
+                                .HtmlAttributes(new
+                                {
+                                    placeholder = "Usuario",
+                                    required = "required",
+                                    validationmessage = "Ingrese usuario",
+                                    value = ViewBag.UserName,
+                                    @class = "form-control has-feedback-left"
+                                })
+                            )
+                    <span class="glyphicon glyphicon-user form-control-feedback left" aria-hidden="true"></span>
+                    <br />
+                </div>
+                <div class="has-feedback">
+                    @(Html.Kendo().TextBox()
+                                                .Name("password")
+                                                .Value("123")
+                                                .HtmlAttributes(new
+                                                {
+                                                    placeholder = "Contraseña",
+                                                    type = "password",
+                                                    required = "required",
+                                                    validationmessage = "Ingrese contraseña",
+                                                    @class = "form-control has-feedback-left",
+                                                })
+                                            )
+                    <span class="glyphicon glyphicon-lock form-control-feedback left" aria-hidden="true"></span>
+                    <br />
+                </div>
+                <div>
+                    <!--class="btn btn-default submit"-->
+                    <button class="btn btn-default submit" type="submit">Ingresar</button>
+                    <a class="reset_pass" href="#forgot">Olvidaste tu contraseña?</a>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="separator">
+                    <p class="change_link">
+                        Eres Nuevo?
+                  <a href="#signup" class="to_register">Crear Cuenta </a>
+                    </p>
+
+                    <div class="clearfix"></div>
+                    <br />
+
+                    <div>
+                        <p>&copy; @DateTime.Now.Year - <a href="http://www.manillasparaeventos.com/">Matipos S.A.S</a></p>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div id="register" class="animate form registration_form">
+        <section class="login_content">
+            <form>
+                <h1>Create Account</h1>
+                <div>
+                    <input type="text" class="form-control" placeholder="Username" required="" />
+                </div>
+                <div>
+                    <input type="email" class="form-control" placeholder="Email" required="" />
+                </div>
+                <div>
+                    <input type="password" class="form-control" placeholder="Password" required="" />
+                </div>
+                <div>
+                    <a class="btn btn-default submit" href="index.html">Submit</a>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="separator">
+                    <p class="change_link">
+                        Ya tienes Cuenta ?
+                  <a href="#signin" class="to_register">Ingresar </a>
+                    </p>
+
+                    <div class="clearfix"></div>
+                    <br />
+
+                    <div>
+                        <p>&copy; @DateTime.Now.Year - <a href="http://www.manillasparaeventos.com/">Matipos S.A.S</a></p>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div id="recuperar" class="animate form recover_form">
+        <section class="login_content">
+            <form id="formRecuperar">
+                <h1>Recuperar Contraseña</h1>
+                <div class="has-feedback">
+                    @(Html.Kendo().TextBox()
+                                .Name("email")
+                                .HtmlAttributes(new
+                                {
+                                    placeholder = "Email",
+                                    required = "required",
+                                    validationmessage = "Ingrese su email",
+                                    @class = "form-control has-feedback-left"
+                                })
+                            )
+                    <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
+                    <br />
+                </div>
+                <div>
+                    <button class="btn btn-default submit" type="submit">Enviar</button>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="separator">
+                    <p class="change_link">
+                        Ya tienes Cuenta ?
+                    <a href="#signin" class="to_register">Ingresar </a>
+                    </p>
+
+                    <div class="clearfix"></div>
+                    <br />
+
+                    <div>
+                        <p>&copy; @DateTime.Now.Year - <a href="http://www.manillasparaeventos.com/">Matipos S.A.S</a></p>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        var validator = $("#formlogin").kendoValidator().data("kendoValidator");
+        var status = $(".status");
+
+        $("#formlogin").submit(function (event) {
+            //showLoading();            
+            event.preventDefault();
+            if (validator.validate()) {
+                var url = urlBase + "Login" + "/" + "Ingresar";
+                parametersUrl = "";
+
+                $.post(url, { username: $("#username").val(), password: $("#password").val() },
+                function (data) {
+                    debugger;
+                    window.localStorage.clear();
+                    if (!data.Ejecuto) {
+                        showMessage(data.Mensaje, ME);
+                    } else {
+                        window.location = '@Url.Content("~/Home")';
+                    }
+                });
+            } else {
+
+                status.text("Algunos campos tienen errores .")
+                    .removeClass("valid")
+                    .addClass("invalid");
+            }
+            //hideLoading();
+        });
+    });
+
+    $(function () {
+        var validatorRecuperar = $("#formRecuperar").kendoValidator().data("kendoValidator");
+        var status = $(".status");
+
+        $("form").submit(function (event) {
+            event.preventDefault();
+            if (validatorRecuperar.validate()) {
+                var url = urlBase + "Login" + "/" + "Recuperar";
+                parametersUrl = "";
+                $.post(url, { email: $("#email").val() },
+                function (data) {                    
+                    showMessage(data.Mensaje,(data.Ejecuto) ? MS : ME);
+                });
+            }
+        });
+    });
+
+
+
+
+</script>

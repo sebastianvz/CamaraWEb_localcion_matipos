@@ -1,0 +1,452 @@
+﻿@model Verificador.Vista.Models.EtapasViewModel
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+<link href="~/Content/evento.css" rel="stylesheet" />
+<script src="~/Scripts/pages/Evento/evento.js"></script>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
+<section>
+    <div class="panel panel-primary" id="direccion-map">
+        <div class="panel-heading">4) Agregar Etapas</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step6", "Evento", FormMethod.Post, new { id = "formEtapas" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(e => e.Id)
+
+                <fieldset class="Etapa">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Nombre, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Nombre, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Localidad", new { @class = "form-control-label" })
+                                @(Html.Kendo().DropDownListFor(e => e.Localidad_id)
+                                    .DataSource(source =>
+                                    {
+                                        source.Read(read =>
+                                        {
+                                            read.Action("getLocalidadesOptions", "Evento").Data("getVenue");
+                                        })
+                                        .ServerFiltering(true);
+                                    })
+                                    .Events(e => e.Change("ControlLocalidad"))
+                                    .OptionLabel("Seleccione")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @Html.Label("Cantidad de Tickets por etapa", new { @class = "form-control-label", id = "tipo-localidad" })
+                            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                                @Html.TextBoxFor(e => e.Cantidad, new { @class = "form-control", type = "number", onblur = "consumirAforo(this)" })
+                                <div class="input-group-addon">#####</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Precio del Ticket por Etapa", new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Precio, new { @class = "form-control", type = "number" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.FechaInicial, new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePickerFor(e => e.FechaInicial).HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Fecha Final", new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePickerFor(e => e.FechaFinal).HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Descripcion, new { @class = "form-control-label" })
+                                @Html.TextAreaFor(e => e.Descripcion, new { @class = "form-control", rows = "3" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                            <button type="button" id="btnAddEtapa" class="btn btn-primary btn-lg" onclick="AddEtapa()">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Etapa
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" id="divEtapas"></div>
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="submit" class="btn btn-primary btn-lg" id="Previous" name="Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="submit" class="btn btn-primary btn-lg @(ViewBag.Estado == Verificador.Vista.Models.EstadoEvento.localidades ? "hide" : "")" id="Next" name="Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+
+<div id="modalConfigEtapas" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label class="switch">
+                            <input type="checkbox" checked id="ConfigCategories" onclick="ChangeConfigEtapa(this.checked)">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-10">
+                        <label for="ConfigCategories" id="ConfigEtapasLabel">Manejar varias etapas</label>
+                    </div>
+                </div>
+                <div class="row" style="display:none" id="div-config-etapa">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label for="ticket-price" class="form-control-label">Precio del tiquete</label>
+                            <input id="ticket-price" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label for="aforo-inicial" class="form-control-label">Aforo de inicio del evento</label>
+                            <input id="aforo-inicial" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="cloce-modal">Crear Etapas</button>
+                @using (Html.BeginForm("Step6", "Evento", FormMethod.Post, new { id = "formEtapas" }))
+                {
+                    <button type="submit" class="btn btn-primary btn-lg" style="display:none" id="Next-1" name="Next">
+                        Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                    </button>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    function getVenue() {
+        return { venue: Venue_id };
+    }
+
+    //$('#Next').click(function (ev) {
+    //    ev.preventDefault();
+    //    $("#Id").val(Evento_id);
+    //    $('#formFunciones').submit();
+    //});
+
+    function ChangeConfigEtapa(state) {
+        if (state) {
+            $("#ConfigEtapasLabel").text("Manejar varias etapas para el evento");
+            $("#div-config-etapa").hide();
+            $("#cloce-modal").show();
+            $("#Next-1").hide();
+        } else {
+            $("#ConfigEtapasLabel").text("Manejar solo una etapa para el evento")
+            $("#div-config-etapa").show();
+            $("#cloce-modal").hide();
+            $("#Next-1").show();
+        }
+    }
+
+    @{
+        var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+        var localidadesJson = jss.Serialize(ViewBag.Localidades);
+    }
+
+    var Localidades = JSON.parse('@Html.Raw(localidadesJson)');
+
+    function ControlLocalidad() {
+        var id = parseInt($("#Localidad_id").data("kendoDropDownList").value());
+        for (var i = 0; i < Localidades.length; i++) {
+            var x = Localidades[i];
+            if (x.id == id) {
+                $(".input-group-addon").html('Cantidad utilizada ' + x.aforoConsumido + '/' + x.aforo);
+                switch (x.tipo) {
+                    case 1: document.getElementById('tipo-localidad').innerHTML = 'Cantidad de Aforos';
+                        break;
+                    case 2: document.getElementById('tipo-localidad').innerHTML = 'Cantidad de Sillas'
+                        break;
+                    case 3: document.getElementById('tipo-localidad').innerHTML = 'Cantidad de Mesas'
+                        break;
+                    case 4: document.getElementById('tipo-localidad').innerHTML = 'Cantida de Palcos'
+                        break;
+                }
+                break;
+            }
+        }
+    }
+
+    function consumirAforo(txt) {
+        var id = parseInt($("#Localidad_id").data("kendoDropDownList").value());
+        for (var i = 0; i < Localidades.length; i++) {
+            var x = Localidades[i];
+            if (x.id == id) {
+                $("#btnAddEtapa").removeProp('disabled');
+                $("#btnAddEtapa").removeClass("disabled");
+                var suma = parseInt(txt.value) + x.aforoConsumido;
+                if (suma > x.aforo) {
+                    $(".input-group-addon").html('Cantidad utilizada <label style="color:red">' + suma + '</label>/' + x.aforo);
+                    alert("El aforo acumulado para esta localidad a superado el aforo total de la localidad seleccionada");
+                    $("#btnAddEtapa").prop('disabled', true);
+                    $("#btnAddEtapa").addClass("disabled");
+                } else {
+                    $(".input-group-addon").html('Cantidad utilizada ' + suma + '/' + x.aforo);
+                }
+                break;
+            }
+        }
+    }
+
+    function findAndSet(descontar) {
+        var id = parseInt($("#Localidad_id").data("kendoDropDownList").value());
+        for (var i = 0; i < Localidades.length; i++) {
+            var x = Localidades[i];
+            if (x.id == id) {
+                if (descontar) {
+                    Localidades[i].aforoConsumido += parseInt(document.getElementById('Cantidad').value);
+                } else {
+                    Localidades[i].aforoConsumido -= parseInt(document.getElementById('Cantidad').value);
+                }
+                break;
+            }
+        }
+    }
+
+    var divEtapas = $("#divEtapas"),
+        Etapa_id = 0,
+        LimpiarEtapa = function () {
+            Etapa_id = 0;
+            $(".Etapa .form-control").val("");
+            $("#Localidad_id").data("kendoDropDownList").value("");
+            $(".input-group-addon").html("#####")
+        },
+       getDataEtapa = function () {
+           return {
+               Id: Etapa_id,
+               Evento_id: Evento_id,
+               Localidad_id: $("#Localidad_id").data("kendoDropDownList").value(),
+               Nombre: $("#Nombre").val(),
+               Precio: $("#Precio").val(),
+               Cantidad: $("#Cantidad").val(),
+               FechaInicial: $("#FechaInicial").val(),
+               FechaFinal: $("#FechaFinal").val(),
+               Descripcion: $("#Descripcion").val(),
+           };
+       },
+       AddEtapa = function () {
+           var inicio = $("#FechaInicial").val(),
+               final = $("#FechaFinal").val(),
+               now = Date.now();
+           if (inicio == '' || final == '') {
+               alert("La fecha de inicio y final son obligatorias");
+               return false;
+           }
+           inicio = Date.parse(inicio);
+           final = Date.parse(final);
+           if ((inicio < now) || final < now) {
+               alert("La fecha de inicio y final no deben de ser menores a la fecha actual");
+               return false;
+           }
+           if (inicio > final) {
+               alert("La fecha de inicio no puede ser mayor a la final");
+               return false;
+           }
+           if (inicio.getTime() === final.getTime()) {
+               alert("La fecha inicial no debe de ser igual a la final");
+               return false;
+           }
+           if ($("Cantidad").val() == '') {
+               alert("El campo Cantidad de Tickets es requerido");
+               return false;
+           }
+           var url = '@Url.Action("AddEtapa", "Evento")';
+           Loading(true);
+           $.ajax({
+               type: "POST",
+               url: url,
+               data: $.postifyData(getDataEtapa()),
+               datatype: 'json',
+               success: function (e) {
+                   divEtapas.html(e);
+                   findAndSet(true);
+                   LimpiarEtapa();
+                   //$("#nextPrevius").removeClass("hide");
+                   showButtonNext(true);
+                   Loading(false);
+               },
+               error: function (request, status, error) {
+                   alert(request.responseText);
+                   Loading(false);
+               }
+           });
+       },
+       RemoveEtapa = function (e) {
+           if (confirm('¿Esta seguro de que quiere eliminar esta etapa?')) {
+               var url = '@Url.Action("RemoveEtapa", "Evento")';
+               Loading(true);
+               $.post(url, { id: e, evento_id: Evento_id }, function (e) {
+                   divEtapas.html(e);
+                   Loading(false);
+               });
+           }
+       },
+       DateFormat = function (date) {
+           var d = new Date(date);
+           return ("0" + d.getDate()).slice(-2) + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" +
+                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+       },
+       EditarEtapa = function (id) {
+           var url = '@Url.Action("get_EtapaById", "Evento")';
+           Loading(true);
+           $.post(url, { id: id }, function (e) {
+               if (e.data) {
+                   LimpiarEtapa();
+                   var data = e.data;
+                   Etapa_id = data.Id;
+                   $("#Nombre").val(data.Nombre);
+                   $("#Localidad_id").data("kendoDropDownList").value(data.Localidad_id);
+                   $("#Cantidad").val(data.Cantidad);
+                   $("#Precio").val(data.Precio);
+                   $("#FechaInicial").data("kendoDateTimePicker").value(data.FechaInicial);
+                   $("#FechaFinal").data("kendoDateTimePicker").value(data.FechaFinal);
+                   $("#Descripcion").val(data.Descripcion);
+                   $("html, body").animate({ scrollTop: 0 }, "slow");
+                   findAndSet(false);
+                   ControlLocalidad();
+                   Loading(false);
+               }
+           });
+       };
+
+    var url = '@Url.Action("get_EtapasxEvento", "Evento")';
+    $.post(url, { evento_id: Evento_id }, function (e) {
+        divEtapas.html(e);
+    });
+
+    @*$('#formEtapas').submit(function (ev) {
+        ev.preventDefault();
+        $.post('@Url.Action("controlCantidadTicketsEtapas", "Evento")', function (e) {
+            if (!e.state) {
+                if (confirm("Aun le quedan " + e.cantidad + " asientos por utilizar\nTenga en cuaneta que no se imprimira la totalidad de ticketes que digito en el step 1\n¿Desea continuar?")) {
+                    this.submit();
+                }
+            } else {
+                this.submit();
+            }
+        });
+    });*@
+
+    @*$('#Previus').click(function (ev) {
+            ev.preventDefault();
+            var url = '@Url.Action("Liquidacion", "Evento", new { id = "param", estado = Verificador.Vista.Models.EstadoEvento.localidades })';
+            $('#formEtapas').attr('action', url.replace("param", Evento_id));
+            $('#formEtapas').submit();
+        });*@
+
+    $(document).ready(function () {
+        $('#modalConfigEtapas').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    });
+
+    Progress(72);
+</script>

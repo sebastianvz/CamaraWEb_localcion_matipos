@@ -1,0 +1,211 @@
+﻿@model Verificador.Vista.Models.FuncionesEventoViewModel
+
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link href="~/Content/evento.css" rel="stylesheet" />
+
+<script src="~/Scripts/pages/Evento/evento-1.js"></script>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
+<section>
+    <div class="panel panel-primary" id="crear-funciones">
+        <div class="panel-heading">5) Crear Funciones</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step4", "Evento", FormMethod.Post, new { id = "formFunciones" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                @Html.TextBoxFor(model => model.Id, new { @class = "hide" })
+                @Html.Hidden("Venue_id")
+
+                <fieldset class="Funcion">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Label, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(e => e.Label, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.FechaInicial, new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePickerFor(e => e.FechaInicial).HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.FechaFinal, new { @class = "form-control-label" })
+                                @(Html.Kendo().DateTimePickerFor(e => e.FechaFinal).HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                @Html.Label("Hora de Apertura Puertas", new { @class = "form-control-label" })
+                                @(Html.Kendo().TimePickerFor(e => e.AperturaPuertas).Format("h:mm tt").HtmlAttributes(new { @class = "form-control" }))
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(e => e.Descripcion, new { @class = "form-control-label" })
+                                @Html.TextAreaFor(e => e.Descripcion, new { @class = "form-control", rows = "3" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="AddFuncion()">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Funcion
+                            </button>
+                        </dv>
+                    </div>
+
+                    <div class="row" id="divFunciones"></div>
+
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="submit" class="btn btn-primary btn-lg" id="Previous" name="Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="submit" class="btn btn-primary btn-lg @(ViewBag.Estado == Verificador.Vista.Models.EstadoEvento.direccionMap ? "hide" : "")" id="Next" name="Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+<script>
+
+    //$('#Next').click(function (ev) {
+    //    ev.preventDefault();
+    //    $("#Id").val(Evento_id);
+    //    $("#Venue_id").val(Venue_id);
+    //    $('#formFunciones').submit();
+    //});
+
+    var Funcion_id = 0,
+       divFunciones = $("#divFunciones"),
+       getDataFuncion = function () {
+           var funcion = {
+               Id: Funcion_id,
+               FechaInicial: $("#FechaInicial").val(),
+               FechaFinal: $("#FechaFinal").val(),
+               AperturaPuertas: $("#AperturaPuertas").val(),
+               Descripcion: $("#Descripcion").val(),
+               Label: $("#Label").val()
+           };
+           return funcion;
+       },
+       AddFuncion = function () {
+           var inicio = $("#FechaInicial").val(),
+               final = $("#FechaFinal").val(),
+               now = Date.now();
+           if (inicio == '' || final == '') {
+               alert("La fecha de inicio y final son obligatorias");
+               return false;
+           }
+           inicio = Date.parse(inicio);
+           final = Date.parse(final);
+           if ((inicio < now) || final < now) {
+               alert("La fecha de inicio y final no deben de ser menores a la fecha actual");
+               return false;
+           }
+           if (inicio > final) {
+               alert("La fecha de inicio no puede ser mayor a la final");
+               return false;
+           }
+           if (inicio.getTime() === final.getTime()) {
+               alert("La fecha inicial no debe de ser igual a la final");
+               return false;
+           }
+           //if ((final - inicio) > 86400000) {
+           //    alert("las funciones no deben de tener una duración mayor a 24 horas");
+           //    return false;
+           //}
+           Loading(true);
+           var url = '@Url.Action("AddFuncion","Evento")';
+           $.ajax({
+               type: "POST",
+               url: url,
+               data: $.postifyData(getDataFuncion()),
+               datatype: 'json',
+               success: function (e) {
+                   Funcion_id = 0;
+                   divFunciones.html(e);
+                   $(".Funcion .form-control").val("");
+                   $("#nextPrevius").removeClass("hide");
+                   showButtonNext(true);
+                   Loading(false);
+               },
+               error: function (request, status, error) {
+                   alert(request.responseText);
+                   Loading(false);
+               }
+           });
+       },
+       RemoveFuncion = function (e) {
+           if (confirm('¿Esta seguro de que quiere eliminar esta función?')) {
+               Loading(true);
+               var url = '@Url.Action("RemoveFuncion", "Evento")';
+               $.post(url, { id: e }, function (e) {
+                   divFunciones.html(e);
+                   Loading(false);
+               });
+           }
+       },
+       EditarFuncion = function (id) {
+           var url = '@Url.Action("get_FuncionById", "Evento")';
+           Loading(true);
+           $.post(url, { id: id }, function (e) {
+               if (e.data) {
+                   $(".Funcion .form-control").val("");
+                   var data = e.data;
+                   Funcion_id = data.Id;
+                   $("#FechaInicial").data("kendoDateTimePicker").value(data.FechaInicial);
+                   $("#FechaFinal").data("kendoDateTimePicker").value(data.FechaFinal);
+                   $("#AperturaPuertas").data("kendoTimePicker").value(data.AperturaPuertas);
+                   $("#Descripcion").val(data.Descripcion);
+                   $("#Label").val(data.Label);
+                   $("html, body").animate({ scrollTop: 0 }, "slow");
+                   Loading(false);
+               }
+           });
+       };
+
+    var url = '@Url.Action("get_FuncionesxEvento", "Evento")';
+    $.post(url, { }, function (e) {
+        divFunciones.html(e);
+    });
+
+    @*$('#Previus').click(function (ev) {
+            ev.preventDefault();
+            var url = '@Url.Action("evento", "Evento", new { id = "param", estado = Verificador.Vista.Models.EstadoEvento.direccionMap })';
+            $('#formFunciones').attr('action', url.replace("param", Evento_id));
+            $('#formFunciones').submit();
+        });*@
+
+    Progress(48);
+</script>
+
+
+
+
+    

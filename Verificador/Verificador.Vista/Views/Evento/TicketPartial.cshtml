@@ -1,0 +1,346 @@
+﻿@model Verificador.Vista.Models.TicketViewModel
+@*http://fabricjs.com/fabric-intro-part-2#text*@
+@*http://jsfiddle.net/revpz6qw/*@
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+<style>
+    .color-pricker {
+        width: 15px;
+        height: 18px;
+        border: none;
+        background-color: transparent;
+        margin: -1px 0px 5px -1px;
+        cursor: pointer;
+    }
+
+    .combo {
+        height: 35px;
+        width: 98px;
+    }
+    canvas {
+        border: 1px solid #e0d1d1;
+    }
+</style>
+<script src="~/Scripts/pages/Evento/fabric.js"></script>
+@*<script src="~/Scripts/pages/Evento/itext.js"></script>*@
+<section id="section-pre-designer" class="hide"></section>
+<section id="section-pre-designer">
+    <div class="col-xs-3 col-sm-3 col-md-3">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                            Texto
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse1" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="row">
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <ul class="k-editor-toolbar" role="toolbar" aria-controls="Texto" data-role="editortoolbar">
+                                        <li class="k-tool-group k-button-group" role="presentation">
+                                            <a href="javascript:void(0)" id="bold" role="button" class="k-tool k-group-start" unselectable="on" title="Bold">
+                                                <span unselectable="on" class="k-tool-icon k-bold">Bold</span>
+                                            </a>
+                                            <a href="javascript:void(0)" id="italic" role="button" class="k-tool" unselectable="on" title="Italic">
+                                                <span unselectable="on" class="k-tool-icon k-italic">Italic</span>
+                                            </a>
+                                            <a href="javascript:void(0)" id="underline" role="button" class="k-tool" unselectable="on" title="Underline">
+                                                <span unselectable="on" class="k-tool-icon k-underline">Underline</span>
+                                            </a>
+                                            <a href="javascript:void(0)" id="line-through" role="button" class="k-tool k-group-end" unselectable="on" title="Strikethrough">
+                                                <span unselectable="on" class="k-tool-icon k-strikethrough">Strikethrough</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <span role="textbox" aria-haspopup="true" class="k-widget k-colorpicker k-header k-editor-widget" aria-disabled="false" tabindex="0" aria-label="Current selected color is #000000" title="Color" unselectable="on">
+                                        <span class="k-picker-wrap k-state-default" unselectable="on">
+                                            <span class="k-tool-icon k-foreColor" unselectable="on">
+                                                <span class="k-selected-color" unselectable="on" style="background-color: rgb(0, 0, 0);">
+                                                </span>
+                                            </span>
+                                            <span class="k-select" unselectable="on">
+                                                <span class="k-icon" unselectable="on">
+                                                    <input type="color" id="color" class="color-pricker">
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span role="textbox" aria-haspopup="true" class="k-widget k-colorpicker k-header k-editor-widget k-group-end" aria-disabled="false" tabindex="0" aria-label="Current selected color is #000000" title="Background color" unselectable="on">
+                                        <span class="k-picker-wrap k-state-default" unselectable="on">
+                                            <span class="k-tool-icon k-backColor" unselectable="on">
+                                                <span class="k-selected-color" unselectable="on" style="background-color: rgb(0, 0, 0);"></span>
+                                            </span>
+                                            <span class="k-select" unselectable="on">
+                                                <span class="k-icon" unselectable="on">
+                                                    <input type="color" id="bg-color" class="color-pricker">
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <span class="k-widget k-combobox k-group-start k-editor-widget" unselectable="on">
+                                        <select title="Fuente" class="k-dropdown-wrap k-state-default combo">
+                                            <option value="Arial,Helvetica,sans-serif" unselectable="on">Arial</option>
+                                            <option value="'Courier New',Courier,monospace" unselectable="on">Courier New</option>
+                                            <option value="Georgia,serif" unselectable="on">Georgia</option>
+                                            <option value="Impact,Charcoal,sans-serif" unselectable="on">Impact</option>
+                                            <option value="'Lucida Console',Monaco,monospace" unselectable="on">Lucida Console</option>
+                                            <option value="Tahoma,Geneva,sans-serif" unselectable="on">Tahoma</option>
+                                            <option value="'Times New Roman',Times,serif" unselectable="on">Times New Roman</option>
+                                            <option value="'Trebuchet MS',Helvetica,sans-serif" unselectable="on">Trebuchet MS</option>
+                                            <option value="Verdana,Geneva,sans-serif" unselectable="on">Verdana</option>
+                                        </select>
+                                    </span>
+                                </div>
+                                <div class="col-xs-3 col-sm-3 col-md-3">
+                                    <span class="k-widget k-combobox k-editor-widget" unselectable="on">
+                                        <select title="Tamaño de Fuente" id="size" class="k-dropdown-wrap k-state-default combo">
+                                            <option value="8" unselectable="on">(8pt)</option>
+                                            <option value="10" unselectable="on">(10pt)</option>
+                                            <option value="12" unselectable="on">(12pt)</option>
+                                            <option value="14" unselectable="on">(14pt)</option>
+                                            <option value="18" unselectable="on">(18pt)</option>
+                                            <option value="24" unselectable="on">(24pt)</option>
+                                            <option value="36" unselectable="on">(36pt)</option>
+                                        </select>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="text" id="text" class="form-control" />
+                        </div>
+                        @*<button id="bold">Bold</button>
+                            <button id="italic">Italic</button>
+                            <button id="underline">Underline</button>
+                            <button id="line-through">Line-through</button>
+                            <input type="color" id="color">
+                            <input type="color" id="bg-color">
+                            <input type="range" min="5" max="150" value="40" id="size">*@
+                        
+                      
+
+                        <!--Texto-->
+                        @*@(Html.Kendo().Editor().Name("Texto")
+                                    .HtmlAttributes(new { style = "height:100px !important", maxlength = "5" })
+                            .Tools(tools => tools
+                                  .Clear()
+                                          .Bold().Italic().Underline().Strikethrough()
+                                  .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+                                  .FontName()
+                                  .FontSize()
+                                  .FontColor().BackColor()
+                              ))*@
+                        <dv class="col-xs-12 col-sm-12 col-md-12" style="text-align:left">
+                            <button type="button" id="add-text" class="btn btn-primary btn-lg">
+                                <span class="glyphicon glyphicon-pencil"></span> Agregar Texto
+                            </button>
+                        </dv>
+
+                        @*'fontFamily',
+                            'fontWeight',
+                            'fontSize',
+                            'text',
+                            'textDecoration',
+                            'textAlign',
+                            'fontStyle',
+                            'lineHeight',
+                            'textBackgroundColor',
+                            'charSpacing'*@
+                        @*<img src="data:image/png;base64,@(new Verificador.Vista.Controllers.EventoController().getBarcode(1))" />*@
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                            Objetos
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <!--Objetos-->
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                            Collapsible Group 3
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse3" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <!--Imagenes-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-9 col-sm-9 col-md-9">
+        @*<img id="barcode" class="hide" width="180" height="40" src="data:image/png;base64,@(new Verificador.Vista.Controllers.EventoController().getBarcode(1))" />*@
+        <img src="~/img/tickete_general.png" id="ticket-normal" class="hide" />
+        <img src="~/img/tickete_general.png" id="ticket-premium" class="hide" />
+        <canvas id="c1" width="800" height="800"></canvas>
+    </div>
+</section>
+<script type="text/javascript">
+
+    var canvas = new fabric.Canvas('c1');
+
+    $("#add-text").click(function () {
+        var text = $("#text").val();
+        var iTextSample = new fabric.IText(text, {
+            left: 50,
+            top: 50,
+            fontFamily: 'Helvetica',
+            fill: '#333',
+            lineHeight: 1.1
+        });
+        canvas.add(iTextSample);
+    });
+
+
+    //fabric.Image.fromURL('../img/tickete_general.png', function (img) {
+    //    img.set({
+    //        left: 200,
+    //        top: 50,
+    //        clipTo: function (ctx) {
+    //            //ctx.rect(0, 0, 188.976378, 529.133858);
+    //            ctx.arc(0, 0, radius, 0, Math.PI * 2, true);
+    //        }
+    //    });
+    //    canvas.add(img).setActiveObject(img);
+    //});
+
+    //var radius = 300;
+    //fabric.Image.fromURL('../img/tickete_general.png', function (img) {
+    //    img.set({
+    //        left: 195,
+    //        top: 50,
+    //        width: 200,
+    //        height: 530,
+    //        selectable: false,
+    //        clipTo: function (ctx) {
+    //            ctx.arc(0, 0, radius, 0, Math.PI * 2, true);
+    //        }
+    //    });
+    //    canvas.add(img)
+    //});
+
+
+
+
+    var imgBarcode = document.getElementById('barcode');
+    var imgBarcode = new fabric.Image(imgBarcode, {
+        left: 205,
+        top: 450,
+        selectable: false,
+        width: 175,
+        height: 40
+    });
+
+    var imgFondo = document.getElementById('ticket-normal');
+    var img_Fondo = new fabric.Image(imgFondo, {
+        left: 192,
+        top: 45,
+        selectable: false,
+        width: 207,
+        height:550,
+    });
+
+    var rect = new fabric.Rect({
+        left: 200,
+        top: 50,
+        fill: 'white',
+        width: 188.976378,
+        height: 529.133858,
+        selectable: false
+    });
+
+    //canvas.setBackgroundImage(rect, canvas.renderAll.bind(canvas), { draggable: 'true' });
+
+    canvas.add(rect);
+    canvas.add(img_Fondo);
+    canvas.add(imgBarcode);
+    canvas.bringToFront(imgBarcode);
+
+    var global;
+    rect.on('selected', function () {
+        global = this;
+        console.log('selected a rectangle');
+    });
+
+
+    function setStyle(object, styleName, value) {
+        if (object.setSelectionStyles && object.isEditing) {
+            var style = {};
+            style[styleName] = value;
+            object.setSelectionStyles(style);
+        }
+        else {
+            object[styleName] = value;
+        }
+    }
+    function getStyle(object, styleName) {
+        return (object.getSelectionStyles && object.isEditing)
+          ? object.getSelectionStyles()[styleName]
+          : object[styleName];
+    }
+
+    function addHandler(id, fn, eventName) {
+        document.getElementById(id)[eventName || 'onclick'] = function () {
+            var el = this;
+            if (obj = canvas.getActiveObject()) {
+                fn.call(el, obj);
+                canvas.renderAll();
+            }
+        };
+    }
+
+
+    addHandler('bold', function (obj) {
+        var isBold = getStyle(obj, 'fontWeight') === 'bold';
+        setStyle(obj, 'fontWeight', isBold ? '' : 'bold');
+    });
+
+    addHandler('italic', function () {
+        var isItalic = getStyle(obj, 'fontStyle') === 'italic';
+        setStyle(obj, 'fontStyle', isItalic ? '' : 'italic');
+    });
+
+    addHandler('underline', function (obj) {
+        var isUnderline = (getStyle(obj, 'textDecoration') || '').indexOf('underline') > -1;
+        setStyle(obj, 'textDecoration', isUnderline ? '' : 'underline');
+    });
+
+    addHandler('line-through', function (obj) {
+        var isLinethrough = (getStyle(obj, 'textDecoration') || '').indexOf('line-through') > -1;
+        setStyle(obj, 'textDecoration', isLinethrough ? '' : 'line-through');
+    });
+
+    addHandler('color', function (obj) {
+        setStyle(obj, 'fill', this.value);
+    }, 'onchange');
+
+    addHandler('bg-color', function (obj) {
+        setStyle(obj, 'textBackgroundColor', this.value);
+    }, 'onchange');
+
+    addHandler('size', function (obj) {
+        setStyle(obj, 'fontSize', parseInt(this.value, 10));
+    }, 'onchange');
+</script>

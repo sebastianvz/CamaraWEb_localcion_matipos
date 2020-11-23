@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="~/Scripts/pages/Evento/EventStorage.js"></script>
+<script src="~/Scripts/pages/Evento/evento.js"></script>
+<script src="~/Scripts/utils/generic.js"></script>
+<link href="~/Content/pages/Event/Event.css" rel="stylesheet" />
+<ul id="event-steps" class="nav nav-tabs nav-justified">
+    <li id="tab-1" class="active"><a data-toggle="tab" href="#step-1">Información General</a></li>
+    <li id="tab-2" style="display:none"><a data-toggle="tab" href="#step-2">Información Adicional</a></li>
+    <li id="tab-3" style="display:none"><a data-toggle="tab" href="#step-3">Venue</a></li>
+    <li id="tab-4" style="display:none"><a data-toggle="tab" href="#step-4">Localidades</a></li>
+    <li id="tab-5" style="display:none"><a data-toggle="tab" href="#step-5">Funciones</a></li>
+    <li id="tab-6" style="display:none"><a data-toggle="tab" href="#step-6">Etapas</a></li>
+    <li id="tab-7" style="display:none"><a data-toggle="tab" href="#step-7">Tiquetes</a></li>
+</ul>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
+<div class="tab-content">
+    <div id="step-1" class="tab-pane fade in active">
+        @(Html.Partial("Step0"))
+    </div>
+    <div id="step-2" class="tab-pane fade">
+        @(Html.Partial("Step1"))
+    </div>
+    <div id="step-3" class="tab-pane fade">
+        @(Html.Partial("Step2"))        
+    </div>    
+    <div id="step-4" class="tab-pane fade">
+        @(Html.Partial("Step3"))
+    </div>
+    <div id="step-5" class="tab-pane fade">
+        @(Html.Partial("Step4"))
+    </div>
+    <div id="step-6" class="tab-pane fade">
+        @(Html.Partial("Step5"))
+    </div>
+    <div id="step-7" class="tab-pane fade">
+        @(Html.Partial("Step6"))
+    </div>
+</div>

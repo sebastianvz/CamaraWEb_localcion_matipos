@@ -1,0 +1,752 @@
+﻿@model Verificador.Vista.Models.EventoViewModel
+
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link href="~/Content/evento.css" rel="stylesheet" />
+<script src="~/Scripts/pages/Evento/evento-1.js"></script>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
+<section>
+    <div class="panel panel-primary" id="crear-localidades">
+        <div class="panel-heading">6) Agregar o Crear Mapa de Localidades</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step5", "Evento", FormMethod.Post, new { id = "formLocalidades" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(e => e.Id)
+                @Html.HiddenFor(e => e.Venue_id)
+
+                <fieldset class="Localidad">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Nombre de la Localidad", new { @class = "form-control-label" })
+                                @Html.TextBox("NombreLocalidad", "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Tipo de Localidad", new { @class = "form-control-label" })
+                                @(Html.Kendo().DropDownList()
+                                    .Name("TipoLocalidad")
+                                    .BindTo(Verificador.Vista.Models.ServicioTipoLocalidad.getOptions())
+                                    .OptionLabel("Seleccione")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .Events(e => e.Change("ShowTipoLocation"))
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default hide" id="Aforo">
+                        <div class="panel-heading">Aforo</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        @Html.Label("Capacidad", new { @class = "form-control-label" })
+                                        @Html.TextBox("AforoCapacidad", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(1)" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default hide" id="FilasSillas">
+                        <div class="panel-heading">Filas y Sillas</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Cantidad de Filas", new { @class = "form-control-label" })
+                                        @Html.TextBox("fmFilas", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(3)" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Cantidad de Sillas", new { @class = "form-control-label" })
+                                        @Html.TextBox("fmColumnas", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(2)" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        @Html.Label("Orientacion de las Filas", new { @class = "form-control-label" })
+                                        @(Html.Kendo().DropDownList()
+                                            .Name("fmOrientacionFilas")
+                                            .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                new Verificador.Vista.Models.ListItem(){Name = "Up-Down", Text="de abajo hacia arriba"},
+                                                new Verificador.Vista.Models.ListItem(){Name = "Down-Up", Text="de arriba hacia abajo"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        @Html.Label("Orientacion de las Sillas", new { @class = "form-control-label" })
+                                        @(Html.Kendo().DropDownList()
+                                            .Name("fmOrientacionSillas")
+                                            .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                new Verificador.Vista.Models.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                new Verificador.Vista.Models.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        @Html.Label("Filas / Sillas", new { @class = "form-control-label" })
+                                        @(Html.Kendo().DropDownList()
+                                            .Name("fmTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default hide" id="MesasSillas">
+                        <div class="panel-heading">Mesas y Sillas</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        @Html.Label("Cantidad de Mesas", new { @class = "form-control-label" })
+                                        @Html.TextBox("msCantidadMesas", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(3)" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        @Html.Label("Cantidad de Sillas por Mesa", new { @class = "form-control-label" })
+                                        @Html.TextBox("msCantidadSillas", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(3)" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        @Html.Label("Mesas / Sillas", new { @class = "form-control-label" })
+                                        @(Html.Kendo().DropDownList()
+                                            .Name("msTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default hide" id="Palco">
+                        <div class="panel-heading">Palco</div>
+                        <div class="panel-body">
+                            @*<div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Tipo de Palco", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                                .Name("TipoPalco")
+                                                .BindTo(Verificador.Vista.Models.ServicioTipoLocalidad.getOptions().Where(e => e.Value != 4))
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                .Events(e => e.Change("ShowTipoPalco"))
+                                                .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                        </div>
+                                    </div>
+                                </div>*@
+
+                            @*<div class="row palco hide" id="Aforo">
+                                            <!--Aforo-->
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    @Html.Label("Capacidad", new { @class = "form-control-label" })
+                                                    @Html.TextBox("PalcoAforoCapacidad", "", new { @class = "form-control", type = "number", min = "1" })
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="palco hide" id="FilasSillas">
+                                            <!--Filas y Columnas-->
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Cantidad de Filas", new { @class = "form-control-label" })
+                                                        @Html.TextBox("PalcofmFilas", "", new { @class = "form-control", type = "number", min = "1" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Cantidad de Columnas", new { @class = "form-control-label" })
+                                                        @Html.TextBox("PalcofmColumnas", "", new { @class = "form-control", type = "number", min = "1" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Orientacion", new { @class = "form-control-label" })
+                                                        @(Html.Kendo().DropDownList()
+                                .Name("PalcofmOrientacion")
+                                                        .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                            new Verificador.Vista.Models.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                            new Verificador.Vista.Models.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                                        })
+                                                        .OptionLabel("Seleccione")
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Name")
+                                                        .HtmlAttributes(new { @class = "form-control" }))
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                                        @(Html.Kendo().DropDownList()
+                                .Name("PalcofmTipoNumeracion")
+                                                        .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                                        .OptionLabel("Seleccione")
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .HtmlAttributes(new { @class = "form-control" }))
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>*@
+
+                            <div class="palco" id="MesasSillas">
+                                <!--Mesas y Sillas-->
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Palcos", new { @class = "form-control-label" })
+                                            @Html.TextBox("PalcomsCantidadMesas", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(3)" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Personas por Palco", new { @class = "form-control-label" })
+                                            @Html.TextBox("PalcomsCantidadSillas", "", new { @class = "form-control", type = "number", min = "1", onblur = "AcumularAforo(4)" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                        .Name("PalcomsTipoNumeracion")
+                                                .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Valor del Consuomo", new { @class = "form-control-label" })
+                                @Html.TextBox("ValorConsumo", "", new { @class = "form-control", type = "number", min = "1" })
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @Html.Label("Descripción del Consumo", new { @class = "form-control-label" })
+                                @Html.TextBox("DescripcionConsumo", "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <input type="checkbox" id="checkShowRange" onclick="if(this.checked) { $('#section-range').removeClass('hide') } else { $('#section-range').addClass('hide') } "/>
+                                <label class="form-control-label h4" for="checkShowRange">Seleccionar rango de tiquetes</label>                                
+                            </div>
+                        </div>
+                        <section class="hide" id="section-range">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Desde", new { @class = "form-control-label" })
+                                    @Html.TextBox("NumeroTicketInicial", "", new { @class = "form-control", type = "number", min = "1" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Hasta", new { @class = "form-control-label" })
+                                    @Html.TextBox("NumeroTicketFinal", "", new { @class = "form-control", type = "number", min = "1" })
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="row">
+                        <dv class="col-xs-12 col-sm-9 col-md-9" style="text-align:left">
+                            <h5>Aforo Utilizado: <label id="Aforo-utilizado">@Model.AforoAcmulado</label>/@Model.AforoTotal</h5>
+                        </dv>
+                        <dv class="col-xs-12 col-sm-3 col-md-3" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="AddLocalidad()">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Locación
+                            </button>
+                        </dv>
+                    </div>
+
+                    <div class="row" id="divLocalidades">
+
+                    </div>
+
+
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="submit" class="btn btn-primary btn-lg" id="Previous" name="Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="submit" class="btn btn-primary btn-lg @(ViewBag.Estado == Verificador.Vista.Models.EstadoEvento.funciones ? "hide" : "")" id="Next" name="Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+
+    //$('#Next').click(function (ev) {
+    //    ev.preventDefault();
+    //    $("#Id").val(Evento_id);
+    //    $('#formLocalidades').submit();
+    //});
+
+    var divLocalidades = $("#divLocalidades"),
+        Localidad_id = 0,
+        AforoTotal = @Model.AforoTotal,
+        AforoAcumulado = @Model.AforoAcmulado,
+        AforoSuma = 0,
+     LimpiarLocalidad = (function () {
+         Localidad_id = 0;
+         AforoSuma = 0;
+         $(".Localidad .form-control").val("");
+         $("#TipoLocalidad").data("kendoDropDownList").value("");
+         $("#fmOrientacionFilas").data("kendoDropDownList").value("");
+         $("#fmOrientacionSillas").data("kendoDropDownList").value("");
+         $("#fmTipoNumeracion").data("kendoDropDownList").value("");
+         $("#fmTipoNumeracion").data("kendoDropDownList").value("");
+         if (document.getElementById("checkShowRange").checked) {
+             $("#section-range").addClass("hide")
+             document.getElementById("checkShowRange").checked = false;
+         }
+         //$("#TipoPalco").data("kendoDropDownList").value("");
+         //$("#PalcofmOrientacion").data("kendoDropDownList").value("");
+         //$("#PalcofmTipoNumeracion").data("kendoDropDownList").value("");
+         //$(".palco").addClass("hide");
+         $(".Localidad .panel").addClass("hide");
+     }),
+     RemoveLocalidad = (function (e) {
+         if (confirm('¿Esta seguro de que quiere eliminar esta Localidad?')) {
+             Loading(true);
+             var url = '@Url.Action("RemoveLocalidad", "Evento")';
+             $.post(url, e, function (c) {
+                 divLocalidades.html(c);
+                 Loading(false);
+             });
+         }
+     }),
+     getLocalidadData = function () {
+         ddTipoLocalidad = $("#TipoLocalidad").data("kendoDropDownList");
+
+         var LocalidadMesasFilasSillas = [],
+             Sillas = [],
+             tipoLocalidad = parseInt(ddTipoLocalidad.value()),
+             cFilasMesas = tipoLocalidad == 2 ? $("#fmFilas").val() : tipoLocalidad == 3 ? $("#msCantidadMesas").val() : 0,
+             cSillas = tipoLocalidad == 2 ? $("#fmColumnas").val() : tipoLocalidad == 3 ? $("#msCantidadSillas").val() : 0;
+
+         switch (tipoLocalidad) {
+             case 1: LocalidadMesasFilasSillas.push({
+                 MesasFilas: {
+                     Id: 1,
+                     capacidad: $("#AforoCapacidad").val(),
+                     TipoLocalidad_id: tipoLocalidad
+                 }, Consumo: {
+                     Id: 1,
+                     Valor: $("#ValorConsumo").val(),
+                     descripcion: $("#DescripcionConsumo").val()
+                 }
+             });
+                 break
+             case 2:
+                 //for (var i = 0; i < cFilasMesas; i++) {
+                 //    for (var j = 0; j < cSillas; j++) {
+                 //        Sillas.push({
+                 //            Id: j,
+                 //            Label: "C" + j,
+                 //            Orientacion: $("#fmOrientacionSillas").data("kendoDropDownList").value(),
+                 //            TipoNumeracion_id: $("#fmTipoNumeracion").data("kendoDropDownList").value()
+                 //            //TipoNumeracion: {Nombre: $("#fmTipoNumeracion").data("kendoDropDownList").value(), Id:$("#fmTipoNumeracion").data("kendoDropDownList").value()}
+                 //        });
+                 //    }
+                 LocalidadMesasFilasSillas.push({
+                     MesasFilas: {
+                         Id: 1,
+                         Label: "F" + 1,
+                         Orientacion: $("#fmOrientacionFilas").data("kendoDropDownList").value(),
+                         TipoNumeracion_id: $("#fmTipoNumeracion").data("kendoDropDownList").value(),
+                         cFilas: cFilasMesas,
+                         cSillas: cSillas,
+                         OrientacionSilla: $("#fmOrientacionSillas").data("kendoDropDownList").value(),
+                         TipoNumeracionSilla_id: $("#fmTipoNumeracion").data("kendoDropDownList").value(),
+                         TipoLocalidad_id: tipoLocalidad
+                     }, Consumo: {
+                         Id: 1,
+                         Valor: $("#ValorConsumo").val(),
+                         descripcion: $("#DescripcionConsumo").val()
+                     }
+                 });
+                 //    Sillas = [];
+                 //}
+                 break;
+             case 3:
+                 //for (var i = 0; i < cFilasMesas; i++) {
+                 //    for (var j = 0; j < cSillas; j++) {
+                 //        Sillas.push({
+                 //            Id: j,
+                 //            Label: "S" + j,
+                 //            TipoNumeracion_id: $("#msTipoNumeracion").data("kendoDropDownList").value()
+                 //        });
+                 //    }
+                 LocalidadMesasFilasSillas.push({
+                     MesasFilas: {
+                         Id: 1,
+                         Label: "M" + 1,
+                         TipoNumeracion_id: $("#msTipoNumeracion").data("kendoDropDownList").value(),
+                         cFilas:cFilasMesas,
+                         cSillas: cSillas,
+                         TipoNumeracionSilla_id: $("#msTipoNumeracion").data("kendoDropDownList").value(),
+                         TipoLocalidad_id: tipoLocalidad
+                     }, Consumo: {
+                         Id: 1,
+                         Valor: $("#ValorConsumo").val(),
+                         descripcion: $("#DescripcionConsumo").val()
+                     }
+                 });
+                 //    Sillas = [];
+                 //}
+                 break;
+             case 4:
+                 LocalidadMesasFilasSillas = [];
+                 Sillas = [];
+                 cFilasMesas = $("#PalcomsCantidadMesas").val();
+                 cSillas = $("#PalcomsCantidadSillas").val();
+
+                 //for (var i = 0; i < cFilasMesas; i++) {
+                 //    for (var j = 0; j < cSillas; j++) {
+                 //        Sillas.push({
+                 //            Id: j,
+                 //            Label: "P-S" + j,
+                 //            TipoNumeracion_id: $("#PalcomsTipoNumeracion").data("kendoDropDownList").value()
+                 //        });
+                 //    }
+                 LocalidadMesasFilasSillas.push({
+                     MesasFilas: {
+                         Id: 1,
+                         Label: "P-M" + 1,
+                         TipoNumeracion_id: $("#PalcomsTipoNumeracion").data("kendoDropDownList").value(),
+                         cFilas: cFilasMesas,
+                         cSillas: cSillas,
+                         TipoNumeracionSilla_id: $("#PalcomsTipoNumeracion").data("kendoDropDownList").value(),
+                         TipoLocalidad_id: tipoLocalidad
+                     }, Consumo: {
+                         Id: 1,
+                         Valor: $("#ValorConsumo").val(),
+                         descripcion: $("#DescripcionConsumo").val()
+                     }
+                 });
+                 //    Sillas = [];
+                 //}
+                 break;
+             default: LocalidadMesasFilasSillas = [];
+         }
+         return LocalidadMesasFilasSillas;
+     },
+     ValidateLocacion = function (e) {
+         var invalid = false;
+         if ($("#NombreLocalidad").val() == "") {
+             $("#NombreLocalidad").addClass("form-invalid");
+             invalid = true;
+         }
+         if ($("#TipoLocalidad").data("kendoDropDownList").value() == "") {
+             $("#TipoLocalidad").addClass("form-invalid");
+             invalid = true;
+         }
+         //if ($("#ValorConsumo").val() == "") {
+         //    $("#ValorConsumo").addClass("form-invalid");
+         //    invalid = true;
+         //}
+         //if ($("#DescripcionConsumo").val() == "") {
+         //    $("#DescripcionConsumo").addClass("form-invalid");
+         //    invalid = true;
+         //}
+         switch (e) {
+             case 1: if ($("#AforoCapacidad").val() == "") {
+                 $("#AforoCapacidad").addClass("form-invalid");
+                 invalid = true;
+             }
+                 break;
+             case 2: if ($("#fmFilas").val() == "") {
+                 $("#fmFilas").addClass("form-invalid");
+                 invalid = true;
+             } if ($("#fmColumnas").val() == "") {
+                 $("#fmColumnas").addClass("form-invalid");
+                 invalid = true;
+             } if ($("#fmOrientacionSillas").data("kendoDropDownList").value() == "") {
+                 $("#fmOrientacionSillas").addClass("form-invalid");
+                 invalid = true;
+             } if ($("#fmOrientacionFilas").data("kendoDropDownList").value() == "") {
+                 $("#fmOrientacionFilas").addClass("form-invalid");
+                 invalid = true;
+             } if ($("#fmTipoNumeracion").data("kendoDropDownList").value() == "") {
+                 $("#fmTipoNumeracion").addClass("form-invalid");
+                 invalid = true;
+             }
+                 break;
+             case 3: if ($("#msCantidadMesas").val() == "") {
+                 $("#msCantidadMesas").addClass("form-invalid");
+                 invalid = true;
+             } if ($("#msCantidadSillas").val() == "") {
+                 $("#msCantidadSillas").addClass("form-invalid");
+                 invalid = true;
+             } if ($("#msTipoNumeracion").data("kendoDropDownList").value() == "") {
+                 $("#msTipoNumeracion").addClass("form-invalid");
+                 invalid = true;
+             }
+                 break;
+             case 4:
+                 //    if ($("#TipoPalco").data("kendoDropDownList").value() == "") {
+                 //    $("#TipoPalco").addClass("form-invalid");
+                 //    invalid = true;
+                 //} else {
+                 //switch (parseInt($("#TipoPalco").data("kendoDropDownList").value())) {
+                 //    case 1: if ($("#PalcoAforoCapacidad").val() == "") {
+                 //        $("#PalcoAforoCapacidad").addClass("form-invalid");
+                 //        invalid = true;
+                 //    }
+                 //        break;
+                 //    case 2: if ($("#PalcofmFilas").val() == "") {
+                 //        $("#PalcofmFilas").addClass("form-invalid");
+                 //        invalid = true;
+                 //    } if ($("#PalcofmColumnas").val() == "") {
+                 //        $("#PalcofmColumnas").addClass("form-invalid");
+                 //        invalid = true;
+                 //    } if ($("#PalcofmOrientacion").data("kendoDropDownList").value() == "") {
+                 //        $("#PalcofmOrientacion").addClass("form-invalid");
+                 //        invalid = true;
+                 //    } if ($("#PalcofmTipoNumeracion").data("kendoDropDownList").value() == "") {
+                 //        $("#PalcofmTipoNumeracion").addClass("form-invalid");
+                 //        invalid = true;
+                 //    }
+                 //        break;
+                 //    case 3:
+                 if ($("#PalcomsCantidadMesas").val() == "") {
+                     $("#PalcomsCantidadMesas").addClass("form-invalid");
+                     invalid = true;
+                 } if ($("#PalcomsCantidadSillas").val() == "") {
+                     $("#PalcomsCantidadSillas").addClass("form-invalid");
+                     invalid = true;
+                 } if ($("#PalcomsTipoNumeracion").data("kendoDropDownList").value() == "") {
+                     $("#PalcomsTipoNumeracion").addClass("form-invalid");
+                     invalid = true;
+                 }
+                 //        break;
+                 //}
+                 //}
+                 break;
+         }
+         return invalid;
+     },
+     AcumularAforo = (function (tipo){
+         AforoSuma = getAforo(tipo);
+         $("#Aforo-utilizado").css("color","black");
+         if ((AforoAcumulado + AforoSuma) > AforoTotal) {
+             alert("El aforo acumulado supera al aforo del evento");
+             $("#Aforo-utilizado").css("color","red");
+         }
+         $("#Aforo-utilizado").html(AforoAcumulado + AforoSuma);
+         return true;
+     }),
+     getAforo = (function (tipo){
+         var filas = 0;
+         var sillas = 0;
+         switch (tipo) {
+             case 1:
+                 filas = $("#AforoCapacidad").val();
+                 sillas = 1;
+                 break;
+             case 2:
+                 filas = $("#fmFilas").val();
+                 sillas = $("#fmColumnas").val();
+                 break;
+             case 3:
+                 filas = $("#msCantidadMesas").val();
+                 sillas = $("#msCantidadSillas").val();
+                 break;
+             case 4:
+                 filas = $("#PalcomsCantidadMesas").val();
+                 sillas = $("#PalcomsCantidadSillas").val();
+                 break;
+         }
+         filas = filas == '' ? 0 : parseInt(filas);
+         sillas = sillas == '' ? 0 : parseInt(sillas);
+         return filas * sillas;
+     }),
+    AddLocalidad = (function () {
+        ddTipoLocalidad = $("#TipoLocalidad").data("kendoDropDownList");
+        tipoLocalidad = parseInt(ddTipoLocalidad.value());
+        if (ValidateLocacion(tipoLocalidad)) {
+            return;
+        }
+        if (AforoAcumulado > AforoTotal) {
+            alert("El aforo acumulado supera al aforo del evento");
+            return;
+        }
+        var localidad = {
+            Id: Localidad_id,
+            Venue_id: Venue_id,
+            Label: $("#NombreLocalidad").val(),
+            TipoLocalidad_id: tipoLocalidad,
+            NumeroTicketInicial: $("#NumeroTicketInicial").val(),
+            NumeroTicketFinal: $("#NumeroTicketFinal").val(),
+            RangoTickets: document.getElementById("checkShowRange").checked,
+            //TipoSubLocalidad_id: $("#TipoPalco").data("kendoDropDownList").value(),
+            Aforo: getAforo(tipoLocalidad),
+            LocalidadMesasFilasSillas: getLocalidadData()
+        }
+        var url = '@Url.Action("AddLocalidad", "Evento")';
+        Loading(true);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $.postifyData(localidad),
+            datatype: 'json',
+            success: function (e) {
+                divLocalidades.html(e);
+                AforoAcumulado += AforoSuma;
+                LimpiarLocalidad();
+                showButtonNext(true);
+                Loading(false);
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+                Loading(false);
+            }
+        });
+    }),
+    EditarLocalidad = function (id) {
+        var url = '@Url.Action("get_LocalidadById","Evento")';
+        Loading(true);
+        $("#section-range").addClass("hide");
+        $.post(url, { id: id }, function (e) {
+            if (e.data) {
+
+                LimpiarLocalidad();
+                var data = e.data;
+
+                if (data.RangoTickets) {
+                    $("#section-range").removeClass("hide")
+                    document.getElementById("checkShowRange").checked = true;
+                    $("#NumeroTicketInicial").val(data.NumeroTicketInicial);
+                    $("#NumeroTicketFinal").val(data.NumeroTicketFinal);
+                }
+
+                Localidad_id = data.Id;
+                $("#NombreLocalidad").val(data.Label);
+                $("#TipoLocalidad").data("kendoDropDownList").value(data.TipoLocalidad_id);
+                //$("#TipoPalco").data("kendoDropDownList").value(data.TipoSubLocalidad_id);
+                $("#ValorConsumo").val(data.LocalidadMesasFilasSillas[0].Consumo.Valor);
+                $("#DescripcionConsumo").val(data.LocalidadMesasFilasSillas[0].Consumo.descripcion);
+                switch (data.TipoLocalidad_id) {
+                    case 1://Aforo
+                        $("#AforoCapacidad").val(data.Aforo);
+                        break;
+                    case 2://Filas Sillas
+                        $("#fmFilas").val(data.LocalidadMesasFilasSillas.length);
+                        $("#fmColumnas").val(data.LocalidadMesasFilasSillas[0].MesasFilas.Sillas.length);
+                        $("#fmOrientacionFilas").data("kendoDropDownList").value(data.LocalidadMesasFilasSillas[0].MesasFilas.Orientacion);
+                        $("#fmOrientacionSillas").data("kendoDropDownList").value(data.LocalidadMesasFilasSillas[0].MesasFilas.Sillas[0].Orientacion);
+                        $("#fmTipoNumeracion").data("kendoDropDownList").value(data.LocalidadMesasFilasSillas[0].MesasFilas.TipoNumeracion_id);
+                        break;
+                    case 3://Mesas Sillas
+                        $("#msCantidadMesas").val(data.LocalidadMesasFilasSillas.length);
+                        $("#msCantidadSillas").val(data.LocalidadMesasFilasSillas[0].MesasFilas.Sillas.length);
+                        $("#msTipoNumeracion").data("kendoDropDownList").value(data.LocalidadMesasFilasSillas[0].MesasFilas.TipoNumeracion_id);
+                        break;
+                    case 4://Palco
+                        $("#PalcomsCantidadMesas").val(data.LocalidadMesasFilasSillas.length);
+                        $("#PalcomsCantidadSillas").val(data.LocalidadMesasFilasSillas[0].MesasFilas.Sillas.length);
+                        $("#PalcomsTipoNumeracion").data("kendoDropDownList").value(data.LocalidadMesasFilasSillas[0].MesasFilas.TipoNumeracion_id);
+                        break;
+                }
+                AforoAcumulado -= data.Aforo;
+                ShowTipoLocation();
+                //ShowTipoPalco();
+                $("html, body").animate({ scrollTop: 0 }, "slow");
+                Loading(false);
+            }
+        });
+    };
+
+    var url = '@Url.Action("Get_LocalidadesByVenue", "Evento")';
+    $.post(url, { venue_id: Venue_id }, function (e) {
+        divLocalidades.html(e);
+    });
+
+    //$('#formLocalidades').submit(function (ev) {
+    //    ev.preventDefault();
+
+    //    cantidadFaltante = AforoTotal - AforoAcumulado;
+
+    //    if (cantidadFaltante > 0) {
+    //        if (confirm("Aun le quedan " + cantidadFaltante + " asientos por utilizar\nTenga en cuaneta que no se imprimira la totalidad de ticketes que digito en el step 1\n¿Desea continuar?")) {
+    //            this.submit();
+    //        }
+    //    } else if (cantidadFaltante < 0){
+    //        alert("Ha excedido la cantidad de ticketes utilizados");
+    //    } else {
+    //        this.submit();
+    //    }
+    //});
+
+    @*$('#Previus').click(function (ev) {
+        ev.preventDefault();
+        var url = '@Url.Action("evento", "Evento", new { id = Model.Id, estado = Verificador.Vista.Models.EstadoEvento.funciones })';
+        $('#formEtapas').attr('action', url);
+        $('#formEtapas').submit();
+    });*@
+
+    Progress(60);
+</script>

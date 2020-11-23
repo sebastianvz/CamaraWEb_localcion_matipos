@@ -1,0 +1,374 @@
+﻿@using System.Drawing.Text
+@using Verificador.Vista.Models;
+@model Verificador.Vista.Models.ViewModels.ElementosPlantillaBoletosPapelViewModel
+@{
+    ViewBag.Title = "Evento-wizard";
+    Layout = "~/Views/Shared/_LayoutCanvas.cshtml";
+}
+<script src="~/Scripts/pages/Administracion/fabric.min.js"></script>
+@Html.Hidden("Id")
+<div class="row" style="padding: 5px 10px 5px 5px;">
+    <div class="col-md-6">
+        <h4 id="NombrePlantilla"></h4>
+    </div>
+    <div class="col-md-6 text-right">
+        <button type="button" class="btn btn-default Back" onclick="Print()">
+            <span class="glyphicon glyphicon-eye-open"></span> Ver
+        </button>
+        <button type="button" class="btn btn-default Back" onclick="Volver()">
+            <span class="glyphicon glyphicon-arrow-left"></span> Volver
+        </button>
+        <button type="button" class="btn btn-primary Save" onclick="GuardarCanvas()">
+            <span class="glyphicon glyphicon-floppy-disk"></span> Crear Tiquete
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4" style="float:left">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item active">
+                <a href="#Textos"  data-toggle="tab">Texto</a>
+            </li>
+            <li class="nav-item">
+                <a href="#Image" data-toggle="tab">Imagen</a>
+            </li>
+            <li class="nav-item">
+                <a href="#QrCode"  data-toggle="tab">QR</a>
+            </li>
+            <li class="nav-item">
+                <a href="#Barcode"  data-toggle="tab">Código barras</a>
+            </li>
+            <li class="nav-item">
+                <a href="#Default"  data-toggle="tab">Elementos</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="Textos">
+                <form id="FormTexto" method="post">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                @(Html.LabelFor(m => m.TextoElemento))
+                                @(Html.TextAreaFor(m => m.TextoElemento, new { style = "height:50px;width:100%;resize:none;border-radius:5px;", required = "required", validationmessage = "El campo Texto es requerido" }))
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                @(Html.LabelFor(m => m.Fuente))
+                                @(Html.Kendo().ComboBoxFor(m => m.Fuente)
+                                                    .Name("FuenteTexto")
+                                                    .Filter(FilterType.Contains)
+                                                    .Events(c => c.Change("CambioFuenteTexto"))
+                                                    .Items(c =>
+                                                    {
+                                                        foreach (var item in new InstalledFontCollection().Families)
+                                                        {
+                                                            c.Add().Text(item.Name).Value(item.Name);
+                                                        }
+                                                    }
+                                                    )
+                                                    .HtmlAttributes(new { style = "width:100%", required = "required", validationmessage = "El campo Fuente es requerido" })
+                                )
+                            </div>
+                            <div class="col-md-6">
+                                @(Html.Label("Tamaño de Fuente (px)"))
+                                @(Html.Kendo().NumericTextBoxFor(m => m.Alto)
+                                                    .Format("{0:N2}").Min(0).Decimals(2)
+                                                    .Name("TamanoTexto")
+                                                    .HtmlAttributes(new { style = "width:100%", required = "required", validationmessage = "El campo Tamaño de Fuente (px) es requerido" })
+                                )
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-4">
+                                <label class="control-label " style="padding-top:5px">Posición</label>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEnviarAtras" class="btn btn-default" onclick="EnviarAtras()">Enviar Atrás</a>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonTraerAdelante" class="btn btn-default" onclick="TraerAdelante()">Traer Adelante</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <button id="BotonAgregarElementoTexto" class="k-button k-button-icontext k-primary k-grid-update" type="submit" style="margin: auto;">
+                                    <span class="k-icon k-update"></span>Agregar
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEliminarElementoTexto" class="k-button k-button-icontext k-grid-cancel" onclick="Eliminar()" style="margin: auto">
+                                    <span class="k-icon k-cancel"></span>Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane" id="Barcode">
+                <form id="FormCodigoBarras" method="post">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                @(Html.LabelFor(m => m.TipoBarcode))
+                                @(Html.Kendo().ComboBoxFor(m => m.TipoBarcode)
+                                                    .DataTextField("Descripcion")
+                                                    .DataValueField("Id")
+                                                    .Events(c => c.Change("SeleccionTipoBarcode"))
+                                                    .Filter(FilterType.Contains)
+                                                    .BindTo(Enumerados.TiposCodigoBarras())
+                                                    .HtmlAttributes(new { data_value_primitive = "true", style = "width: 100%;", required = "required", validationmessage = "El campo Tipo de Código de Barras es requerido" })
+                                )
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label class="control-label " style="padding-top:5px">Alto (px)</label>
+                                @(Html.Kendo().NumericTextBoxFor(m => m.Alto)
+                                                    .Format("{0:N2}").Min(0).Decimals(2)
+                                                    .Name("AltoBarcode")
+                                                    .HtmlAttributes(new { style = "width:100%", required = "required", validationmessage = "El campo Alto es requerido" })
+                                )
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-4">
+                                <label class="control-label " style="padding-top:5px">Posición</label>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEnviarAtras" class="btn btn-default" onclick="EnviarAtras()">Enviar Atrás</a>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonTraerAdelante" class="btn btn-default" onclick="TraerAdelante()">Traer Adelante</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                             <div class="col-md-12">
+                                 <hr />
+                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <button id="BotonAgregarElementoCodigoBarras" class="k-button k-button-icontext k-primary k-grid-update" type="submit" style="margin: auto;">
+                                    <span class="k-icon k-update"></span>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEliminarElementoCodigoBarras" class="k-button k-button-icontext k-grid-cancel" onclick="Eliminar()" style="margin: auto">
+                                    <span class="k-icon k-cancel"></span>
+                                    Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane" id="QrCode">
+                <form id="FormQrCode" method="post">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                @(Html.LabelFor(m => m.TipoQr))
+                                @(Html.Kendo().ComboBoxFor(m => m.TipoQr)
+                                                    .DataTextField("Descripcion")
+                                                    .DataValueField("Id")
+                                                    .Events(c => c.Change("SeleccionTipoQr"))
+                                                    .Filter(FilterType.Contains)
+                                                    .BindTo(Enumerados.TiposQr())
+                                                    .HtmlAttributes(new { data_value_primitive = "true", style = "width: 100%;", required = "required", validationmessage = "El campo Tipo de Código de Qr es requerido" })
+                                )
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label class="control-label " style="padding-top:5px">Alto (px)</label>
+                                @(Html.Kendo().NumericTextBoxFor(m => m.Alto)
+                                                    .Name("AltoQrcode")
+                                                    .Format("{0:N2}").Min(0).Decimals(2)
+                                                    .HtmlAttributes(new { style = "width:100%", required = "required", validationmessage = "El campo Alto es requerido" })
+                                )
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-4">
+                                <label class="control-label " style="padding-top:5px">Posición</label>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEnviarAtras" class="btn btn-default" onclick="EnviarAtras()">Enviar Atrás</a>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonTraerAdelante" class="btn btn-default" onclick="TraerAdelante()">Traer Adelante</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <button id="BotonAgregarElementoCodigoBarras" class="k-button k-button-icontext k-primary k-grid-update" type="submit" style="margin: auto;">
+                                    <span class="k-icon k-update"></span>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEliminarElementoCodigoBarras" class="k-button k-button-icontext k-grid-cancel" onclick="Eliminar()" style="margin: auto">
+                                    <span class="k-icon k-cancel"></span>
+                                    Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="tab-pane" id="Image">
+                <form id="FormImagen" method="post">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label class="control-label " style="padding-top:5px;padding-bottom:5px">Cargar Imagen</label>
+                                <input type="file" id="CargarArchivo" accept=".png, .jpg, .jpeg, .bmp, .gif" required>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-4">
+                                <label class="control-label " style="padding-top:5px">Posición</label>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEnviarAtras" class="btn btn-default" onclick="EnviarAtras()">Enviar Atrás</a>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonTraerAdelante" class="btn btn-default" onclick="TraerAdelante()">Traer Adelante</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <button id="BotonAgregarElementoCodigoBarras" class="k-button k-button-icontext k-primary k-grid-update" type="submit" style="margin: auto;">
+                                    <span class="k-icon k-update"></span>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEliminarElementoCodigoBarras" class="k-button k-button-icontext k-grid-cancel" onclick="Eliminar()" style="margin: auto">
+                                    <span class="k-icon k-cancel"></span>
+                                    Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane" id="Default">
+                <form id="FormDefault" method="post">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                @(Html.LabelFor(m => m.ElemnetoElementoXDefecto))
+                                @(Html.Kendo().ComboBoxFor(m => m.ElemnetoElementoXDefecto)
+                                                    .DataTextField("Descripcion")
+                                                    .DataValueField("Id")
+                                                    .Events(c => c.Change("SeleccionElementoxDefecto"))
+                                                    .Filter(FilterType.Contains)
+                                                    .BindTo(Enumerados.ElementosXDefecto())
+                                                    .HtmlAttributes(new { data_value_primitive = "true", style = "width: 100%;", required = "required", validationmessage = "El campo Tipo de Código de Barras es requerido" })
+                                )
+                            </div>
+                        </div>
+                        <div class="row elementoTexto" style="padding-top:10px">
+                            <div class="col-md-6">
+                                @(Html.LabelFor(m => m.Fuente))
+                                @(Html.Kendo().ComboBoxFor(m => m.Fuente)
+                                                    .Name("FuenteElementoXDefaulTexto")
+                                                    .Filter(FilterType.Contains)
+                                                    .Events(c => c.Change("CambioFuenteTexto"))
+                                                    .Items(c =>
+                                                    {
+                                                        foreach (var item in new InstalledFontCollection().Families)
+                                                        {
+                                                            c.Add().Text(item.Name).Value(item.Name);
+                                                        }
+                                                    }
+                                                    )
+                                                    .HtmlAttributes(new { style = "width:100%", data_value_primitive = "true",required = "required", validationmessage = "El campo Fuente es requerido" })
+                                )
+                            </div>
+                            <div class="col-md-6">
+                                @(Html.Label("Tamaño de Fuente (px)"))
+                                @(Html.Kendo().NumericTextBoxFor(m => m.Alto)
+                                                    .Format("{0:N2}").Min(0).Decimals(2)
+                                                    .Name("TamanoElementoXDefaulTexto")
+                                                    .HtmlAttributes(new { style = "width:100%", data_value_primitive = "true",required = "required", validationmessage = "El campo Tamaño de Fuente (px) es requerido" })
+                                )
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-4">
+                                <label class="control-label " style="padding-top:5px">Posición</label>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEnviarAtras" class="btn btn-default" onclick="EnviarAtras()">Enviar Atrás</a>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonTraerAdelante" class="btn btn-default" onclick="TraerAdelante()">Traer Adelante</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <button id="BotonAgregarElementoxDefecto" class="k-button k-button-icontext k-primary k-grid-update" type="submit" style="margin: auto;">
+                                    <span class="k-icon k-update"></span>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <a id="BotonEliminarElementoxDefecto" class="k-button k-button-icontext k-grid-cancel" onclick="Eliminar()" style="margin: auto">
+                                    <span class="k-icon k-cancel"></span>
+                                    Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8" style="float:right">
+        <canvas id="Canvas" width="800" height="1040"></canvas>
+    </div>
+</div>
+<script src="~/Scripts/pages/Administracion/Disenador.js"></script>
+

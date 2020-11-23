@@ -1,0 +1,668 @@
+﻿@{
+    ViewBag.Title = "Stages-Creator";
+    Layout = "~/Views/Shared/_LayoutCanvas.cshtml";
+}
+
+<script src="~/Scripts/pages/Evento/EventStorage.js"></script>
+<script src="~/Scripts/utils/generic.js"></script>
+<script src="~/Scripts/pages/Evento/StagesCreator.js"></script>
+<script src="~/Scripts/pages/Evento/fabric.js"></script>
+@*<script src="http://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.6/fabric.min.js"></script>*@
+<link href="~/Content/pages/Event/StagesCreator.css" rel="stylesheet" />
+
+<section class="container container-canvas">
+    <div class="btn-group-vertical zoom-controls">
+        <button type="button" class="btn btn-default">
+            <i class="glyphicon glyphicon-plus"></i>
+        </button>
+        <button type="button" class="btn btn-default">
+            <i class="glyphicon glyphicon-minus"></i>
+        </button>
+    </div>
+    <div class="row">
+        <div id="header-creator" class="col-md-12">
+            <div class="col-md-4">
+                <h2 id="event-title"></h2>
+            </div>
+            <div class="col-md-4">
+                <h4 id="control-aforo" style="margin: 30px 0px 0px 0px; padding: 0px 0px 0px 0px;">
+                    Aforo Utilizado <label id="acumulatedValue-label"></label>/
+                    <label id="aforoFull-label"></label>
+                </h4>
+            </div>
+            <div class="div-right buttons-header">
+                <button type="button" id="btnSaveMap" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                </button>
+                <button type="button" id="btnRedirectToEvent" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-arrow-left"></span> volver
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="canvas-container-pre" class="col-md-9">
+            <div id="map-container">
+                <canvas id="canvas-preview" width="980" height="550"></canvas>
+            </div>
+        </div>
+        <div id="menu-container-pre" class="col-md-3">
+            <ul class="nav nav-tabs nav-justified">
+                <li class="active hide"><a data-toggle="tab" id="menu-canvas-option-new" href="#canvas-menu1">Nuevo</a></li>
+                <li class="hide"><a data-toggle="tab" id="menu-canvas-option-edit" href="#canvas-menu2">Editar</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="canvas-menu1" class="tab-pane fade in active">
+                    <div class="row back-buttons div-stages-types-content" id="div-stages-types-content">
+
+                        <div class="card mb-4 box-shadow col-md-6">
+                            <i class="card-img-top glyphicon glyphicon-stop"></i>
+                            <div class="card-body">
+                                <h4 class="card-title">Aforo</h4>
+                                <a data-toggle="tab" href="#form-edit-stage" tipo="Aforo" class="btn btn-primary to-edit-stage">Seleccionar</a>
+                            </div>
+                        </div>
+                        <div class="card mb-4 box-shadow col-md-6">
+                            <i class="card-img-top glyphicon glyphicon-align-justify"></i>
+                            <div class="card-body">
+                                <h4 class="card-title">Filas y Sillas</h4>
+                                <a data-toggle="tab" href="#form-edit-stage" tipo="FilasSillas" class="btn btn-primary to-edit-stage">Seleccionar</a>
+                            </div>
+                        </div>
+                        <div class="card mb-4 box-shadow col-md-6">
+                            <i class="card-img-top glyphicon glyphicon-bed"></i>
+                            <div class="card-body">
+                                <h4 class="card-title">Mesas y Sillas</h4>
+                                <a data-toggle="tab" href="#form-edit-stage" tipo="MesasSillas" class="btn btn-primary to-edit-stage">Seleccionar</a>
+                            </div>
+                        </div>
+                        <div class="card mb-4 box-shadow col-md-6">
+                            <i class="card-img-top glyphicon glyphicon-glass"></i>
+                            <div class="card-body">
+                                <h4 class="card-title">Palcos</h4>
+                                <a data-toggle="tab" href="#form-edit-stage" tipo="Palco" class="btn btn-primary to-edit-stage">Seleccionar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div class="col-md-12 space-buttons">
+                            <button type="button" id="btnNewStage" class="btn btn-primary btn-block">
+                                <span class="glyphicon glyphicon-share-alt"></span> Nueva Localidad
+                            </button>
+                        </div>*@
+                </div>
+                <div id="canvas-menu2" class="tab-pane fade">
+                    <div class="col-md-12 space-buttons">
+                        <div id="controls-stage">
+                            <div class="form-group controls-stage rotate" style="display:none">
+                                <label class="form-control-label">Rotar</label>
+                                <input type="range" class="form-control" id="angle-control" value="0" min="-180" max="180">
+                            </div>
+                            <div class="form-group controls-stage" style="display:none">
+                                <label class="form-control-label">Sesgar (Horizontal)</label>
+                                <input type="range" class="form-control" id="skewX-control" value="0" min="-40" max="40">
+                            </div>
+                            <div class="form-group controls-stage" style="display:none">
+                                <label class="form-control-label">Sesgar (Vertical)</label>
+                                <input type="range" class="form-control" id="skewY-control" value="0" min="-40" max="40">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 space-buttons">
+                        <button id="btnEditStage" class="btn btn-primary btn-block">
+                            <span class="glyphicon glyphicon-pencil"></span> Editar Localidad
+                        </button>
+                        <a data-toggle="tab" href="#form-edit-seat" id="btnEditSeat" class="hide">
+                        </a>
+                        <a data-toggle="tab" href="#form-edit-stage" class="nav-tabs hide"></a>
+                        <a data-toggle="tab" href="#canvas-menu1" class="nav-tabs hide"></a>
+
+                    </div>
+                    <div class="col-md-12 space-buttons">
+                        <buttona type="button" id="btnEditSeats" class="btn btn-primary btn-block">
+                            <span class="glyphicon glyphicon-pencil"></span> Editar Asientos
+                        </buttona>
+                    </div>
+                    <div class="col-md-12 space-buttons">
+                        <button type="button" id="btnRemoveStage" class="btn btn-primary btn-block">
+                            <span class="glyphicon glyphicon-remove"></span> Eliminar
+                        </button>
+                    </div>
+                    <div class="col-md-12 space-buttons">
+                        <button type="button" id="btnCancelStage" class="btn btn-link btn-block">
+                            <span class="glyphicon glyphicon-minus"></span> Cancelar
+                        </button>
+                    </div>
+                    @*<div class="col-md-12 space-buttons">
+                            <button type="button" id="btnUngroupStage" class="btn btn-primary btn-block">
+                                <span class="glyphicon glyphicon-remove"></span> ungroup
+                            </button>
+                        </div>*@
+                </div>
+                <div id="form-edit-stage" class="tab-pane fade">
+
+                    <div class="row">
+                        <div id="form-stage-name" class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                @Html.Label("Nombre de la Localidad", new { @class = "form-control-label" })
+                                <input type="text" id="Nombre" class="form-control required" />
+                            </div>
+                        </div>
+                        <div id="form-Aforo" class="stage-types form-Aforo hide">
+                            <div class="row">
+                                @Html.Label("Capacidad", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <input type="number" id="Capacidad" class="form-control required" min="1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div id="form-FilasSillas" class="stage-types form-FilasSillas hide">
+
+                            <div class="row">
+                                @Html.Label("Cantidad de Filas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @Html.TextBox("fmFilas", "", new { @class = "form-control required form-blur", blur = "50", type = "number", min = "1", max = "50" })
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                @Html.Label("Cantidad de Sillas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @Html.TextBox("fmColumnas", "", new { @class = "form-control required form-blur", blur = "50", type = "number", min = "1", max = "100" })
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                @Html.Label("Orientacion de las Filas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @(Html.Kendo().DropDownList()
+                                                        .Name("fmOrientacionFilas")
+                                                .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "Down-Up", Text="de abajo hacia arriba"},
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "Up-Down", Text="de arriba hacia abajo"}
+                                                })
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Name")
+                                                        .HtmlAttributes(new { @class = "form-control required" }))
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                @Html.Label("Orientacion de las Sillas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @(Html.Kendo().DropDownList()
+                                                    .Name("fmOrientacionSillas")
+                                            .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                                new Verificador.Vista.Models.ViewModels.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                new Verificador.Vista.Models.ViewModels.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                                    .HtmlAttributes(new { @class = "form-control required" }))
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                @Html.Label("Filas / Sillas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @(Html.Kendo().DropDownList()
+                                            .Name("fmTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                                    .HtmlAttributes(new { @class = "form-control required" }))
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div id="form-MesasSillas" class="stage-types form-MesasSillas hide">
+
+                            @*<div class="row" id="div-msCantidadMesas">
+                                @Html.Label("Cantidad de Mesas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @Html.TextBox("msCantidadMesas", "", new { @class = "form-control required", type = "number", min = "1", })
+                                </div>
+                            </div>*@
+                            <div class="row">
+                                @Html.Label("Cantidad de Sillas por Mesa", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @Html.TextBox("msCantidadSillas", "", new { @class = "form-control required form-blur", blur = "50", type = "number", min = "1", })
+                                </div>
+                            </div>
+                            <div class="row">
+                                @Html.Label("Mesas / Sillas", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @(Html.Kendo().DropDownList()
+                                                    .Name("msTipoNumeracion")
+                                                    .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoNumeracion.getOptions())
+                                                    .OptionLabel("Seleccione")
+                                                    .DataTextField("Text")
+                                                    .DataValueField("Value")
+                                                            .HtmlAttributes(new { @class = "form-control required" }))
+                                </div>
+                            </div>
+                        </div>
+                        <div id="form-Palco" class="stage-types form-Palco hide">
+
+                            @*<div class="row" id="div-PalcomsCantidadMesas">
+                                @Html.Label("Cantidad de Palcos", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @Html.TextBox("PalcomsCantidadMesas", "", new { @class = "form-control required", type = "number", min = "1", })
+                                </div>
+                            </div>*@
+
+                            <div class="row">
+                                @Html.Label("Cantidad de Personas por Palco", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @Html.TextBox("PalcomsCantidadSillas", "", new { @class = "form-control required form-blur", blur = "50", type = "number", min = "1", })
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                @Html.Label("Tipo de Numeración", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    @(Html.Kendo().DropDownList()
+                        .Name("PalcomsTipoNumeracion")
+                                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoNumeracion.getOptions())
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                        .HtmlAttributes(new { @class = "form-control required" }))
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            @Html.Label("Valor del Consuomo", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <input type="number" id="ValorConsumo" class="form-control" min="1" />
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="row">
+                                @Html.Label("Descripción del Consumo", new { @class = "form-control-label" })
+                                <textarea rows="3" id="DescripcionConsumo" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <input type="checkbox" id="checkShowRange" onclick="if(this.checked) { $('.section-range').show() } else { $('.section-range').hide() } " />
+                                    <label class="form-control-label h4" for="form-checkShowRange">Seleccionar rango de tiquetes</label>
+                                </div>
+                            </div>
+                            <section class="section-range" style="display:none">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Desde", new { @class = "form-control-label" })
+                                        @Html.TextBox("NumeroTicketInicial", "", new { @class = "form-control", type = "number", min = "1" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Hasta", new { @class = "form-control-label" })
+                                        @Html.TextBox("NumeroTicketFinal", "", new { @class = "form-control", type = "number", min = "1" })
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <input type="checkbox" id="checkShowRange" onclick="if(this.checked) { $('#section-range').removeClass('hide') } else { $('#section-range').addClass('hide') } " />
+                                    <label class="form-control-label h4" for="checkShowRange">Seleccionar rango de tiquetes</label>
+                                </div>
+                            </div>
+                            <section class="hide" id="section-range">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Desde", new { @class = "form-control-label" })
+                                        @Html.TextBox("NumeroTicketInicial", "", new { @class = "form-control", type = "number", min = "1" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Hasta", new { @class = "form-control-label" })
+                                        @Html.TextBox("NumeroTicketFinal", "", new { @class = "form-control", type = "number", min = "1" })
+                                    </div>
+                                </div>
+                            </section>
+                        </div>*@
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a class="btn btn-primary create-stage" id="apply-changes-stage" href="javascript:void(0)">Guardar</a>
+                            <a class="btn btn-primary create-stage" id="cancel-changes-stage" href="javascript:void(0)">Cancelar</a>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div id="form-edit-seat" class="tab-pane fade">
+                    <h2>Modificar asientos</h2>
+                    <div class="row seat-label-content" style="display:none;">
+                        @Html.Label("Fila", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @Html.TextBox("form-row-label", "", new { @class = "form-control", maxlength = 2, disabled = "false" })
+                        </div>
+                    </div>
+
+                    <div class="row seat-numeracion-content" style="display:none;">
+                        @Html.Label("Tipo de Numración", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @(Html.Kendo().DropDownList()
+                                                        .Name("form-seat-tipoNumeracion")
+                                                .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "1,2,3,...", Text="1,2,3,..."},
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "1,3,5,...", Text="1,3,5,..."},
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "2,4,6,...", Text="2,4,6,..."},
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "A,B,C,...", Text="A,B,C,..."}
+                                                })
+                                                .Events(e => e.Change("Creator.onChangeSeatNumeration"))
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Name")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                        </div>
+                    </div>
+
+                    <div class="row seat-numeracion-content" style="display:none;">
+                        @Html.Label("Orientación", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @(Html.Kendo().DropDownList()
+                                                        .Name("form-seat-orientacion")
+                                                .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "left", Text="<-"},
+                                                    new Verificador.Vista.Models.ViewModels.ListItem(){Name = "rigth", Text="->"},
+                                                })
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Name")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                        </div>
+                    </div>
+
+                    <div class="row seat-label-content">
+                        @Html.Label("Label", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @Html.TextBox("form-seat-label", "", new { @class = "form-control", maxlength = 3 })
+                        </div>
+                    </div>
+
+                    <div class="row seat-numeracion-content" style="display:none;">
+                        @Html.Label("Numero de Inicio", new { @class = "col-xs-12 col-sm-6 col-md-6 form-control-label" })
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            @Html.TextBox("form-seat-startNumber", "", new { @class = "form-control", maxlength = 3 })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12" style="text-align:center;">
+                            <a class="btn btn-primary" id="apply-changes-seat" href="javascript:void(0)">Aplicar</a>
+                            <a class="btn btn-primary" id="remove-changes-seat" href="javascript:void(0)">Remover</a>
+                            <a class="btn btn-primary" id="restore-changes-seat" href="javascript:void(0)">Restaurar</a>
+                        </div>
+                        <div class="col-md-12" style="text-align:center;">
+                            <a class="btn btn-link" id="btnCancelEditSeats" href="javascript:void(0)">Cancelar</a>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*<div class="modal fade" id="modal-typeStages" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h5 class="modal-title" id="exampleModalLabel">Seleccionar tipo de localidad</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="tab-content">
+                            <div id="stage-types" class="tab-pane fade in active">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="div-stages-types-content">
+                                            <div class="card mb-4 box-shadow col-md-6">
+                                                <i class="card-img-top glyphicon glyphicon-stop"></i>
+                                                <div class="card-body">
+                                                    <h4 class="card-title">Aforo</h4>
+                                                    <a data-toggle="tab" href="#configure-stage" tipo="Aforo" class="btn btn-primary to-configure-stage">Seleccionar</a>
+                                                </div>
+                                            </div>
+                                            <div class="card mb-4 box-shadow col-md-6">
+                                                <i class="card-img-top glyphicon glyphicon-align-justify"></i>
+                                                <div class="card-body">
+                                                    <h4 class="card-title">Filas y Sillas</h4>
+                                                    <a data-toggle="tab" href="#configure-stage" tipo="FilasSillas" class="btn btn-primary to-configure-stage">Seleccionar</a>
+                                                </div>
+                                            </div>
+                                            <div class="card mb-4 box-shadow col-md-6">
+                                                <i class="card-img-top glyphicon glyphicon-bed"></i>
+                                                <div class="card-body">
+                                                    <h4 class="card-title">Mesas y Sillas</h4>
+                                                    <a data-toggle="tab" href="#configure-stage" tipo="MesasSillas" class="btn btn-primary to-configure-stage">Seleccionar</a>
+                                                </div>
+                                            </div>
+                                            <div class="card mb-4 box-shadow col-md-6">
+                                                <i class="card-img-top glyphicon glyphicon-glass"></i>
+                                                <div class="card-body">
+                                                    <h4 class="card-title">Palcos</h4>
+                                                    <a data-toggle="tab" href="#configure-stage" tipo="Palco" class="btn btn-primary to-configure-stage">Seleccionar</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="configure-stage" class="tab-pane fade">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="panel-heading row">
+                                            <div class="div-left"><h4>Aforo</h4></div>
+                                            <div class="div-right"><a data-toggle="tab" id="to-back-configure" href="#stage-types" class="btn btn-link">Cancelar</a></div>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div id="stage-name" class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Nombre de la Localidad", new { @class = "form-control-label" })
+                                                        <input type="text" id="Nombre" class="form-control required" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="stage-types" id="Aforo" style="display:none">
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Capacidad", new { @class = "form-control-label" })
+                                                            <input type="number" id="Capacidad" class="form-control required" min="1" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="stage-types" id="FilasSillas" style="display:none">
+
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Cantidad de Filas", new { @class = "form-control-label" })
+                                                            @Html.TextBox("fmFilas", "", new { @class = "form-control", type = "number", min = "1", max = "50" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Cantidad de Sillas", new { @class = "form-control-label" })
+                                                            @Html.TextBox("fmColumnas", "", new { @class = "form-control", type = "number", min = "1", max = "100" })
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Orientacion de las Filas", new { @class = "form-control-label" })
+                                                            @(Html.Kendo().DropDownList()
+                                                    .Name("fmOrientacionFilas")
+                                                    .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                        new Verificador.Vista.Models.ListItem(){Name = "Up-Down", Text="de abajo hacia arriba"},
+                                                        new Verificador.Vista.Models.ListItem(){Name = "Down-Up", Text="de arriba hacia abajo"}
+                                                    })
+                                                    .OptionLabel("Seleccione")
+                                                    .DataTextField("Text")
+                                                    .DataValueField("Name")
+                                                    .HtmlAttributes(new { @class = "form-control" }))
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Orientacion de las Sillas", new { @class = "form-control-label" })
+                                                            @(Html.Kendo().DropDownList()
+                                                .Name("fmOrientacionSillas")
+                                                .BindTo(new List<Verificador.Vista.Models.ListItem>() {
+                                                    new Verificador.Vista.Models.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                    new Verificador.Vista.Models.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                                })
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Name")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Filas / Sillas", new { @class = "form-control-label" })
+                                                            @(Html.Kendo().DropDownList()
+                                                .Name("fmTipoNumeracion")
+                                                .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="stage-types" id="MesasSillas" style="display:none">
+
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Cantidad de Mesas", new { @class = "form-control-label" })
+                                                            @Html.TextBox("msCantidadMesas", "", new { @class = "form-control", type = "number", min = "1", })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Cantidad de Sillas por Mesa", new { @class = "form-control-label" })
+                                                            @Html.TextBox("msCantidadSillas", "", new { @class = "form-control", type = "number", min = "1", })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Mesas / Sillas", new { @class = "form-control-label" })
+                                                            @(Html.Kendo().DropDownList()
+                                                        .Name("msTipoNumeracion")
+                                                        .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                                        .OptionLabel("Seleccione")
+                                                        .DataTextField("Text")
+                                                        .DataValueField("Value")
+                                                        .HtmlAttributes(new { @class = "form-control" }))
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="stage-types" id="Palco" style="display:none">
+
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Cantidad de Palcos", new { @class = "form-control-label" })
+                                                            @Html.TextBox("PalcomsCantidadMesas", "", new { @class = "form-control", type = "number", min = "1", })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Cantidad de Personas por Palco", new { @class = "form-control-label" })
+                                                            @Html.TextBox("PalcomsCantidadSillas", "", new { @class = "form-control", type = "number", min = "1", })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                                            @(Html.Kendo().DropDownList()
+                            .Name("PalcomsTipoNumeracion")
+                                                    .BindTo(Verificador.Vista.Models.ServicioTipoNumeracion.getOptions())
+                                                    .OptionLabel("Seleccione")
+                                                    .DataTextField("Text")
+                                                    .DataValueField("Value")
+                                                    .HtmlAttributes(new { @class = "form-control" }))
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Valor del Consuomo", new { @class = "form-control-label" })
+                                                        <input type="number" id="ValorConsumo" class="form-control" min="1" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.Label("Descripción del Consumo", new { @class = "form-control-label" })
+                                                        <input type="text" id="DescripcionConsumo" class="form-control" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <input type="checkbox" id="checkShowRange" onclick="if(this.checked) { $('#section-range').removeClass('hide') } else { $('#section-range').addClass('hide') } " />
+                                                        <label class="form-control-label h4" for="checkShowRange">Seleccionar rango de tiquetes</label>
+                                                    </div>
+                                                </div>
+                                                <section class="hide" id="section-range">
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Desde", new { @class = "form-control-label" })
+                                                            @Html.TextBox("NumeroTicketInicial", "", new { @class = "form-control", type = "number", min = "1" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.Label("Hasta", new { @class = "form-control-label" })
+                                                            @Html.TextBox("NumeroTicketFinal", "", new { @class = "form-control", type = "number", min = "1" })
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 text-right">
+                                                    <a class="btn btn-primary create-stage" id="save-stage" href="javascript:void(0)">Crear Localidad</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>*@
+
+
+
+</section>

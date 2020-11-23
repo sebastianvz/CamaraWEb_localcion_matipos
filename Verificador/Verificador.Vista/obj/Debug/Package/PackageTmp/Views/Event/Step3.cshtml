@@ -1,0 +1,259 @@
+﻿
+<script src="~/Scripts/pages/Evento/Step4.js"></script>
+<link href="~/Content/pages/Event/Step4.css" rel="stylesheet" />
+<section>
+    <div class="panel panel-primary" id="crear-localidades">
+        <div class="panel-heading">6) Agregar o Crear Mapa de Localidades</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("Step5", "Evento", FormMethod.Post, new { id = "formLocalidades" }))
+            {
+                <fieldset class="Localidad">
+                    <div class="row">     
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="" id="div-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id="StegesByMap">
+                                    <span class="slider round"></span>
+                                </label>
+                                <label for="ImportSteges" id="ImportStegesLabel" class="form-control-label">Crear Localidades en el mapa</label>
+                            </div>
+                        </div>                  
+                        <div class="col-xs-12 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" id="btnRedirectToMap" style="display:none" class="btn btn-primary btn-lg">
+                                <span class="glyphicon glyphicon-plus"></span> Ver mapa de localidades
+                            </button>
+                        </div>
+                    </div>
+                    <section id="form-stages">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Nombre de la Localidad", new { @class = "form-control-label" })
+                                    @Html.TextBox("NombreLocalidad", "", new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Tipo de Localidad", new { @class = "form-control-label" })
+                                    @(Html.Kendo().DropDownList()
+                                    .Name("TipoLocalidad")
+                                    .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoLocalidad.getOptions())
+                                    .OptionLabel("Seleccione")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .Events(e => e.Change("ShowTipoLocation"))
+                                    .HtmlAttributes(new { @class = "form-control", placeholder = "Seleccione" }))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default hide" id="Aforo">
+                            <div class="panel-heading">Aforo</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.Label("Capacidad", new { @class = "form-control-label" })
+                                            @Html.TextBox("AforoCapacidad", "", new { @class = "form-control", type = "number", min = "1", })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default hide" id="FilasSillas">
+                            <div class="panel-heading">Filas y Sillas</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Filas", new { @class = "form-control-label" })
+                                            @Html.TextBox("fmFilas", "", new { @class = "form-control", type = "number", min = "1", max = "50" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Sillas", new { @class = "form-control-label" })
+                                            @Html.TextBox("fmColumnas", "", new { @class = "form-control", type = "number", min = "1", max = "100" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Orientacion de las Filas", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("fmOrientacionFilas")
+                                            .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                                new Verificador.Vista.Models.ViewModels.ListItem(){Name = "Down-Up", Text="de abajo hacia arriba"},
+                                                new Verificador.Vista.Models.ViewModels.ListItem(){Name = "Up-Down", Text="de arriba hacia abajo"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Orientacion de las Sillas", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("fmOrientacionSillas")
+                                            .BindTo(new List<Verificador.Vista.Models.ViewModels.ListItem>() {
+                                                new Verificador.Vista.Models.ViewModels.ListItem(){Name = "R-L", Text="de derecha a izquierda"},
+                                                new Verificador.Vista.Models.ViewModels.ListItem(){Name = "L-R", Text="de izquierda a derecha"}
+                                            })
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Name")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Filas / Sillas", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("fmTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default hide" id="MesasSillas">
+                            <div class="panel-heading">Mesas y Sillas</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Mesas", new { @class = "form-control-label" })
+                                            @Html.TextBox("msCantidadMesas", "", new { @class = "form-control", type = "number", min = "1", })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Cantidad de Sillas por Mesa", new { @class = "form-control-label" })
+                                            @Html.TextBox("msCantidadSillas", "", new { @class = "form-control", type = "number", min = "1", })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            @Html.Label("Mesas / Sillas", new { @class = "form-control-label" })
+                                            @(Html.Kendo().DropDownList()
+                                            .Name("msTipoNumeracion")
+                                            .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoNumeracion.getOptions())
+                                            .OptionLabel("Seleccione")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .HtmlAttributes(new { @class = "form-control" }))
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default hide" id="Palco">
+                            <div class="panel-heading">Palco</div>
+                            <div class="panel-body">
+                                <div class="palco" id="MesasSillas">
+                                    <!--Mesas y Sillas-->
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Cantidad de Palcos", new { @class = "form-control-label" })
+                                                @Html.TextBox("PalcomsCantidadMesas", "", new { @class = "form-control", type = "number", min = "1", })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Cantidad de Personas por Palco", new { @class = "form-control-label" })
+                                                @Html.TextBox("PalcomsCantidadSillas", "", new { @class = "form-control", type = "number", min = "1", })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                @Html.Label("Tipo de Numeración", new { @class = "form-control-label" })
+                                                @(Html.Kendo().DropDownList()
+                        .Name("PalcomsTipoNumeracion")
+                                                .BindTo(Verificador.Vista.Models.Servicios.ServicioTipoNumeracion.getOptions())
+                                                .OptionLabel("Seleccione")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                .HtmlAttributes(new { @class = "form-control" }))
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Valor del Consuomo", new { @class = "form-control-label" })
+                                    @Html.TextBox("ValorConsumo", "", new { @class = "form-control", type = "number", min = "1" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    @Html.Label("Descripción del Consumo", new { @class = "form-control-label" })
+                                    @Html.TextBox("DescripcionConsumo", "", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <input type="checkbox" id="checkShowRange" onclick="if(this.checked) { $('#section-range').removeClass('hide') } else { $('#section-range').addClass('hide') } " />
+                                    <label class="form-control-label h4" for="checkShowRange">Seleccionar rango de tiquetes</label>
+                                </div>
+                            </div>
+                            <section class="hide" id="section-range">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Desde", new { @class = "form-control-label" })
+                                        @Html.TextBox("NumeroTicketInicial", "", new { @class = "form-control", type = "number", min = "1" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        @Html.Label("Hasta", new { @class = "form-control-label" })
+                                        @Html.TextBox("NumeroTicketFinal", "", new { @class = "form-control", type = "number", min = "1" })
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="row">
+                            <dv class="col-xs-12 col-sm-9 col-md-9" style="text-align:left">
+                                <h5>Aforo Utilizado: <label id="Aforo-utilizado"></label></h5>
+                            </dv>
+                            <div class="col-xs-12 col-sm-3 col-md-3" style="text-align:right">
+                                <button type="button" id="btnAddLocalidad" class="btn btn-primary btn-lg">
+                                    <span class="glyphicon glyphicon-plus"></span> Agregar Locación
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="row" id="divLocalidades">
+                    </div>
+
+                    <div class="row">
+                        <hr />
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:left">
+                            <button type="button" class="btn btn-primary btn-lg Previous">
+                                <span class="glyphicon glyphicon-chevron-left"></span> Atras
+                            </button>
+                        </dv>
+                        <dv class="col-xs-6 col-sm-6 col-md-6" style="text-align:right">
+                            <button type="button" class="btn btn-primary btn-lg Next">
+                                Siguiente <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </dv>
+                    </div>
+                </fieldset>
+            }
+        </div>
+    </div>
+</section>
+

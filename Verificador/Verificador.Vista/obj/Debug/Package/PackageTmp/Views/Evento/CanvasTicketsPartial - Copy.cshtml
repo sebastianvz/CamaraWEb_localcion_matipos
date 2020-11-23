@@ -1,0 +1,167 @@
+﻿@model Verificador.Vista.Models.TicketViewModel
+
+<script src="~/Scripts/pages/Evento/fabric.js"></script>
+
+<style>
+    canvas {
+        border: 1px solid #e0d1d1;
+        /*background-color: #f7f7f7;*/
+    }
+
+    input[type=color] {
+    }
+</style>
+<div class="col-md-11 col-xs-11 col-sm-11 col-lg-11">
+    <div id="bd-wrapper" ng-controller="CanvasControls">
+        <link href='http://fonts.googleapis.com/css?family=Plaster' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Engagement' rel='stylesheet' type='text/css'>
+
+        <div class="row">
+
+
+            <div class="col-md-12">
+                <div style="position:relative;width:804px;float:left;" id="canvas-wrapper">
+                    <canvas id="canvas" width="800" height="680"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="../Scripts/pages/Evento/font_definitions.js"></script>
+
+        <script>
+            @{
+                var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+                var ticketJson = "";
+                bool estado = !String.IsNullOrEmpty(Model.ContentJson);
+                if (estado)
+                {
+                    ticketJson = jss.Serialize(Model.ContentJson);
+                    ticketJson = ticketJson.Substring(1, ticketJson.Length - 2);
+                }
+            }
+            
+            var consoleJSONValue = JSON.parse('@Html.Raw(ticketJson)');
+            var canvas = new fabric.Canvas('canvas');
+        </script>
+        @*<script src="../Scripts/pages/Evento/utils.js"></script>
+        <script src="../Scripts/pages/Evento/app_config.js"></script>*@
+        @*<script src="../Scripts/pages/Evento/controller.js"></script>*@
+
+        <script>
+
+            (function () {
+                function renderVieportBorders() {
+                    var ctx = canvas.getContext();
+
+                    ctx.save();
+
+                    ctx.fillStyle = 'rgba(51, 51, 51, 0.22)';
+
+                    //Pequeña => width: 0.235899
+                    //Pequeña => Higth: 0.882
+
+                    ctx.fillRect(
+                      canvas.viewportTransform[4],
+                      canvas.viewportTransform[5],
+                      (canvas.getWidth() * canvas.getZoom()) * 0.298,
+                      (canvas.getHeight() * canvas.getZoom()) * 0.9894);
+
+                    ctx.setLineDash([5, 5]);
+
+                    ctx.strokeRect(
+                      canvas.viewportTransform[4],
+                      canvas.viewportTransform[5],
+                      (canvas.getWidth() * canvas.getZoom()) * 0.298,
+                      (canvas.getHeight() * canvas.getZoom()) * 0.9894);
+
+                    ctx.restore();
+                }
+
+                var viewportLeft = 0,
+                    viewportTop = 0,
+                    mouseLeft,
+                    mouseTop,
+                    _drawSelection = canvas._drawSelection,
+                    isDown = false;
+            })();
+        </script>
+
+    </div>
+</div>
+<script>
+    (function () {
+        var mainScriptEl = document.getElementById('main');
+        if (!mainScriptEl) return;
+        var preEl = document.createElement('pre');
+        var codeEl = document.createElement('code');
+        codeEl.innerHTML = mainScriptEl.innerHTML;
+        codeEl.className = 'language-javascript';
+        preEl.appendChild(codeEl);
+        document.getElementById('bd-wrapper').appendChild(preEl);
+    })();
+</script>
+
+<script>
+    var lastDownTarget;
+    (function () {
+        fabric.util.addListener(fabric.window, 'load', function () {
+            var canvas = this.__canvas || this.canvas,
+                canvases = this.__canvases || this.canvases;
+
+            canvas && canvas.calcOffset && canvas.calcOffset();
+
+            if (canvases && canvases.length) {
+                for (var i = 0, len = canvases.length; i < len; i++) {
+                    canvases[i].calcOffset();
+                }
+            }
+            document.addEventListener('mousedown', function (event) {
+                if (event.target.nodeName) {
+                    lastDownTarget = event.target.nodeName;
+                }
+            }, false);
+            document.addEventListener('keydown', function (event) {
+                if (lastDownTarget == "CANVAS") {
+                    event = event || window.event;
+                    if (event.code == 'Delete') {
+                        angular.element(document.getElementById('remove-selected')).scope().removeSelected();
+                    }
+                }
+            }, false);
+        });
+    })();
+
+
+    function loadTicket() {
+        if (consoleJSONValue != '' && consoleJSONValue != null) {
+            for (var i = 0; i < consoleJSONValue.objects.length; i++) {
+                switch (consoleJSONValue.objects[i].type) {
+                    case "image":
+                        if (consoleJSONValue.objects[i].src.indexOf("bkT1ck3t") != -1) {
+                            consoleJSONValue.objects[i]["selectable"] = false;
+                            continue;
+                        } else if (consoleJSONValue.objects[i].src.indexOf("data:image/png;base64") != -1) {
+                            consoleJSONValue.objects[i]["selectable"] = false;
+                            continue;
+                        }
+                        break;
+                    case "i-text":
+                        if (consoleJSONValue.objects[i].text == Ticket.NumericBarcode) {
+                            consoleJSONValue.objects[i]["selectable"] = false;
+                            continue;
+                        }
+                        break;
+                }
+            }
+            _loadJSON(consoleJSONValue);
+        } 
+    }
+
+    let _loadJSON = function (json) {
+        canvas.loadFromJSON(json, function () {
+            canvas.renderAll();
+        });
+    };
+</script>
+

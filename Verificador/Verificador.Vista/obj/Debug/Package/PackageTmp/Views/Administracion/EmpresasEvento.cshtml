@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Empresas para Eventos";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    .k-edit-form-container {
+        width: inherit !important;
+    }
+</style>
+
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.EmpresaEventosViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Descripcion).Title("Empresa");
+                            columns.Command(command => { 
+                                command.Edit(); 
+                                command.Destroy();                                
+                            }).Width(220);                                                        
+                            
+                        })
+                        .ToolBar(toolbar => {
+                            toolbar.Create();
+                        })
+                        .Editable(editable =>
+                                {
+                                    editable.Mode(GridEditMode.PopUp).TemplateName("EditorEmpresaEvento").Window(c => c.Width(900).Height(420));                                  
+                                }
+                            )
+                        .Events(events => events.Edit("showDetalle"))
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                                .Read(read => read.Action("EmpresasEvento_Read", "Administracion"))
+                                .Create(update => update.Action("EmpresasEvento_Create", "Administracion"))
+                                .Update(update => update.Action("EmpresasEvento_Update", "Administracion"))
+                                .Destroy(update => update.Action("EmpresasEvento_Destroy", "Administracion"))
+                         )
+                        .HtmlAttributes(new { style = "height: 40em;" })
+                                                  
+                    )
+<script src="~/Scripts/pages/Administracion/EmpresaEventos.js"></script>
+

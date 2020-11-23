@@ -1,0 +1,23 @@
+﻿@model  IEnumerable<Verificador.Vista.Models.ViewModels.EtapasViewModel>
+
+
+
+<div id="tickets-accordion">
+    <div class="list-group panel">
+        @foreach (var etapa in Model)
+        {
+            <a href="#collapse-@(etapa.Id)" class="list-group-item list-group-item-info" data-toggle="collapse" data-parent="#tickets-accordion">@etapa.Nombre <b class="caret"></b></a>
+            <div class="collapse" id="collapse-@(etapa.Id)">
+                @foreach (var item in etapa.Localidades)
+                {
+                    <a href="javascript:void(0)" class="list-group-item menuitem" data-entity="@(string.Format("{0}-{1}", item.IdTicketEtapa, item.Id))">&nbsp;&nbsp;&nbsp;@(string.Format("{0} ({1}/{2})", item.Label, item.NumeroTicketInicial, item.NumeroTicketFinal)) 
+                        <div class="range-tickets">
+                            <div class="left" style="width:@(item.NumeroTicketFinal * ((decimal)item.NumeroTicketInicial / 100))%"></div>
+                            <div class="right" style="width:@(item.NumeroTicketInicial == 0 ? 100 : item.NumeroTicketFinal * ((decimal)(item.NumeroTicketFinal - item.NumeroTicketInicial) / 100))%"></div>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>

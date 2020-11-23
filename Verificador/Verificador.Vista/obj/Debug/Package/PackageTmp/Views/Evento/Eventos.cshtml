@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "Eventos";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="~/Scripts/pages/Evento/EventStorage.js"></script>
+<script>
+    function Editar(e) {
+        e.preventDefault();
+        Loading(true);
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        if (dataItem.Id) {
+            var url = '@Url.Action("getEventById", "Event")';
+            $.get(url, { id: dataItem.Id }, function (e) {                
+                EventStorage.set(e.evento);
+                TicketStorage.set(e.ticketData);
+                MapStorage.set(e.Mapa);
+                Loading(false);
+                window.location.href = '@(Url.Action("Index", "Event"))';
+            });
+        }
+    }    
+    function redirectAndClean(e) { 
+        e.preventDefault();
+        EventStorage.remove();
+        TicketStorage.remove();
+        MapStorage.remove();
+        window.location.href = '@Url.Action("Index","Event")';
+    }
+</script>
+
+@*TODO: Probar que guarden los tickets, hacer grid y edicion *@
+@(Html.Kendo().Grid<Verificador.Vista.Models.ViewModels.EventoViewModel>()
+                        .Name("grid")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Nombre);
+                            columns.Bound(c => c.AforoTotal);
+                            columns.Bound(c => c.Venue.Direccion).Title("Dirección");
+                            columns.Bound(c => c.FechaInicial).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);
+                            columns.Bound(c => c.FechaFinal).Format(Verificador.Vista.Models.Comun.FormatoLargoFechaGrid);
+                            columns.Command(command =>
+                            {
+                                command.Custom("Editar").Text("Editar").Click("Editar");
+                                //command.Destroy();
+                            }).Width(220);
+                        })
+                        .HtmlAttributes(new { style = "height: 40em;" })
+                        .ToolBar(toolbar =>
+                        {
+                            toolbar.Custom().HtmlAttributes(new { onclick = "redirectAndClean(event)" }).Text("Nuevo Evento");
+                        })
+                        .Scrollable()
+                        .Filterable()
+                        .Sortable()
+                        .Pageable(pageable => pageable
+                            .Refresh(true)
+                            .PageSizes(true)
+                            .ButtonCount(5))
+                        .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(20)
+                            .Events(events => events.Error("error_handler"))
+                            .Model(model =>
+                            {
+                                model.Id(p => p.Id);
+                                model.Field(p => p.Id).Editable(false);
+                            })
+                            .Read(read => read.Action("Eventos_Read", "Evento"))
+        //.Destroy(update => update.Action("Eventos_Destroy", "Evento"))
+                         )
+
+)

@@ -1,0 +1,121 @@
+﻿@model Verificador.Vista.Models.TicketsEventoViewModel
+
+<script src="~/Scripts/pages/Evento/evento.js"></script>
+<script src="~/Scripts/pages/Evento/saveSvgAsPng.js"></script>
+<div class="col-md-11 col-xs-11 col-sm-11 col-lg-11">
+    <div id="bd-wrapper" ng-controller="CanvasControls">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-12" id="section-svg">
+                    @Html.Raw(Model.ContentSVG)
+                </div>
+                <div style="position:relative;width:804px;float:left;" id="canvas-wrapper">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ExportToImage(e) {
+        Loading(true);
+        let Numero1 = document.getElementById("Numero1");
+        let Numero2 = document.getElementById("Numero2");
+        let Numero3 = document.getElementById("Numero3");
+        let Numero4 = document.getElementById("Numero4");
+        let NumericBarcode = document.getElementById("NumericBarcode");
+        let ImageBarcode = document.getElementById("ImageBarcode");
+        let Localidad = document.getElementById("LocalidadText");
+        let Responsable1 = document.getElementById("Responsable1");
+        let Responsable2 = document.getElementById("Responsable2");
+
+        if (typeof Numero1 != "undefined" && Numero1 != null) {
+            //Numero1.children["0"].children["0"].innerHTML = e.Numero;
+            Numero1.parentNode.removeChild(Numero1);
+        }
+        if (typeof Numero2 != "undefined" && Numero2 != null) {
+            //Numero2.children["0"].children["0"].innerHTML = e.Numero;
+            Numero2.parentNode.removeChild(Numero2);
+        }
+        if (typeof Numero3 != "undefined" && Numero3 != null) {
+            //Numero3.children["0"].children["0"].innerHTML = e.Numero;
+            Numero3.parentNode.removeChild(Numero3);
+        }
+        if (typeof Numero4 != "undefined" && Numero4 != null) {
+            //Numero4.children["0"].children["0"].innerHTML = e.Numero;
+            Numero4.parentNode.removeChild(Numero4);
+        }
+        if (typeof NumericBarcode != "undefined" && NumericBarcode != null) {
+            //NumericBarcode.children["0"].children["0"].innerHTML = e.NumericBarcode;
+            NumericBarcode.parentNode.removeChild(NumericBarcode);
+        }
+        if (typeof ImageBarcode != "undefined" && ImageBarcode != null) {
+            //ImageBarcode.setAttribute("xlink:href", e.Barcode);
+            ImageBarcode.parentNode.removeChild(ImageBarcode);
+        }
+        if (typeof Responsable1 != "undefined" && Responsable1 != null) {
+            //ImageBarcode.setAttribute("xlink:href", e.Barcode);
+            Responsable1.parentNode.removeChild(Responsable1);
+        }
+        if (typeof Responsable2 != "undefined" && Responsable2 != null) {
+            //ImageBarcode.setAttribute("xlink:href", e.Barcode);
+            Responsable2.parentNode.removeChild(Responsable2);
+        }
+        //if (typeof Localidad != "undefined" && Localidad != null) {
+        //    Localidad.children["0"].children["0"].innerHTML = e.Localidad;
+        //}
+
+        svgAsDataUri(document.getElementsByTagName("svg")[0], null, function (uri) {
+
+            var image = new Image();
+            image.src = uri;
+            image.onload = function () {
+
+                var canvas = document.createElement('canvas');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                var context = canvas.getContext('2d');
+                context.drawImage(image, 0, 0);
+                e.ContentSVG = canvas.toDataURL('image/jpeg', 1);
+
+                
+                Printer.DataToPrint = {
+                    obj: e,
+                    IdTicketsEtapa: 1,
+                    inicio: 1,
+                    final: 1
+                };
+                Printer.HideCanvas();
+                Loading(false);
+
+                @*$.ajax({
+                    type: "POST",
+                    url: "@Url.Action("PrepareToPrint", "Evento")",
+                    data: e,
+                    datatype: 'json',
+                    success: function (data) {
+                        if (!(data.OK)) {
+                            alert("Ocurrio un problema al imprimir el ticket " + e.Numero + "\n" + data.msg)
+                        }
+                        if (data.OK) {
+                            alert(data.msg);
+                            Printer.Finally();
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.responseText);
+                        Loading(false);
+                    }
+                });*@
+            }
+        });
+    }
+</script>
+
+<script>
+    ExportToImage({
+        Id: '@(Model.Id)',
+        ContentSVG: '',
+    });
+</script>
+
